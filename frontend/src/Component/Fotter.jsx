@@ -32,7 +32,7 @@ const Footer = () => {
       <hr />
 
       <p className="py-5 text-sm text-center">
-        &copy; 2024 foreveryou.com - All Rights Reserved
+        &copy; 2025 AyuboLanka.lk - All Rights Reserved
       </p>
     </div>
   );
