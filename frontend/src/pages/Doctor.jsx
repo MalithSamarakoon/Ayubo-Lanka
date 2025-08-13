@@ -1,10 +1,6 @@
-import React, { useContext } from 'react'
-import{useParams} from "react-router-dom"
-import AppContext from '../Context/AppContext'
+import React from 'react'
+
 const Doctor = () => {
-  const { speciality } = useParams()
- const {doctors}=useContext(AppContext)
-  
   return (
     <div>
       

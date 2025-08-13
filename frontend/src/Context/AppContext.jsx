@@ -1,11 +1,16 @@
-import React from 'react'
+import e from "express";
+import { createContext } from "react";
+import { doctors } from "../assets/frontend_assets/assets_frontend-doctor/assets";
 
-const AppContext = () => {
-  return (
-    <div>
-      
-    </div>
-  )
+export const AppContext = createContext();
+const AppContextProvider = (props) => {
+    const value = {
+        doctors
 }
-
-export default AppContext
+return (
+    <AppContext.Provider value={value}>
+        {props.children}
+    </AppContext.Provider>
+)
+}
+export default AppContextProvider;
