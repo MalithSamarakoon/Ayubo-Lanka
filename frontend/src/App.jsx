@@ -7,13 +7,13 @@ import Content from "./pages/Contact";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
 import Doctor from "./pages/Doctor";
-
+import PatientForm from "./pages/PatientForm"; // Import PatientForm
 import Placeorder from "./pages/Placeorder";
 import Order from "./pages/Order";
 import Navbar from "./Component/Navbar";
 import Login from "./pages/Login";
 import Fotter from "./Component/Fotter";
-import Appointment from "./pages/Appoinment";
+import Appointment from "./pages/Appoinment"; // Doctor details (slot selector)
 
 const App = () => {
   return (
@@ -29,13 +29,13 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<Placeorder />} />
         <Route path="/Doctor" element={<Doctor />} />
-        <Route path="/Doctor/:docId" element={<Appointment />} />{" "}
-        {/* Doctor details */}
+        <Route path="/Doctor/:docId" element={<Appointment />} />
+        <Route path="/Doctor/:docId/book" element={<PatientForm />} />{" "}
+        {/* Patient form route */}
         <Route path="/order" element={<Order />} />
       </Routes>
       <Fotter />
     </div>
   );
 };
-
 export default App;
