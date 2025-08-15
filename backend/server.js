@@ -1,16 +1,25 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import { connect } from 'http2';
-import { connectDB } from './lib/db.js';
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./lib/db");
+const patientRoutes = require("./routes/patientRoutes");
 
 const app = express();
-dotenv.config();
 
-const PORT = process.env.PORT || 3000;
-
+// Middleware
 app.use(express.json());
+app.use(cors());
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    connectDB();
-})
+// Routes
+app.use("/api/patients", patientRoutes);
+
+// Error handler (optional)
+app.use((err, req, res, next) => {
+  res.status(500).json({ message: err.message });
+});
+
+// DB connection and listen
+connectDB();
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

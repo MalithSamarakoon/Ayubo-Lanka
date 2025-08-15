@@ -4,7 +4,7 @@
   "description": "This is our 2nd year 2nd semester project",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon backend/server.js",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
     "start": "node backend/server.js"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "morgan": "^1.10.1"
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "nodemon": "^3.1.10"
   }
 }
