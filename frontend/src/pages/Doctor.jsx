@@ -1,7 +1,6 @@
-// Doctor.jsx
 import React, { useState } from "react";
 import Doctorlist from "../Component/Doctorlist";
-import { doctors } from "../assets/frontend_assets/assets";
+import { doctors } from "../assets/frontend_assets/assets"; // Correct to actual path!
 
 const Doctor = () => {
   const [filterDoc, setFilterDoc] = useState(doctors);
@@ -24,10 +23,11 @@ const Doctor = () => {
     if (spec === "All") {
       setFilterDoc(doctors);
     } else {
-      const filtered = doctors.filter(
-        (doc) => doc.speciality.toLowerCase() === spec.toLowerCase()
+      setFilterDoc(
+        doctors.filter(
+          (doc) => doc.speciality.toLowerCase() === spec.toLowerCase()
+        )
       );
-      setFilterDoc(filtered);
     }
   };
 
@@ -52,7 +52,6 @@ const Doctor = () => {
           ))}
         </div>
       </div>
-
       {/* Doctor Grid */}
       <div className="md:w-3/4">
         <Doctorlist doctors={filterDoc} />

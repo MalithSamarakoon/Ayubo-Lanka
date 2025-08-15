@@ -1,13 +1,20 @@
-// Doctorlist.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Doctorlist = ({ doctors }) => {
+  const navigate = useNavigate();
+
+  const handleClick = (doctorId) => {
+    navigate(`/Doctor/${doctorId}`);
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {doctors?.map((item) => (
         <div
           key={item._id}
-          className="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+          onClick={() => handleClick(item._id)}
+          className="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer"
         >
           <img
             className="w-full h-48 object-cover"

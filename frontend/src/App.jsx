@@ -13,6 +13,8 @@ import Order from "./pages/Order";
 import Navbar from "./Component/Navbar";
 import Login from "./pages/Login";
 import Fotter from "./Component/Fotter";
+import Appointment from "./pages/Appoinment";
+
 const App = () => {
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -27,6 +29,8 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<Placeorder />} />
         <Route path="/Doctor" element={<Doctor />} />
+        <Route path="/Doctor/:docId" element={<Appointment />} />{" "}
+        {/* Doctor details */}
         <Route path="/order" element={<Order />} />
       </Routes>
       <Fotter />
