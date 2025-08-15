@@ -1,6 +1,7 @@
 import {User} from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
+import { sendVerificationEmail,sendWelcomeEmail } from "../mailer.js"; 
 
 
 export const signup = async(req,res) => {
@@ -35,6 +36,8 @@ console.log(req.body)
   //jwt
   generateTokenAndSetCookie(res, user._id);
 
+  await sendVerificationEmail(user.email,user.name,verificationToken);
+
   res.status(201).json({
     success: true,
     message: "User created successfully",
@@ -49,6 +52,48 @@ console.log(req.body)
 
 }
 
+};
+
+export const verifyEmail = async (req, res) => {
+  const { email, verificationToken } = req.body;
+
+  if (!email || !verificationToken) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and verification code are required",
+    });
+  }
+
+  // find user
+  const user = await User.findOne({ email, verificationToken });
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email or verification code",
+    });
+  }
+
+  if (user.verificationTokenExpiresAt < Date.now()) {
+    return res.status(400).json({
+      success: false,
+      message: "Verification code has expired",
+    });
+  }
+
+  // update user as verified and remove token
+  user.isVerified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpiresAt = undefined;
+  await user.save();
+
+  // send welcome email
+  await sendWelcomeEmail(user.email, user.name);
+
+  res.status(200).json({
+    success: true,
+    message: "Email verified successfully",
+  });
 };
 
 
