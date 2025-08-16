@@ -143,7 +143,7 @@ const Appointment = () => {
             </div>
             {/* Book Appointment Button */}
             <button
-              onClick={() => navigate(`/Doctor/${docId}/book`)}
+              onClick={() => navigate(`/Doctor/${docId}/book/patientform`)}
               className="w-full bg-blue-500 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-sm transition-all duration-200 hover:bg-blue-600 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!selectedDay || !selectedTime}
             >

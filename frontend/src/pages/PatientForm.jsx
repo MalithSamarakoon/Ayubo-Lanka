@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom"; 
 const initialFormState = {
   name: "",
   age: "",
@@ -46,7 +46,7 @@ const PatientForm = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -80,6 +80,7 @@ const PatientForm = () => {
           setFormData(initialFormState);
           setTouched({});
           setSubmitted(false);
+           navigate("/Doctor/:docId/book/patientdetails");
         } else {
           alert(data.message || "There was an error submitting your form.");
         }

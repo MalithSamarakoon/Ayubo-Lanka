@@ -31,10 +31,15 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<Placeorder />} />
         <Route path="/Doctor" element={<Doctor />} />
-        <Route path="/Doctor/:docId" element={<Appointment />} />
-        <Route path="/Doctor/:docId/book" element={<PatientForm />} />{" "}
-        {/* Patient form route */}
-        <Route path="/Doctor/:docId/book/patientdetails" element={<PatientDetails />} />
+        <Route path="/doctor/:docId" element={<Appointment />} />
+        <Route
+          path="/doctor/:docId/book/patientform"
+          element={<PatientForm />}
+        />
+        <Route
+          path="/doctor/:docId/book/patientdetails"
+          element={<PatientDetails />}
+        />
         <Route path="/order" element={<Order />} />
       </Routes>
       <Fotter />
