@@ -1,7 +1,11 @@
-import {User} from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
+import crypto from "crypto";
+
+import {User} from '../models/user.model.js';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 import { sendVerificationEmail,sendWelcomeEmail } from "../mailer.js"; 
+import { sendPasswordResetEmail } from "../mailer.js"; 
+import { sendPasswordResetSuccessEmail } from "../mailer.js";
 
 
 export const signup = async(req,res) => {
@@ -98,9 +102,114 @@ export const verifyEmail = async (req, res) => {
 
 
 export const login = async(req,res) => {
-    res.send("login route");
+  const {email,password} = req.body;
+try {
+ const user = await User.findOne({ email });
+ if(!user) {
+  return res.status(400).json({success: false, message: "Invalid credentials"});
+ }
+const isPasswordValid = await bcryptjs.compare(password, user.password);
+if(!isPasswordValid) {
+  return res.status(400).json({ success: false, message : "Invalid credentials"});
+}
+
+generateTokenAndSetCookie(res, user._id);
+
+user.lastLogin = new Date();
+await user.save();
+
+res.status(200).json({
+success: true,
+message: "Logged in successfully",
+user: {
+  ...user._doc,
+  password: undefined,
+
+},
+});
+
+}catch (error) {
+  console.log("error in login", error);
+  res.status(400).json({ success: false, message: error.message});
+}
 };
 
 export const logout = async(req,res) => {
-    res.send("logout route");
+    res.clearCookie("token");
+    res.status(200).json({success: true, message: "Logged out successfully"});
+};
+
+// Forgot Password
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User not found" });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+
+    // Save token in DB
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiresAt = resetTokenExpiresAt;
+    await user.save();
+
+    // Send reset email
+    await sendPasswordResetEmail(
+      user.email,
+      `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+    );
+
+    res.json({ success: true, message: "Password reset email sent" });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Reset Password
+export const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    if (!token || !newPassword) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    // Find user by token and check expiry
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() }, // not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    // Hash new password
+    const salt = await bcryptjs.genSalt(10);
+    user.password = await bcryptjs.hash(newPassword, salt);
+
+
+    // Clear reset fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+
+    await user.save();
+
+     await sendPasswordResetSuccessEmail(user.email, user.name || "User");
+
+    res.json({ success: true, message: "Password reset successful. Email confirmation sent." });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
