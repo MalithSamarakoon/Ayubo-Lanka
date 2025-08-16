@@ -25,12 +25,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    lastRestockedAt: {
-        type: Date
-    },
+    
     image: {
         type: String,
-        required: [true, "Image is required."]
+        required: [false, "Image is required."]
     }
 }, {timestamps: true});
 
