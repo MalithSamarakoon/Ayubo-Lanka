@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "This is our 2nd year 2nd semester project",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev":"nodemon backend/server.js",
-    "start": "node backend/server.js"
+    "backend": "nodemon backend/server.js",
+    "frontend": "cd frontend/vite-project && vite --host",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "cd frontend/vite-project && vite build",
+    "start": "NODE_ENV=production node backend/server.js",
+    "install-client": "cd frontend/vite-project && npm install",
+    "install-server": "npm install",
+    "install-all": "npm run install-server && npm run install-client"
   },
   "repository": {
     "type": "git",
@@ -19,11 +26,23 @@
   },
   "homepage": "https://github.com/MalithSamarakoon/Ayubo-Lanka#readme",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "@tailwindcss/vite": "^4.1.12",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.1"
+    "mongoose": "^8.17.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.0",
+    "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.10",
+    "vite": "^5.0.0"
   }
 }
