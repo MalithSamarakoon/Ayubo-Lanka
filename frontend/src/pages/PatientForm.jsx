@@ -67,7 +67,7 @@ const PatientForm = () => {
     if (Object.keys(validationErrors).length === 0) {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/patients", // CHANGE TO YOUR BACKEND URL
+          "http://localhost:3000/api/patients", // CHANGE TO YOUR BACKEND URL
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -284,7 +284,7 @@ const PatientForm = () => {
               {formData.medicalInfo.length}/500
             </div>
           </div>
-          {/* Continue Button */}
+          {/* Continue/Button */}
           <button
             type="submit"
             className="w-full mt-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg shadow-lg transition-all"

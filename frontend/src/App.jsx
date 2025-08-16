@@ -13,7 +13,9 @@ import Order from "./pages/Order";
 import Navbar from "./Component/Navbar";
 import Login from "./pages/Login";
 import Fotter from "./Component/Fotter";
-import Appointment from "./pages/Appoinment"; // Doctor details (slot selector)
+import Appointment from "./pages/Appoinment"; 
+// Doctor details (slot selector)
+import PatientDetails from "./pages/patientDetails"; // Import PatientDetails page
 
 const App = () => {
   return (
@@ -32,6 +34,7 @@ const App = () => {
         <Route path="/Doctor/:docId" element={<Appointment />} />
         <Route path="/Doctor/:docId/book" element={<PatientForm />} />{" "}
         {/* Patient form route */}
+        <Route path="/Doctor/:docId/book/patientdetails" element={<PatientDetails />} />
         <Route path="/order" element={<Order />} />
       </Routes>
       <Fotter />
