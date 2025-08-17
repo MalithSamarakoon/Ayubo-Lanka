@@ -15,8 +15,8 @@ import Login from "./pages/Login";
 import Fotter from "./Component/Fotter";
 import Appointment from "./pages/Appoinment"; 
 // Doctor details (slot selector)
-import PatientDetails from "./pages/patientDetails"; // Import PatientDetails page
-
+import PatientDetails from "./pages/PatientDetails"; // Import PatientDetails page
+import PatientUpdate from "./pages/PatientUpdate"; // Import PatientUpdate page
 const App = () => {
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -39,6 +39,10 @@ const App = () => {
         <Route
           path="/doctor/:docId/book/patientdetails"
           element={<PatientDetails />}
+        />
+        <Route
+          path="/doctor/:docId/book/patientupdate"
+          element={<PatientUpdate />}
         />
         <Route path="/order" element={<Order />} />
       </Routes>

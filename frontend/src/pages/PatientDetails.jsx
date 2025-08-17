@@ -44,7 +44,7 @@ const PatientDetails = () => {
   }
 
   const handleUpdate = () => {
-    navigate(`/doctor/${docId}/book/patientform`, { state: patient });
+    navigate(`/doctor/${docId}/book/patientupdate`, { state: patient });
   };
 
   const handleCancel = async () => {
@@ -313,7 +313,7 @@ const PatientDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={handleUpdate}
-                className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-900 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -372,14 +372,6 @@ const PatientDetails = () => {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            Hospital Management System © 2024 • All patient information is
-            confidential
-          </p>
         </div>
       </div>
     </div>
