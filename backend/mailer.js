@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+//import nodemailer from "nodemailer";
 import "dotenv/config";
 import { VERIFICATION_EMAIL } from "./verification.js";
 import { RESET_PASSWORD_EMAIL } from "./resetPassword.js";
