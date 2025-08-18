@@ -59,22 +59,22 @@ console.log(req.body)
 };
 
 export const verifyEmail = async (req, res) => {
-  const { email, verificationToken } = req.body;
+  const {code } = req.body;
 
-  if (!email || !verificationToken) {
+  if (!code) {
     return res.status(400).json({
       success: false,
-      message: "Email and verification code are required",
+      message: "verification code is required",
     });
   }
 
   // find user
-  const user = await User.findOne({ email, verificationToken });
+  const user = await User.findOne({ verificationToken:code});
 
   if (!user) {
     return res.status(400).json({
       success: false,
-      message: "Invalid email or verification code",
+      message: "Invalid verification code",
     });
   }
 
