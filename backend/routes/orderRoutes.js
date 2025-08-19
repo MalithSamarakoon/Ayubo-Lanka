@@ -9,7 +9,7 @@ const {
 } = require("../controllers/ordercontroller");
 
 
-router.post("/", createOrder);
+router.post("/",createOrder);
 
 
 router.get("/", getOrders);

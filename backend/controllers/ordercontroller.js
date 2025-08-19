@@ -3,23 +3,19 @@ const Order = require("../models/order");
 // Create Order
 exports.createOrder = async (req, res) => {
   try {
-    const { fname,lname, email,street,city,state,zipcode,tele } = req.body;
-    if  (!fname || !lname || !email || !street || !city || !state || !zipcode || !tele)
+    const { fname, lname, email, street, city, state, zipcode, tele } = req.body;
+    if (!fname || !lname || !email || !street || !city || !zipcode || !tele)
+      return res.status(400).json({ message: "All required fields must be filled." });
 
-      return res
-        .status(400)
-        .json({ message: "All required fields must be filled." });
-
-    const order = await Patient.create({
+    const order = await Order.create({
       fname,
       lname,
-        email,
-        street,
-        city,
-        state,
-        zipcode,
-        tele,
-      
+      email,
+      street,
+      city,
+      state,
+      zipcode,
+      tele,
     });
     res.status(201).json(order);
   } catch (err) {

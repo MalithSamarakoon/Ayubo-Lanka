@@ -4,7 +4,7 @@ const AutoIncrement = require("mongoose-sequence")(mongoose);
 const orderSchema = new mongoose.Schema(
   {
     fname: { type: String, required: true },
-    lname: { type: Number, required: true },
+    lname: { type: String, required: true },
     email: { type: String, required: true },
     street: { type: String, required: true },
     city: { type: String, required: true },
