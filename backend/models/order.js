@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema(
     email: { type: String, required: true },
     street: { type: String, required: true },
     city: { type: String, required: true },
-    state: { type: String, maxlength: 500 },
+    state: { type: String, maxlength: 5000 },
      zipcode: { type: Number, required: true },
     tele: { type: Number, required: true },
 
