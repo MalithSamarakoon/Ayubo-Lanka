@@ -1,15 +1,26 @@
-import express from 'express';
-import 'dotenv/config'; 
-import connectDB from './lib/db.js';
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./lib/db");
+const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(cors());
+
+// Routes
+app.use("/api/order", orderRoutes);
+
+// Error handler (optional)
+app.use((err, req, res, next) => {
+  res.status(500).json({ message: err.message });
+});
+
+// DB connection and listen
 connectDB();
 
-app.use(express.json());
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    connectDB();
-})
-export default app;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>console.log(`Server running on port ${PORT}`)
+);
