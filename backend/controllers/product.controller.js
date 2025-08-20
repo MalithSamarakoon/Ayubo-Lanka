@@ -38,3 +38,12 @@ export const getAllProducts = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
       }
 }
+
+export const getFeaturedProducts = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        console.error("Error fetching featured products:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
