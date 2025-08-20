@@ -31,6 +31,12 @@ const productSchema = new mongoose.Schema({
     image: {
         type: String,
         required: [true, "Image is required."]
+    },
+
+    isFeatured: {
+        type: Boolean,
+        default: false,
+        required: false
     }
 }, {timestamps: true});
 

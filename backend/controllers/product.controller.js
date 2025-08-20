@@ -41,9 +41,17 @@ export const getAllProducts = async (req, res) => {
 
 export const getFeaturedProducts = async (req, res) => {
     try {
-        
+        const featuredProducts = await Product.find({ isFeatured: true }).lean();
+        res.status(200).json({
+            message: "Featured products retrieved successfully",
+            featuredProducts
+        });
     } catch (error) {
         console.error("Error fetching featured products:", error);
         res.status(500).json({ message: "Internal server error" });
     }
+}
+
+export const updateProduct = async (req, res) => {
+    
 }
