@@ -1,16 +1,15 @@
 const Order = require("../models/order");
+const mongoose = require("mongoose");
 
 // Create Order
 exports.createOrder = async (req, res) => {
   try {
     const { fname, lname, email, street, city, state, zipcode, tele } = req.body;
 
-    // Validate required fields
     if (!fname || !lname || !email || !street || !city || !zipcode || !tele) {
       return res.status(400).json({ message: "All required fields must be filled." });
     }
 
-    // Create new order
     const order = await Order.create({
       fname,
       lname,
@@ -41,10 +40,15 @@ exports.getOrders = async (req, res) => {
 // Get order by ID
 exports.getOrdersbyid = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found." });
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid order ID." });
     }
+
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found." });
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -54,17 +58,20 @@ exports.getOrdersbyid = async (req, res) => {
 // Update order by ID
 exports.updateOrder = async (req, res) => {
   try {
-    const { fname, lname, email, street, city, state, zipcode, tele } = req.body;
+    const { id } = req.params;
 
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { fname, lname, email, street, city, state, zipcode, tele },
-      { new: true, runValidators: true }
-    );
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found." });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid order ID." });
     }
+
+    const updatedData = req.body;
+
+    const order = await Order.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!order) return res.status(404).json({ message: "Order not found." });
 
     res.json(order);
   } catch (err) {
@@ -75,10 +82,16 @@ exports.updateOrder = async (req, res) => {
 // Delete order by ID
 exports.deleteOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found." });
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid order ID." });
     }
+
+    const order = await Order.findByIdAndDelete(id);
+
+    if (!order) return res.status(404).json({ message: "Order not found." });
+
     res.json({ message: "Order deleted successfully." });
   } catch (err) {
     res.status(500).json({ message: err.message });
