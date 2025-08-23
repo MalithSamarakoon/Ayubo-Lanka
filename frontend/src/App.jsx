@@ -5,7 +5,7 @@ import BestSeller from "./Component/BestSeller";
 import Footer from "./Component/Fotter";
 import Hero from "./Component/Hero";
 import LatestCollection from "./Component/LatestCollection";
-import Navbar from "./Component/Navbar";
+
 import NewsLetterBox from "./Component/NewsLetterBox";
 import OurPolicy from "./Component/OurPolicy";
 import ProductItems from "./Component/ProductItems";
