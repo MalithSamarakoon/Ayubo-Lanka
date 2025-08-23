@@ -1,39 +1,32 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Collection from "./pages/Collection";
-import About from "./pages/About";
-import Content from "./pages/Contact";
-import Product from "./pages/Product";
-import Cart from "./pages/Cart";
-
-import Doctor from "./pages/Doctor";
-import PatientForm from "./pages/PatientForm"; // Import PatientForm
-import Placeorder from "./pages/Placeorder";
-import Order from "./pages/Order";
 import Navbar from "./Component/Navbar";
-import Login from "./pages/Login";
-import Fotter from "./Component/Fotter";
-import Appointment from "./pages/Appoinment"; 
-// Doctor details (slot selector)
-import PatientDetails from "./pages/PatientDetails"; // Import PatientDetails page
-import PatientUpdate from "./pages/PatientUpdate"; // Import PatientUpdate page
-import Onlinepayment from "./pages/Onlinepayment"
+import BestSeller from "./Component/BestSeller";
+import Footer from "./Component/Fotter";
+import Hero from "./Component/Hero";
+import LatestCollection from "./Component/LatestCollection";
+import Navbar from "./Component/Navbar";
+import NewsLetterBox from "./Component/NewsLetterBox";
+import OurPolicy from "./Component/OurPolicy";
+import ProductItems from "./Component/ProductItems";
+import Title from "./Component/Title";
+
+import Appointment from "./pages/Appoinment"
+import Home from "./pages/Home";
+import Doctor from "./pages/Doctor";
+import Onlinepayment from "./pages/Onlinepayment";
+import Order from "./pages/Order";
+import PatientDetails from "./pages/PatientDetails";
+import PatientForm from "./pages/PatientForm";
+import PatientUpdate from "./pages/PatientUpdate";
+
 const App = () => {
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Navbar />
       <Routes>
-    
         <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/Contect" element={<Content />} />
-        <Route path="/Product/:productID" element={<Product />} />
-        <Route path="/Cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/place-order" element={<Placeorder />} />
-        <Route path="/Doctor" element={<Doctor />} />
+        <Route path="/doctor" element={<Doctor />} />
         <Route path="/doctor/:docId" element={<Appointment />} />
         <Route
           path="/doctor/:docId/book/patientform"
@@ -47,10 +40,11 @@ const App = () => {
           path="/doctor/:docId/book/patientupdate"
           element={<PatientUpdate />}
         />
-        <Route path="/order" element={<Order />} />
+        <Route path="/onlinepayment" element={<Onlinepayment />} />
       </Routes>
-      <Fotter />
+      <Footer />
     </div>
   );
 };
+
 export default App;
