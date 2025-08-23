@@ -16,8 +16,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.1",
-    "mongoose-sequence": "^6.0.1"
+    "framer-motion": "^12.23.12",
+    "mongoose": "^8.17.2",
+    "mongoose-sequence": "^6.0.1",
+    "multer": "^2.0.2",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

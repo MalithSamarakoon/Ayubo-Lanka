@@ -14,6 +14,8 @@ import Navbar from "./Component/Navbar";
 import Login from "./pages/Login";
 import Fotter from "./Component/Fotter";
 import Appointment from "./pages/Appoinment"; 
+import Support from "./pages/Support";
+
 // Doctor details (slot selector)
 import PatientDetails from "./pages/PatientDetails"; // Import PatientDetails page
 import PatientUpdate from "./pages/PatientUpdate"; // Import PatientUpdate page
@@ -33,6 +35,7 @@ const App = () => {
         <Route path="/place-order" element={<Placeorder />} />
         <Route path="/Doctor" element={<Doctor />} />
         <Route path="/doctor/:docId" element={<Appointment />} />
+        <Route path="/support" element={<Support />} />
         <Route
           path="/doctor/:docId/book/patientform"
           element={<PatientForm />}

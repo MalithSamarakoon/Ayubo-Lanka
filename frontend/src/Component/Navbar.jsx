@@ -10,6 +10,7 @@ const[visible,setvisible] =useState(false)
       <Link to="/">
         <img onClick={()=>Navigate('/')}src={assets.logo} className="w-47" alt="" />
       </Link>
+      
       {/* Navigation Links */}
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/" className="flex flex-col items-center gap-1">
@@ -55,6 +56,18 @@ const[visible,setvisible] =useState(false)
           {({ isActive }) => (
             <>
               <p>ABOUT</p>
+              <hr
+                className={`w-2/4 border-none h-[1.5px] bg-gray-700 ${
+                  isActive ? "block" : "hidden"
+                }`}
+              />
+            </>
+          )}
+        </NavLink>
+         <NavLink to="/Support" className="flex flex-col items-center gap-1">
+          {({ isActive }) => (
+            <>
+              <p>Supoort</p>
               <hr
                 className={`w-2/4 border-none h-[1.5px] bg-gray-700 ${
                   isActive ? "block" : "hidden"
