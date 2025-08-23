@@ -151,7 +151,7 @@ const Doctor = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-green-700 rounded-lg flex items-center justify-center shadow-md">
                 <svg
                   className="w-7 h-7 text-white"
                   fill="none"
@@ -179,7 +179,7 @@ const Doctor = () => {
             {/* Quick Stats Dashboard */}
             <div className="hidden md:flex items-center space-x-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-green-600">
                   {stats.total}
                 </div>
                 <div className="text-xs text-gray-500">Total Doctors</div>
@@ -239,7 +239,7 @@ const Doctor = () => {
               </div>
 
               {/* Filter Header */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-blue-600">
+              <div className="px-6 py-4 border-b border-gray-200 bg-green-600">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-white flex items-center">
                     <svg
@@ -259,7 +259,7 @@ const Doctor = () => {
                   </h2>
                   <button
                     onClick={clearAllFilters}
-                    className="text-xs text-blue-100 hover:text-white underline"
+                    className="text-xs text-green-100 hover:text-white underline"
                   >
                     Clear All
                   </button>
@@ -280,7 +280,7 @@ const Doctor = () => {
                         onClick={() => handleFilterClick(spec)}
                         className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 border text-sm ${
                           activeSpec === spec
-                            ? "bg-blue-50 border-blue-200 text-blue-700 font-medium"
+                            ? "bg-blue-50 border-green-200 text-green-700 font-medium"
                             : "border-gray-200 text-gray-700 hover:bg-gray-50"
                         }`}
                       >
@@ -300,7 +300,7 @@ const Doctor = () => {
                       type="checkbox"
                       checked={showAvailableOnly}
                       onChange={(e) => setShowAvailableOnly(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">
                       Available today only
@@ -316,7 +316,7 @@ const Doctor = () => {
                   <select
                     value={selectedRating}
                     onChange={(e) => setSelectedRating(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm"
                   >
                     <option value="all">All Ratings</option>
                     <option value="4.5">4.5+ Stars</option>
@@ -327,28 +327,14 @@ const Doctor = () => {
                 </div>
 
                 {/* Price Range Filter */}
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-3">
-                    Price Range
-                  </h3>
-                  <select
-                    value={priceRange}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                  >
-                    <option value="all">All Prices</option>
-                    <option value="low">Under $30</option>
-                    <option value="medium">$30 - $60</option>
-                    <option value="high">Above $60</option>
-                  </select>
-                </div>
+              
               </div>
 
               {/* Stats Section */}
               <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Showing Results:</span>
-                  <span className="font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                  <span className="font-semibold text-blue-600 bg-green-100 px-2 py-1 rounded-full">
                     {processedDoctors.length}
                   </span>
                 </div>
@@ -381,7 +367,7 @@ const Doctor = () => {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm"
                     >
                       {sortOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -396,7 +382,7 @@ const Doctor = () => {
                         onClick={() => setViewMode("grid")}
                         className={`p-2 rounded-md transition-colors ${
                           viewMode === "grid"
-                            ? "bg-white text-blue-600 shadow-sm"
+                            ? "bg-white text-green-600 shadow-sm"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
                       >
@@ -418,7 +404,7 @@ const Doctor = () => {
                         onClick={() => setViewMode("list")}
                         className={`p-2 rounded-md transition-colors ${
                           viewMode === "list"
-                            ? "bg-white text-blue-600 shadow-sm"
+                            ? "bg-white text-green-600 shadow-sm"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
                       >
@@ -447,18 +433,18 @@ const Doctor = () => {
                 showAvailableOnly ||
                 selectedRating !== "all" ||
                 priceRange !== "all") && (
-                <div className="px-6 py-3 bg-blue-50 border-b border-gray-200">
+                <div className="px-6 py-3 bg-green-50 border-b border-gray-200">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-blue-700 font-medium">
+                    <span className="text-sm text-green-700 font-medium">
                       Active filters:
                     </span>
 
                     {searchQuery && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Search: "{searchQuery}"
                         <button
                           onClick={() => setSearchQuery("")}
-                          className="ml-1 hover:text-blue-600"
+                          className="ml-1 hover:text-green-600"
                         >
                           ×
                         </button>
@@ -466,11 +452,11 @@ const Doctor = () => {
                     )}
 
                     {activeSpec !== "All" && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         {activeSpec}
                         <button
                           onClick={() => setActiveSpec("All")}
-                          className="ml-1 hover:text-blue-600"
+                          className="ml-1 hover:text-green-600"
                         >
                           ×
                         </button>
@@ -501,21 +487,7 @@ const Doctor = () => {
                       </span>
                     )}
 
-                    {priceRange !== "all" && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {priceRange === "low"
-                          ? "Under $30"
-                          : priceRange === "medium"
-                          ? "$30-$60"
-                          : "Above $60"}
-                        <button
-                          onClick={() => setPriceRange("all")}
-                          className="ml-1 hover:text-purple-600"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    )}
+                    
                   </div>
                 </div>
               )}
@@ -593,7 +565,7 @@ const Doctor = () => {
                     <div className="mt-6">
                       <button
                         onClick={clearAllFilters}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700"
                       >
                         Clear all filters
                       </button>
