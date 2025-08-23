@@ -6,6 +6,7 @@ import About from "./pages/About";
 import Content from "./pages/Contact";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
+
 import Doctor from "./pages/Doctor";
 import PatientForm from "./pages/PatientForm"; // Import PatientForm
 import Placeorder from "./pages/Placeorder";
@@ -23,6 +24,7 @@ const App = () => {
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Navbar />
       <Routes>
+    
         <Route path="/" element={<Home />} />
         <Route path="/collection" element={<Collection />} />
         <Route path="/about" element={<About />} />
