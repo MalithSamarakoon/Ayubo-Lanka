@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, Lock, Mail, User } from "lucide-react";
+import { Loader, Lock, Mail, User, Phone } from "lucide-react";
 import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
@@ -9,16 +9,36 @@ import { useAuthStore } from "../store/authStore";
 const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [validationError, setValidationError] = useState("");
 
+  const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
+    // 🔹 Frontend Validations
+    if (!/^\d{10}$/.test(mobile)) {
+      return setValidationError("Mobile number must be exactly 10 digits.");
+    }
+
+    if (password !== confirmPassword) {
+      return setValidationError("Passwords do not match.");
+    }
+
+    setValidationError(""); // clear error if valid
+
     try {
-      await signup(email, password, name);
+      await signup({
+        name: name,
+        email: email,
+        mobile: mobile,
+        password: password,
+        confirmPassword: confirmPassword,
+      });
       navigate("/verify-email");
     } catch (error) {
       console.log(error);
@@ -54,6 +74,14 @@ const SignUpPage = () => {
           />
 
           <Input
+            icon={Phone}
+            type="text"
+            placeholder="Mobile Number (10 digits)"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+          />
+
+          <Input
             icon={Lock}
             type="password"
             placeholder="Password"
@@ -61,24 +89,34 @@ const SignUpPage = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && (
-            <p className="text-red-500 font-semibold mt-2.5">{error}</p>
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          {(validationError || error) && (
+            <p className="text-red-500 font-semibold mt-2.5">
+              {validationError || error}
+            </p>
           )}
 
           <PasswordStrengthMeter password={password} />
 
           <motion.button
             className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-						font-bold rounded-lg shadow-lg hover:from-green-600
-						hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-						 focus:ring-offset-gray-900 transition duration-200"
+              font-bold rounded-lg shadow-lg hover:from-green-600
+              hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+              focus:ring-offset-gray-900 transition duration-200"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader className=" animate-spin mx-auto" size={24} />
+              <Loader className="animate-spin mx-auto" size={24} />
             ) : (
               "Sign Up"
             )}

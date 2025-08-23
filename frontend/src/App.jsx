@@ -10,6 +10,7 @@ import UserDashboard from './pages/UserDashboard';
 import LoadingSpinner from './components/LoadingSpinner';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import RoleSelection from './pages/RoleSelection';
 
 //protected routes require authentication
 const ProtectedRoute = ({children}) => {
@@ -55,15 +56,66 @@ if(isCheckingAuth) return <LoadingSpinner />;
       <FloatingShape color="bg-emerald-500" size="w-48 h-48" top="70%" left="80%" delay={5} />
       <FloatingShape color="bg-lime-500" size="w-32 h-32" top="40%" left="-10%" delay={2} />
 
-      <Routes>
-        <Route path= '/' element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
-        <Route path= '/signup' element={<RedirectAuthenticatedUser><SignUpPage /></RedirectAuthenticatedUser>} />
-        <Route path= '/login' element={<RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>} />
-        <Route path= '/verify-email' element={<EmailVerificationPage />} />
-        <Route path= '/forgot-password' element={<RedirectAuthenticatedUser><ForgotPasswordPage /></RedirectAuthenticatedUser>} />
-        <Route path='/reset-password/:token' element={<RedirectAuthenticatedUser><ResetPasswordPage /></RedirectAuthenticatedUser>} 
-        />
-      </Routes>
+<Routes>
+  <Route
+    path="/"
+    element={
+      <ProtectedRoute>
+        <UserDashboard />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Show RoleSelection first */}
+  <Route
+    path="/signup"
+    element={
+      <RedirectAuthenticatedUser>
+        <RoleSelection />
+          {/* <SignUpPage /> */}
+      </RedirectAuthenticatedUser>
+    }
+  />
+
+  {/* Actual signup form after choosing role */}
+  <Route
+    path="/signup/:role"
+    element={
+      <RedirectAuthenticatedUser>
+        <SignUpPage />
+      </RedirectAuthenticatedUser>
+    }
+  />
+
+  <Route
+    path="/login"
+    element={
+      <RedirectAuthenticatedUser>
+        <LoginPage />
+      </RedirectAuthenticatedUser>
+    }
+  />
+
+  <Route path="/verify-email" element={<EmailVerificationPage />} />
+
+  <Route
+    path="/forgot-password"
+    element={
+      <RedirectAuthenticatedUser>
+        <ForgotPasswordPage />
+      </RedirectAuthenticatedUser>
+    }
+  />
+
+  <Route
+    path="/reset-password/:token"
+    element={
+      <RedirectAuthenticatedUser>
+        <ResetPasswordPage />
+      </RedirectAuthenticatedUser>
+    }
+  />
+</Routes>
       <Toaster />
     </div>
   );
