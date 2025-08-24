@@ -8,9 +8,8 @@ import NewsLetterBox from "../Component/NewsLetterBox";
 
 const Home = () => {
   return (
-    <div>
+    <div className="bg-white">
       <Hero />
-
       <LatestCollection />
       <BestSeller />
       <OurPolicy />

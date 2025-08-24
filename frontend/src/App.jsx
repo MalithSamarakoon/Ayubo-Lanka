@@ -1,13 +1,15 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+
 import FloatingShape from "./components/FloatingShape";
+import Navbar from "./Component/Navbar";
+import LoadingSpinner from "./components/LoadingSpinner";
+
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
-import { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./store/authStore";
-import { useEffect } from "react";
 import UserDashboard from "./pages/UserDashboard";
-import LoadingSpinner from "./components/LoadingSpinner";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RoleSelection from "./pages/RoleSelection";
@@ -16,11 +18,14 @@ import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
 
 import Doctor from "./pages/Doctor";
-import Appointment from "./pages/Appointment";
+import Home from "./pages/Home";
+import Appointment from "./pages/Appoinment";
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
+
+import { useAuthStore } from "./store/authStore";
 
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
@@ -51,7 +56,7 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen min-w-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen min-w-screen bg-gradient-to-br from-white via-green-100 to-emerald-300 relative overflow-hidden">
       {/* Floating background shapes */}
       <FloatingShape
         color="bg-green-500"
@@ -75,107 +80,105 @@ function App() {
         delay={2}
       />
 
-      <Routes>
-        {/* Default Dashboard */}
-        <Route
-          path="/"
-          element={
-            // <ProtectedRoute>
-            <UserDashboard />
-            // </ProtectedRoute>
-          }
-        />
+      {/* Navbar always visible */}
+      <Navbar />
 
-        {/* Role Selection */}
-        <Route
-          path="/signup"
-          element={
-            <RedirectAuthenticatedUser>
-              <RoleSelection />
-            </RedirectAuthenticatedUser>
-          }
-        />
+      {/* Main content */}
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <Routes>
+          <Route path="/" element={<div>test</div>} />
 
-        {/* Signups */}
-        <Route
-          path="/signup/user"
-          element={
-            <RedirectAuthenticatedUser>
-              <SignUpPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/signup/doctor"
-          element={
-            <RedirectAuthenticatedUser>
-              <DoctorSignUpPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/signup/supplier"
-          element={
-            <RedirectAuthenticatedUser>
-              <SupplierSignUpPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
+          {/*  Dashboard */}
+          <Route path="/dashboard" element={<UserDashboard />} />
 
-        {/* Auth */}
-        <Route
-          path="/login"
-          element={
-            <RedirectAuthenticatedUser>
-              <LoginPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route
-          path="/forgot-password"
-          element={
-            <RedirectAuthenticatedUser>
-              <ForgotPasswordPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/reset-password/:token"
-          element={
-            <RedirectAuthenticatedUser>
-              <ResetPasswordPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
+          {/* Role Selection */}
+          <Route
+            path="/signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <RoleSelection />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-        {/* Approval Pending */}
-        <Route path="/approval-pending" element={<ApprovalPendingPage />} />
+          {/* Signups */}
+          <Route
+            path="/signup/user"
+            element={
+              <RedirectAuthenticatedUser>
+                <SignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/doctor"
+            element={
+              <RedirectAuthenticatedUser>
+                <DoctorSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/supplier"
+            element={
+              <RedirectAuthenticatedUser>
+                <SupplierSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-        {/* <Route path="/" element={<Home />} /> */}
-        {/* </Routes> */}
-        {/* <Navbar /> */}
+          {/* Auth */}
+          <Route
+            path="/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-        {/* Doctor related */}
-        <Route path="/doctor" element={<Doctor />} />
-        <Route path="/doctor/:docId" element={<Appointment />} />
-        <Route
-          path="/doctor/:docId/book/patientform"
-          element={<PatientForm />}
-        />
-        <Route
-          path="/doctor/:docId/book/patientdetails"
-          element={<PatientDetails />}
-        />
-        <Route
-          path="/doctor/:docId/book/patientupdate"
-          element={<PatientUpdate />}
-        />
-        <Route path="/onlinepayment" element={<Onlinepayment />} />
+          {/* Approval Pending */}
+          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-        {/* Fallback route for unmatched paths */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* Other Pages */}
+          <Route path="/home" element={<Home />} />
+          <Route path="/doctor" element={<Doctor />} />
+          <Route path="/doctor/:docId" element={<Appointment />} />
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={<PatientForm />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={<PatientDetails />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={<PatientUpdate />}
+          />
+          <Route path="/onlinepayment" element={<Onlinepayment />} />
+
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
 
       <Toaster />
     </div>

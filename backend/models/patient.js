@@ -1,5 +1,7 @@
-const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-sequence")(mongoose);
+import mongoose from "mongoose";
+import sequence from "mongoose-sequence";
+
+const AutoIncrement = sequence(mongoose);
 
 const patientSchema = new mongoose.Schema(
   {
@@ -15,4 +17,6 @@ const patientSchema = new mongoose.Schema(
 
 patientSchema.plugin(AutoIncrement, { inc_field: "id" });
 
-module.exports = mongoose.model("Patient", patientSchema);
+const Patient = mongoose.model("Patient", patientSchema);
+
+export default Patient;

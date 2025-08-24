@@ -1,13 +1,14 @@
-const Patient = require("../models/patient");
+import Patient from "../models/patient.js";
 
 // Create patient
-exports.createPatient = async (req, res) => {
+export const createPatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;
-    if (!name || !age || !phone || !email || !address)
+    if (!name || !age || !phone || !email || !address) {
       return res
         .status(400)
         .json({ message: "All required fields must be filled." });
+    }
 
     const patient = await Patient.create({
       name,
@@ -24,7 +25,7 @@ exports.createPatient = async (req, res) => {
 };
 
 // Get all patients
-exports.getPatients = async (req, res) => {
+export const getPatients = async (req, res) => {
   try {
     const patients = await Patient.find();
     res.json(patients);
@@ -34,7 +35,7 @@ exports.getPatients = async (req, res) => {
 };
 
 // Get patient by numeric ID
-exports.getPatientById = async (req, res) => {
+export const getPatientById = async (req, res) => {
   try {
     const patient = await Patient.findOne({ id: req.params.id });
     if (!patient)
@@ -46,7 +47,7 @@ exports.getPatientById = async (req, res) => {
 };
 
 // Update patient by numeric ID
-exports.updatePatient = async (req, res) => {
+export const updatePatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;
     const patient = await Patient.findOneAndUpdate(
@@ -63,7 +64,7 @@ exports.updatePatient = async (req, res) => {
 };
 
 // Delete patient by numeric ID
-exports.deletePatient = async (req, res) => {
+export const deletePatient = async (req, res) => {
   try {
     const patient = await Patient.findOneAndDelete({ id: req.params.id });
     if (!patient)

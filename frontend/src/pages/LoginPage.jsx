@@ -16,7 +16,7 @@ const LoginPage = () => {
     e.preventDefault();
     await login(email, password);
     console.log("Login successful");
-    navigate("/");
+    navigate("/home");
   };
 
   return (
