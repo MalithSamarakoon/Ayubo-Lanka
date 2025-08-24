@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-     name: {
+    name: {
       type: String,
       required: true,
     },
@@ -11,17 +11,16 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-        mobile: {
-  type: String,
-  required: true,
-  match: [/^\d{10}$/, "Mobile number must be exactly 10 digits"],
-  unique: true
-},
+    mobile: {
+      type: String,
+      required: true,
+      match: [/^\d{10}$/, "Mobile number must be exactly 10 digits"],
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
     },
- 
     lastLogin: {
       type: Date,
       default: Date.now,
@@ -35,12 +34,26 @@ const userSchema = new mongoose.Schema(
     verificationToken: { type: String },
     verificationTokenExpiresAt: { type: Date },
 
-    // user role (ADMIN, USER, SUPPLIER, DOCTOR)
-    role: { 
+    // Role: ADMIN, USER, SUPPLIER, DOCTOR
+    role: {
       type: String,
+      required: true,
     },
+
+    // Doctor-specific fields
+    doctorLicenseNumber: { type: String }, 
+    specialization: { type: String },
+
+    // Supplier-specific fields
+    companyName: { type: String },
+    companyAddress: { type: String },
+    productCategory: { type: String },
+
+    // Common fields
+    isApproved: { type: Boolean, default: false }, // Admin approval
   },
   { timestamps: true }
 );
 
 export const User = mongoose.model("User", userSchema);
+

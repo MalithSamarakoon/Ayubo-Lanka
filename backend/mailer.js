@@ -8,11 +8,11 @@ export const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASS, 
+    pass: process.env.GMAIL_APP_PASS,
   },
 });
 
-// Function to send verification email
+// ------------------ Verification Email ------------------
 export const sendVerificationEmail = async (toEmail, userName, verificationCode) => {
   try {
     await transporter.sendMail({
@@ -29,7 +29,7 @@ export const sendVerificationEmail = async (toEmail, userName, verificationCode)
   }
 };
 
-// Send welcome email
+// ------------------ Welcome Email ------------------
 export const sendWelcomeEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
@@ -49,7 +49,7 @@ export const sendWelcomeEmail = async (toEmail, userName) => {
   }
 };
 
-// Send password reset email
+// ------------------ Password Reset Emails ------------------
 export const sendPasswordResetEmail = async (toEmail, resetURL, userName = "") => {
   try {
     await transporter.sendMail({
@@ -66,7 +66,6 @@ export const sendPasswordResetEmail = async (toEmail, resetURL, userName = "") =
   }
 };
 
-// Send Password Reset Success Email
 export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
@@ -86,4 +85,43 @@ export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   }
 };
 
+// ------------------ Admin Notification for Approval ------------------
+export const sendAdminApprovalRequestEmail = async (userName, userRole) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER,
+      subject: `New ${userRole} Signup Approval Needed`,
+      html: `
+        <p>Hello Admin,</p>
+        <p>A new ${userRole} <strong>${userName}</strong> has signed up and requires your approval.</p>
+        <p>Please log in to the admin panel to approve or reject this signup.</p>
+        <p>Best regards,<br/>AYUBO LANKA System</p>
+      `,
+    });
+    console.log(`Admin approval request email sent to ${process.env.GMAIL_USER}`);
+  } catch (error) {
+    console.error("Error sending admin approval request email:", error);
+  }
+};
 
+// ------------------ User Approval Email ------------------
+export const sendUserApprovedEmail = async (toEmail, userName, loginURL) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Account Has Been Approved",
+      html: `
+        <p>Hello ${userName},</p>
+        <p>Congratulations! Your account has been approved by the admin.</p>
+        <p>You can now log in using the following link:</p>
+        <a href="${loginURL}" target="_blank" style="color:blue;">Login Here</a>
+        <p>Best regards,<br/>AYUBO LANKA Team</p>
+      `,
+    });
+    console.log(`User approval email sent to ${toEmail}`);
+  } catch (error) {
+    console.error("Error sending user approval email:", error);
+  }
+};

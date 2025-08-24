@@ -13,15 +13,32 @@ export const useAuthStore = create((set) => ({
   isCheckingAuth: true,
   message: null,
 
-  signup: async ({ name, email, mobile, password, confirmPassword }) => {
+  signup: async ({
+    name,
+    email,
+    mobile,
+    role,
+    password,
+    confirmPassword,
+    license,
+    specialization,
+    companyAddress,
+    productCategory,
+
+  }) => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.post(`${API_URL}/signup`, {
+        role,
         name,
         email,
         mobile,
         password,
-        confirmPassword, // optional
+        confirmPassword, 
+        specialization,
+        doctorLicenseNumber: license,
+        companyAddress,
+        productCategory,
       });
       set({ isLoading: false });
       return res.data;
