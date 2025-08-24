@@ -15,6 +15,13 @@ import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
 
+import Doctor from "./pages/Doctor";
+import Appointment from "./pages/Appointment";
+import PatientForm from "./pages/PatientForm";
+import PatientDetails from "./pages/PatientDetails";
+import PatientUpdate from "./pages/PatientUpdate";
+import Onlinepayment from "./pages/Onlinepayment";
+
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();

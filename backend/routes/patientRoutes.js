@@ -1,26 +1,27 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
   createPatient,
   getPatients,
   getPatientById,
   updatePatient,
   deletePatient,
-} = require("../controllers/patientController");
+} from "../controllers/patientController.js";
+
+const patientRouter = express.Router();
 
 // Create patient
-router.post("/", createPatient);
+patientRouter.post("/", createPatient);
 
 // Get all patients
-router.get("/", getPatients);
+patientRouter.get("/", getPatients);
 
 // Get patient by numeric ID
-router.get("/:id", getPatientById);
+patientRouter.get("/:id", getPatientById);
 
 // Update patient by numeric ID
-router.put("/:id", updatePatient);
+patientRouter.put("/:id", updatePatient);
 
 // Delete patient by numeric ID
-router.delete("/:id", deletePatient);
+patientRouter.delete("/:id", deletePatient);
 
-module.exports = router;
+export default patientRouter;
