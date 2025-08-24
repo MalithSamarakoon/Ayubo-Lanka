@@ -1,4 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  FileText,
+  Heart,
+  CheckCircle,
+} from "lucide-react";
 
 const initialFormState = {
   name: "",
@@ -9,294 +19,262 @@ const initialFormState = {
   medicalInfo: "",
 };
 
-const validate = (values) => {
-  let errors = {};
-  // Name
-  if (!values.name.trim()) errors.name = "Full name is required";
-  // Age
-  if (!values.age) errors.age = "Age is required";
-  else if (
-    isNaN(Number(values.age)) ||
-    Number(values.age) < 1 ||
-    Number(values.age) > 120
-  )
-    errors.age = "Please enter a valid age";
-  // Phone
-  if (!values.phone.trim()) errors.phone = "Telephone number is required";
-  else if (!/^[\d\+\-\s]{7,15}$/.test(values.phone))
-    errors.phone = "Please enter a valid telephone number";
-  // Email
-  if (!values.email.trim()) errors.email = "Email is required";
-  else if (
-    !/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,6})$/.test(
-      values.email
-    )
-  )
-    errors.email = "Please enter a valid email address";
-  // Address
-  if (!values.address.trim()) errors.address = "Address is required";
-  // Medical Information: Optional
-  if (values.medicalInfo.length > 500)
-    errors.medicalInfo = "Maximum 500 characters allowed";
-  return errors;
-};
-
 const PatientForm = () => {
+  const { docId } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(initialFormState);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors(validate(formData));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validate(formData);
-    setErrors(validationErrors);
-    setSubmitted(true);
-
-    if (Object.keys(validationErrors).length === 0) {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/patients", // CHANGE TO YOUR BACKEND URL
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          }
-        );
-        const data = await response.json();
-        if (response.ok) {
-          alert("Your information was submitted successfully!");
-          setFormData(initialFormState);
-          setTouched({});
-          setSubmitted(false);
-        } else {
-          alert(data.message || "There was an error submitting your form.");
-        }
-      } catch (error) {
-        alert("Failed to submit. Network/server error.");
+    try {
+      const response = await fetch("http://localhost:3000/api/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert("Your information was submitted successfully!");
+        navigate(`/doctor/${docId}/book/patientdetails`, {
+          state: data.patient || data,
+        });
+      } else {
+        alert(data.message || "Error submitting form");
       }
+    } catch {
+      alert("Network error");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-6 shadow-lg">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">
-            Patient Registration
-          </h1>
-          <p className="text-lg text-slate-600 max-w-md mx-auto">
-            Please provide your information to get started with your medical
-            consultation
-          </p>
-        </div>
-        {/* Form Card */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/30 p-8 md:p-12 space-y-6"
-        >
-          {/* Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="name"
-              id="name"
-              type="text"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.name && (touched.name || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100`}
-              value={formData.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Enter your full name"
-            />
-            {errors.name && (touched.name || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
-            )}
-          </div>
-          {/* Age */}
-          <div>
-            <label
-              htmlFor="age"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Age <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="age"
-              id="age"
-              type="number"
-              min="1"
-              max="120"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.age && (touched.age || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100`}
-              value={formData.age}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Enter your age"
-            />
-            {errors.age && (touched.age || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.age}</p>
-            )}
-          </div>
-          {/* Phone */}
-          <div>
-            <label
-              htmlFor="phone"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Telephone Number <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="phone"
-              id="phone"
-              type="tel"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.phone && (touched.phone || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100`}
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Enter telephone number"
-            />
-            {errors.phone && (touched.phone || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
-            )}
-          </div>
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="email"
-              id="email"
-              type="email"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.email && (touched.email || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100`}
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="your@email.com"
-            />
-            {errors.email && (touched.email || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-            )}
-          </div>
-          {/* Address */}
-          <div>
-            <label
-              htmlFor="address"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Address <span className="text-red-500">*</span>
-            </label>
-            <input
-              name="address"
-              id="address"
-              type="text"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.address && (touched.address || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100`}
-              value={formData.address}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Enter address"
-            />
-            {errors.address && (touched.address || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.address}</p>
-            )}
-          </div>
-          {/* Medical Info */}
-          <div>
-            <label
-              htmlFor="medicalInfo"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Relevant Medical Information (optional)
-            </label>
-            <textarea
-              name="medicalInfo"
-              id="medicalInfo"
-              rows={3}
-              maxLength={500}
-              className={`w-full px-4 py-3 rounded-xl border ${
-                errors.medicalInfo && (touched.medicalInfo || submitted)
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none`}
-              value={formData.medicalInfo}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Allergies, chronic conditions, medications…"
-            />
-            {errors.medicalInfo && (touched.medicalInfo || submitted) && (
-              <p className="text-xs text-red-500 mt-1">{errors.medicalInfo}</p>
-            )}
-            <div className="text-xs text-gray-400 mt-1 text-right">
-              {formData.medicalInfo.length}/500
+        {/* Ayurveda Medical Center Header */}
+        <div className="bg-white shadow-lg rounded-2xl border border-green-100 mb-6 overflow-hidden">
+          <div className="px-6 py-5 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center shadow-lg">
+                <User className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  Patient Registration Form
+                </h1>
+                <p className="text-green-100 text-sm font-medium">
+                  Ayurveda Medical Center - Natural Healing
+                </p>
+              </div>
             </div>
           </div>
-          {/* Continue/Button */}
-          <button
-            type="submit"
-            className="w-full mt-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg shadow-lg transition-all"
-          >
-            Continue
-          </button>
-        </form>
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-slate-500 text-sm">
-            Your information is secure and will only be used for medical
-            consultation purposes.
+        </div>
+
+        {/* Patient Form */}
+        <div className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden">
+          <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-emerald-50 to-green-50">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center">
+              <FileText className="w-6 h-6 text-emerald-600 mr-3" />
+              Patient Information
+            </h2>
+            <p className="text-sm text-emerald-700 mt-2 font-medium">
+              Please fill out all required fields marked with *
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+            {/* Personal Information Section */}
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                Personal Information
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Enter your full name"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Age <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg
+                        className="w-5 h-5 text-emerald-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h3z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      name="age"
+                      type="number"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="Enter your age"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information Section */}
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <Phone className="w-5 h-5 text-white" />
+                </div>
+                Contact Information
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <input
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Enter phone number"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter email address"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Address <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 pointer-events-none">
+                    <MapPin className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="Enter your complete address"
+                    rows={3}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Medical Information Section */}
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <Heart className="w-5 h-5 text-white" />
+                </div>
+                Medical Information
+              </h3>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Medical History / Current Conditions
+                  <span className="text-emerald-600 font-medium ml-2">
+                    (Optional)
+                  </span>
+                </label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 pointer-events-none">
+                    <FileText className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <textarea
+                    name="medicalInfo"
+                    value={formData.medicalInfo}
+                    onChange={handleChange}
+                    placeholder="Please provide any relevant medical history, current medications, allergies, or health conditions that may help our Ayurveda practitioners provide better care..."
+                    rows={4}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-green-200 rounded-xl focus:ring-3 focus:ring-emerald-200 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-emerald-300"
+                  />
+                </div>
+                <p className="text-sm text-emerald-600 mt-2 font-medium bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                  This information helps our Ayurveda practitioners provide
+                  personalized natural healing treatments. All medical
+                  information is strictly confidential.
+                </p>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-6 border-t-2 border-green-100">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
+              >
+                <CheckCircle className="w-6 h-6 mr-3" />
+                Submit Patient Information
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-emerald-700 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-xl border border-emerald-200 shadow-sm">
+            <strong>Ayurveda Medical Center</strong> © 2024 • Natural Healing &
+            Wellness • All patient information is confidential and secure
           </p>
         </div>
       </div>
