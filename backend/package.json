@@ -1,26 +1,33 @@
 {
-  "name": "backend",
+  "name": "ayubo-lanka-backend",
   "version": "1.0.0",
   "main": "server.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
+  "keywords": [],
   "author": "",
+  "type": "module",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MalithSamarakoon/Ayubo-Lanka/issues"
+  },
+  "homepage": "https://github.com/MalithSamarakoon/Ayubo-Lanka#readme",
   "dependencies": {
-    "axios": "^1.11.0",
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "mongoose": "^8.17.1",
-    "mongoose-sequence": "^6.0.1"
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "nodemon": "^3.1.10"
-  },
-  "description": ""
+  }
 }

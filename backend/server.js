@@ -1,25 +1,30 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./lib/db");
-const patientRoutes = require("./routes/patientRoutes");
+
+import express from "express";
+import "dotenv/config";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import connectDB from "./lib/db.js";
+import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.routes.js";
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+connectDB();
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true}));
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
 
-// Routes
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 app.use("/api/patients", patientRoutes);
 
-// Error handler (optional)
-app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
+app.listen(PORT, () => {
+
+  console.log(`Server is running on port ${PORT}`);
 });
+export default app;
 
-// DB connection and listen
-connectDB();
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
