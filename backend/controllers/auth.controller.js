@@ -1,168 +1,269 @@
-import bcryptjs from 'bcryptjs';
+import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 
-import {User} from '../models/user.model.js';
-import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
-import { sendVerificationEmail,sendWelcomeEmail } from "../mailer.js"; 
-import { sendPasswordResetEmail } from "../mailer.js"; 
+import { User } from "../models/user.model.js";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailer.js";
+import { sendPasswordResetEmail } from "../mailer.js";
 import { sendPasswordResetSuccessEmail } from "../mailer.js";
+import { sendAdminApprovalRequestEmail, sendUserApprovedEmail } from "../mailer.js";
 
+export const signup = async (req, res) => {
+  const {
+    // common fields
+    email,
+    password,
+    confirmPassword,
+    name,
+    mobile,
+    role,
+    // doctor fields
+    doctorLicenseNumber,
+    specialization,
+    // supplier fields
+    companyAddress,
+    productCategory,
+  } = req.body;
 
-export const signup = async(req,res) => {
-    const{email, password, name} = req.body;
-console.log(req.body)
- try{
-    if(!email|| !password ||!name ){
-        throw new Error("All fields are required");
+  console.log(req.body);
 
+  try {
+    // Check required fields
+    if (!email || !password || !confirmPassword || !name || !mobile || !role) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
-  const userAlreadyExists = await User.findOne({email});
-  console.log("userAlreadyExists", userAlreadyExists);
-  
-  if(userAlreadyExists){
-    return res.status(400).json({success:false,message: "User already exists"});
+    // Validate mobile number
+    const mobileRegex = /^\d{10}$/;
+    if (!mobileRegex.test(mobile)) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number must be exactly 10 digits",
+      });
+    }
+
+    // Check passwords match
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match" });
+    }
+
+    // Check role-specific fields
+    if (role === "Doctor") {
+      if (!doctorLicenseNumber || !specialization) {
+        return res
+          .status(400)
+          .json({ success: false, message: "All doctor fields are required" });
+      }
+    }
+
+    if (role === "Supplier") {
+      if (!companyAddress || !productCategory) {
+        return res
+          .status(400)
+          .json({ success: false, message: "All supplier fields are required" });
+      }
+    }
+
+    // Check if user exists
+    const userAlreadyExists = await User.findOne({ email });
+    if (userAlreadyExists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+        // 🔹 Create user in DB
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      mobile,
+      role,
+      doctorLicenseNumber,
+      specialization,
+      companyAddress,
+      productCategory,
+      isApproved: false, // 👈 Awaiting admin approval
+    });
+
+    // 🔹 Send admin notification
+    await sendAdminApprovalRequestEmail(name, role);
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Signup successful. Awaiting admin approval. You will receive an email once approved.",
+    });
+
+    // Generate verification token
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    const user = new User({
+      email,
+      password: hashedPassword,
+      name,
+      mobile,
+      role,
+      isApproved: role === "USER" ? true : false, // only normal users auto-approved
+      verificationToken,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24h
+      // Doctor fields
+      doctorLicenseNumber: role === "Doctor" ? doctorLicenseNumber : undefined,
+      specialization: role === "Doctor" ? specialization : undefined,
+      // Supplier fields
+      companyAddress: role === "Supplier" ? companyAddress : undefined,
+      productCategory: role === "Supplier" ? productCategory : undefined,
+    });
+
+    const createdUser = (await user.save()).toObject();
+
+    // JWT
+    const { password: _password, ...userTokenData } = createdUser;
+    generateTokenAndSetCookie(res, userTokenData);
+
+    // Send verification email
+    if (createdUser.role === "USER")
+      await sendVerificationEmail(
+        createdUser.email,
+        createdUser.name,
+        verificationToken
+      );
+      if (createdUser.role === "Doctor" || createdUser.role === "Supplier") {
+      await sendAdminApprovalRequestEmail(
+        createdUser.name,
+        createdUser.role
+      );
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: userTokenData,
+    });
+  } catch (error) {
+    console.error("Signup Error:", error);
+    res.status(400).json({ success: false, message: error.message });
   }
-
-  const hashedPassword = await bcryptjs.hash(password,10);
-  const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-
-  const user = new User({
-    email,
-    password: hashedPassword,
-    name,
-    verificationToken,
-    verificationTokenExpiresAt: Date.now() + 24* 60 * 60 * 1000 //24 hours
-  });
-
-  await user.save();
-
-  //jwt
-  generateTokenAndSetCookie(res, user._id);
-
-  await sendVerificationEmail(user.email,user.name,verificationToken);
-
-  res.status(201).json({
-    success: true,
-    message: "User created successfully",
-    user: {
-        ...user._doc,
-        password: undefined,
-        
-    },
-  });
- }catch (error){
-    res.status(400).json({success: false,message: error.message});
-
-}
-
 };
 
 export const verifyEmail = async (req, res) => {
-  const { email, verificationToken } = req.body;
+  const { code } = req.body;
 
-  if (!email || !verificationToken) {
-    return res.status(400).json({
-      success: false,
-      message: "Email and verification code are required",
-    });
+  if (!code) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Verification code is required" });
   }
 
-  // find user
-  const user = await User.findOne({ email, verificationToken });
+  const user = await User.findOne({ verificationToken: code });
 
   if (!user) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid email or verification code",
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid verification code" });
   }
 
   if (user.verificationTokenExpiresAt < Date.now()) {
-    return res.status(400).json({
-      success: false,
-      message: "Verification code has expired",
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: "Verification code has expired" });
   }
 
-  // update user as verified and remove token
   user.isVerified = true;
   user.verificationToken = undefined;
   user.verificationTokenExpiresAt = undefined;
   await user.save();
 
-  // send welcome email
   await sendWelcomeEmail(user.email, user.name);
 
-  res.status(200).json({
-    success: true,
-    message: "Email verified successfully",
-  });
+  res
+    .status(200)
+    .json({ success: true, message: "Email verified successfully" });
 };
 
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
 
-export const login = async(req,res) => {
-  const {email,password} = req.body;
-try {
- const user = await User.findOne({ email });
- if(!user) {
-  return res.status(400).json({success: false, message: "Invalid credentials"});
- }
-const isPasswordValid = await bcryptjs.compare(password, user.password);
-if(!isPasswordValid) {
-  return res.status(400).json({ success: false, message : "Invalid credentials"});
-}
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
 
-generateTokenAndSetCookie(res, user._id);
+    // Block unapproved users (Doctor/Supplier)
+    if (
+      (user.role === "Doctor" || user.role === "Supplier") &&
+      !user.isApproved
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account is pending admin approval",
+      });
+    }
 
-user.lastLogin = new Date();
-await user.save();
+       const { password: _password, ...userTokenData } = user.toObject();
+    generateTokenAndSetCookie(res, userTokenData);
 
-res.status(200).json({
-success: true,
-message: "Logged in successfully",
-user: {
-  ...user._doc,
-  password: undefined,
+    user.lastLogin = new Date();
+    await user.save();
 
-},
-});
-
-}catch (error) {
-  console.log("error in login", error);
-  res.status(400).json({ success: false, message: error.message});
-}
+    res.status(200).json({
+      success: true,
+      message: "Logged in successfully",
+      user: { ...user._doc, password: undefined },
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
-export const logout = async(req,res) => {
-    res.clearCookie("token");
-    res.status(200).json({success: true, message: "Logged out successfully"});
+export const logout = async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
-// Forgot Password
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ success: false, message: "User not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1h
 
-    // Save token in DB
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = resetTokenExpiresAt;
     await user.save();
 
-    // Send reset email
     await sendPasswordResetEmail(
       user.email,
       `${process.env.CLIENT_URL}/reset-password/${resetToken}`
@@ -175,56 +276,69 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// Reset Password
 export const resetPassword = async (req, res) => {
-  const { token, newPassword } = req.body;
+  const { token } = req.params;
+  const { password } = req.body;
 
   try {
-    if (!token || !newPassword) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    if (!token || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
-    // Find user by token and check expiry
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpiresAt: { $gt: Date.now() }, // not expired
+      resetPasswordExpiresAt: { $gt: Date.now() },
     });
 
     if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired token" });
     }
 
-    // Hash new password
     const salt = await bcryptjs.genSalt(10);
-    user.password = await bcryptjs.hash(newPassword, salt);
+    user.password = await bcryptjs.hash(password, salt);
 
-
-    // Clear reset fields
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
 
     await user.save();
 
-     await sendPasswordResetSuccessEmail(user.email, user.name || "User");
+    await sendPasswordResetSuccessEmail(user.email, user.name || "User");
 
-    res.json({ success: true, message: "Password reset successful. Email confirmation sent." });
+    res.json({
+      success: true,
+      message: "Password reset successful. Email confirmation sent.",
+    });
   } catch (error) {
     console.error("Reset Password Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const checkAuth = async (req,res) => {
-try {
-  const user = await User.findById(req.userId).select("-password");
-  if(!user){
-    return res.status(400).json({success:false, message: "User not found"});
+export const checkAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (
+      (user.role === "Doctor" || user.role === "Supplier") &&
+      !user.isApproved
+    ) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Account pending approval" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("CheckAuth Error:", error);
+    res.status(400).json({ success: false, message: error.message });
   }
-  res.status(200).json({ success: true, user});
-
-}catch(error){
-  console.log("Error in checkAuth", error);
-  res.status(400).json({ success: false,message: error.message});
-}
-
-}
+};
