@@ -1,5 +1,11 @@
 import express from "express";
-import { approveUser, getAllUsers } from "../controllers/user.controller.js";
+import {
+  approveUser,
+  getUserById,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+} from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
 
@@ -9,6 +15,9 @@ const userRouter = express.Router();
 
 // Admin routes
 userRouter.get("/users", getAllUsers); // Get all users
+userRouter.get("/:id", getUserById);
+userRouter.patch("/:id", updateUser);
+userRouter.delete("/:id", deleteUser);
 userRouter.post("/approve-user/:id", approveUser); // Approve a doctor
 
 export default userRouter;

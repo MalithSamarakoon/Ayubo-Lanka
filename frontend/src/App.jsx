@@ -26,6 +26,8 @@ import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
 
 import { useAuthStore } from "./store/authStore";
+import UpdateUser from "./pages/UpdateUser";
+
 
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
@@ -63,10 +65,12 @@ function App() {
       {/* Main content */}
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
-          <Route path="/" element={<div>test</div>} />
+          <Route path="/" element={<RoleSelection />} />
 
           {/*  Dashboard */}
           <Route path="/dashboard" element={<UserDashboard />} />
+           
+           <Route path="/dashboard/:id" element={<UpdateUser />} />
 
           {/* Role Selection */}
           <Route

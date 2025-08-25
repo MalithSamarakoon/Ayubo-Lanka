@@ -8,6 +8,7 @@ import { sendPasswordResetEmail } from "../mailer.js";
 import { sendPasswordResetSuccessEmail } from "../mailer.js";
 import { sendAdminApprovalRequestEmail, sendUserApprovedEmail } from "../mailer.js";
 
+
 export const signup = async (req, res) => {
   const {
     // common fields
@@ -342,3 +343,6 @@ export const checkAuth = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
+
