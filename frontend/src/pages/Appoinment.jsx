@@ -54,28 +54,29 @@ const Appointment = () => {
 
   if (!docInfo) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-600 font-medium">Loading...</p>
+          <div className="mx-auto mb-4 h-14 w-14 rounded-full border-4 border-emerald-600 border-t-transparent animate-spin"></div>
+          <p className="text-lg text-slate-600 font-medium">Loading…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50">
-      <div className="bg-white shadow-sm border-b border-green-100">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50 text-slate-800">
+      {/* Header */}
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-emerald-100">
+        <div className="max-w-6xl mx-auto px-4 py-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-700 rounded-lg flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-md ring-1 ring-white/10">
               <Calendar className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
                 Book Appointment
               </h1>
-              <p className="text-green-700">
+              <p className="text-emerald-700">
                 Schedule your Ayurveda consultation with our specialist
               </p>
             </div>
@@ -83,47 +84,58 @@ const Appointment = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-4 md:p-8">
+      {/* Body */}
+      <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
         <DoctorProfileCard docInfo={docInfo} />
-        <div className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-6">
+
+        <div className="rounded-3xl bg-white/95 border border-emerald-100 shadow-lg shadow-emerald-100/50 overflow-hidden">
+          {/* Section header */}
+          <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 p-6 md:p-7">
             <div className="flex items-center gap-3 text-white">
-              <Clock className="w-6 h-6" />
-              <h2 className="text-2xl font-bold">Available Slots</h2>
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                <Clock className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight">
+                Available Slots
+              </h2>
             </div>
-            <p className="text-green-100 mt-2">
+            <p className="text-emerald-100 mt-2">
               Select your preferred date and time for natural healing
             </p>
           </div>
 
-          <div className="p-6 lg:p-8">
+          {/* Content */}
+          <div className="p-6 md:p-8 space-y-8">
             <BookingDateSelector
               bookingSlots={bookingSlots}
               selectedDay={selectedDay}
               setSelectedDay={setSelectedDay}
             />
+
             <BookingTimeSelector
               timeSlots={timeSlots}
               selectedTime={selectedTime}
               setSelectedTime={setSelectedTime}
             />
+
             <BookingSummary
               docInfo={docInfo}
               bookingSlots={bookingSlots}
               selectedDay={selectedDay}
               selectedTime={selectedTime}
             />
+
             <button
               onClick={() => navigate(`/doctor/${docId}/book/patientform`)}
               disabled={!selectedDay || !selectedTime}
-              className={`w-full py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 ${
+              className={`w-full h-14 inline-flex items-center justify-center rounded-xl font-semibold text-base md:text-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                 selectedDay && selectedTime
-                  ? "bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] hover:from-green-700 hover:via-emerald-700 hover:to-teal-700"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 text-white shadow-lg hover:shadow-xl hover:translate-y-[-1px] active:translate-y-0"
+                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
               }`}
             >
               {selectedDay && selectedTime ? (
-                <span className="flex items-center justify-center gap-2">
+                <span className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Proceed to Book Ayurveda Consultation
                 </span>
@@ -133,6 +145,11 @@ const Appointment = () => {
             </button>
           </div>
         </div>
+
+        <p className="text-xs text-slate-500 text-center">
+          This is not an emergency service. If you are experiencing a medical
+          emergency, please contact your local emergency number immediately.
+        </p>
       </div>
     </div>
   );
