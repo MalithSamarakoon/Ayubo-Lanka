@@ -80,76 +80,59 @@ export const signup = async (req, res) => {
     // Hash password
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // 🔹 Create user in DB
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      name,
-      mobile,
-      role,
-      doctorLicenseNumber,
-      specialization,
-      companyAddress,
-      productCategory,
-      isApproved: false, // 👈 Awaiting admin approval
-    });
+ // Case 1: Normal USER
+    if (role === "USER") {
+      const verificationToken = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
 
-    // 🔹 Send admin notification
-    await sendAdminApprovalRequestEmail(name, role);
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+        name,
+        mobile,
+        role,
+        isApproved: true,
+        verificationToken,
+        verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      });
 
-    return res.status(201).json({
-      success: true,
-      message:
-        "Signup successful. Awaiting admin approval. You will receive an email once approved.",
-    });
+      // Send verification email
+      await sendVerificationEmail(user.email, user.name, verificationToken);
 
-    // Generate verification token
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+      const { password: _password, ...userTokenData } = user.toObject();
+      generateTokenAndSetCookie(res, userTokenData);
 
-    const user = new User({
-      email,
-      password: hashedPassword,
-      name,
-      mobile,
-      role,
-      isApproved: role === "USER" ? true : false, // only normal users auto-approved
-      verificationToken,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24h
-      // Doctor fields
-      doctorLicenseNumber: role === "Doctor" ? doctorLicenseNumber : undefined,
-      specialization: role === "Doctor" ? specialization : undefined,
-      // Supplier fields
-      companyAddress: role === "Supplier" ? companyAddress : undefined,
-      productCategory: role === "Supplier" ? productCategory : undefined,
-    });
-
-    const createdUser = (await user.save()).toObject();
-
-    // JWT
-    const { password: _password, ...userTokenData } = createdUser;
-    generateTokenAndSetCookie(res, userTokenData);
-
-    // Send verification email
-    if (createdUser.role === "USER")
-      await sendVerificationEmail(
-        createdUser.email,
-        createdUser.name,
-        verificationToken
-      );
-      if (createdUser.role === "Doctor" || createdUser.role === "Supplier") {
-      await sendAdminApprovalRequestEmail(
-        createdUser.name,
-        createdUser.role
-      );
+      return res.status(201).json({
+        success: true,
+        message: "Signup successful. Verification email sent.",
+        user: userTokenData,
+      });
     }
 
-    res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      user: userTokenData,
-    });
+    // Case 2: Doctor / Supplier (needs admin approval)
+    if (role === "Doctor" || role === "Supplier") {
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+        name,
+        mobile,
+        role,
+        doctorLicenseNumber,
+        specialization,
+        companyAddress,
+        productCategory,
+        isApproved: false, // pending approval
+      });
+
+      await sendAdminApprovalRequestEmail(user.name, user.role);
+
+      return res.status(201).json({
+        success: true,
+        message:
+          "Signup successful. Awaiting admin approval. You will receive an email once approved.",
+      });
+    }
   } catch (error) {
     console.error("Signup Error:", error);
     res.status(400).json({ success: false, message: error.message });
@@ -193,6 +176,7 @@ export const verifyEmail = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
   try {
     const user = await User.findOne({ email });
     if (!user) {

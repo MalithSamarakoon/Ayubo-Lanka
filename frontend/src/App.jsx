@@ -20,10 +20,12 @@ import ApprovalPendingPage from "./pages/ApprovalPendingPage";
 import Doctor from "./pages/Doctor";
 import Home from "./pages/Home";
 import Appointment from "./pages/Appoinment";
+import AdminDashboard from "./pages/AdminDashboard";
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
+import UserMgt from "./pages/UserMgt";
 
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
@@ -65,10 +67,12 @@ function App() {
       {/* Main content */}
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
-          <Route path="/" element={<RoleSelection />} />
+          <Route path="/" element={<LoginPage />} />
 
           {/*  Dashboard */}
           <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-management" element={<UserMgt />} />
            
            <Route path="/dashboard/:id" element={<UpdateUser />} />
 
