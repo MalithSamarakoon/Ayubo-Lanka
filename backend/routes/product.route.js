@@ -7,5 +7,6 @@ router.post('/', createProduct);
 router.get('/allProducts', getAllProducts);
 router.get('/featuredProducts', getFeaturedProducts);
 router.patch('/:id', updateProduct)
+router.delete('/:id', deleteProduct);
 
 export default router;
