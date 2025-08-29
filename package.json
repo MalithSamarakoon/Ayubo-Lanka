@@ -22,7 +22,12 @@
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.1"
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.542.0",
+    "mongoose": "^8.17.1",
+    "react-confetti": "^6.4.0",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.8.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
