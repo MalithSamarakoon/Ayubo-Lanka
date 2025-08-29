@@ -1,8 +1,7 @@
-// frontend/src/Component/SupportForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const SupportForm = () => {
+const SupportForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,27 +36,24 @@ const SupportForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Create FormData to handle file uploads
       const submitData = new FormData();
       Object.keys(formData).forEach(key => {
         if (key !== 'files') {
           submitData.append(key, formData[key]);
         }
       });
-      
-      // Append files
       selectedFiles.forEach(file => {
         submitData.append('files', file);
       });
-      
-      const response = await axios.post('/api/support/inquiry', submitData, {
+
+      await axios.post('http://localhost:5000/api/support/inquiry', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       setSubmitStatus({ type: 'success', message: 'Inquiry submitted successfully!' });
       setFormData({
         name: '',
@@ -69,9 +65,13 @@ const SupportForm = () => {
         files: []
       });
       setSelectedFiles([]);
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error submitting inquiry:', error);
-      setSubmitStatus({ type: 'error', message: 'Failed to submit inquiry. Please try again.' });
+      setSubmitStatus({ type: 'error', message: error.response?.data?.message || 'Failed to submit inquiry. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -80,13 +80,19 @@ const SupportForm = () => {
   return (
     <div>
       <h2 className="text-2xl font-semibold text-green-800 mb-6">Submit Your Inquiry</h2>
-      
+
       {submitStatus && (
-        <div className={`p-4 rounded-md mb-6 ${submitStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+        <div
+          className={`p-4 rounded-md mb-6 ${
+            submitStatus.type === 'success'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          }`}
+        >
           {submitStatus.message}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -103,7 +109,7 @@ const SupportForm = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
             />
           </div>
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email Address *
@@ -119,7 +125,7 @@ const SupportForm = () => {
             />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
@@ -134,7 +140,7 @@ const SupportForm = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
             />
           </div>
-          
+
           <div>
             <label htmlFor="inquiryType" className="block text-sm font-medium text-gray-700 mb-1">
               Inquiry Type *
@@ -156,7 +162,7 @@ const SupportForm = () => {
             </select>
           </div>
         </div>
-        
+
         <div>
           <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
             Subject *
@@ -171,7 +177,7 @@ const SupportForm = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
           />
         </div>
-        
+
         <div>
           <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
             Message *
@@ -186,7 +192,7 @@ const SupportForm = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
           ></textarea>
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Attach Files (Optional)
@@ -194,15 +200,18 @@ const SupportForm = () => {
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
               <div className="flex text-sm text-gray-600">
-                <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
+                <label
+                  htmlFor="file-upload"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none"
+                >
                   <span>Upload files</span>
-                  <input 
-                    id="file-upload" 
-                    name="file-upload" 
-                    type="file" 
-                    multiple 
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    multiple
                     onChange={handleFileChange}
-                    className="sr-only" 
+                    className="sr-only"
                   />
                 </label>
                 <p className="pl-1">or drag and drop</p>
@@ -210,20 +219,23 @@ const SupportForm = () => {
               <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
             </div>
           </div>
-          
+
           {selectedFiles.length > 0 && (
             <div className="mt-4">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h4>
               <ul className="space-y-2">
                 {selectedFiles.map((file, index) => (
-                  <li key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                  <li
+                    key={index}
+                    className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
+                  >
                     <span className="text-sm text-gray-600 truncate">{file.name}</span>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => removeFile(index)}
                       className="text-red-500 hover:text-red-700"
                     >
-                      <i className="fas fa-times"></i>
+                      ✕
                     </button>
                   </li>
                 ))}
@@ -231,7 +243,7 @@ const SupportForm = () => {
             </div>
           )}
         </div>
-        
+
         <div>
           <button
             type="submit"

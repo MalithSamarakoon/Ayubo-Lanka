@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     const { name, email, rating, feedback, category, consent } = req.body;
-    
+
     const newFeedback = new Feedback({
       name,
       email,
@@ -16,9 +16,9 @@ router.post('/', async (req, res) => {
       category,
       consent
     });
-    
+
     await newFeedback.save();
-    
+
     res.status(201).json({
       message: 'Feedback submitted successfully',
       feedback: newFeedback
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all feedback (for testing - remove auth requirement)
+// Get all feedback
 router.get('/', async (req, res) => {
   try {
     const feedback = await Feedback.find().sort({ createdAt: -1 });
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get average rating and stats
+// Get feedback stats
 router.get('/stats/overview', async (req, res) => {
   try {
     const result = await Feedback.aggregate([
@@ -52,11 +52,11 @@ router.get('/stats/overview', async (req, res) => {
         }
       }
     ]);
-    
+
     const featuredFeedback = await Feedback.find({ featured: true })
       .sort({ createdAt: -1 })
       .limit(5);
-    
+
     if (result.length === 0) {
       return res.json({
         averageRating: 0,
@@ -64,7 +64,7 @@ router.get('/stats/overview', async (req, res) => {
         featuredFeedback
       });
     }
-    
+
     res.json({
       averageRating: Math.round(result[0].averageRating * 10) / 10,
       totalFeedback: result[0].totalFeedback,
@@ -72,6 +72,45 @@ router.get('/stats/overview', async (req, res) => {
     });
   } catch (error) {
     console.error('Error calculating feedback statistics:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ✅ Update feedback
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedFeedback = await Feedback.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedFeedback) {
+      return res.status(404).json({ message: 'Feedback not found' });
+    }
+
+    res.json({
+      message: 'Feedback updated successfully',
+      feedback: updatedFeedback
+    });
+  } catch (error) {
+    console.error('Error updating feedback:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ✅ Delete feedback
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedFeedback = await Feedback.findByIdAndDelete(req.params.id);
+
+    if (!deletedFeedback) {
+      return res.status(404).json({ message: 'Feedback not found' });
+    }
+
+    res.json({ message: 'Feedback deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting feedback:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

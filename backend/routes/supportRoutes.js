@@ -1,52 +1,16 @@
 // backend/routes/supportRoutes.js
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
 const Support = require('../models/Support');
+
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/support/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|pdf/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only JPEG, PNG, and PDF files are allowed'));
-    }
-  }
-});
+// ------------------- ROUTES -------------------
 
 // Create a new support inquiry
-router.post('/inquiry', upload.array('files', 5), async (req, res) => {
+router.post('/inquiry', async (req, res) => {
   try {
     const { name, email, phone, inquiryType, subject, message } = req.body;
-    
-    // Process uploaded files
-    const files = req.files ? req.files.map(file => ({
-      filename: file.filename,
-      originalName: file.originalname,
-      path: file.path,
-      size: file.size
-    })) : [];
-    
+
     const newInquiry = new Support({
       name,
       email,
@@ -54,14 +18,13 @@ router.post('/inquiry', upload.array('files', 5), async (req, res) => {
       inquiryType,
       subject,
       message,
-      files
+      files: [] // no file upload in this version
     });
-    
+
     await newInquiry.save();
-    
-    res.status(201).json({
-      message: 'Inquiry submitted successfully',
-      inquiry: newInquiry
+    res.status(201).json({ 
+      message: 'Inquiry submitted successfully', 
+      inquiry: newInquiry 
     });
   } catch (error) {
     console.error('Error creating support inquiry:', error);
@@ -69,7 +32,7 @@ router.post('/inquiry', upload.array('files', 5), async (req, res) => {
   }
 });
 
-// Get all support inquiries (for testing - remove auth requirement)
+// Get all support inquiries
 router.get('/inquiries', async (req, res) => {
   try {
     const inquiries = await Support.find().sort({ createdAt: -1 });
@@ -80,45 +43,53 @@ router.get('/inquiries', async (req, res) => {
   }
 });
 
-// Update inquiry status (for testing - remove auth requirement)
-router.put('/inquiry/:id/status', async (req, res) => {
+// Update inquiry status
+router.put('/inquiry/:id', async (req, res) => {
   try {
-    const { status } = req.body;
     const inquiry = await Support.findByIdAndUpdate(
       req.params.id,
-      { status },
+      req.body,   // update with all fields from body
       { new: true }
     );
-    
+
     if (!inquiry) {
       return res.status(404).json({ message: 'Inquiry not found' });
     }
-    
-    res.json({ message: 'Status updated successfully', inquiry });
+
+    res.json({ message: 'Inquiry updated successfully', inquiry });
   } catch (error) {
-    console.error('Error updating inquiry status:', error);
+    console.error('Error updating inquiry:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get support statistics (for testing - remove auth requirement)
+// Get support statistics
 router.get('/stats/overview', async (req, res) => {
   try {
     const totalInquiries = await Support.countDocuments();
     const newInquiries = await Support.countDocuments({ status: 'new' });
     const inProgressInquiries = await Support.countDocuments({ status: 'in-progress' });
     const resolvedInquiries = await Support.countDocuments({ status: 'resolved' });
-    
-    res.json({
-      totalInquiries,
-      newInquiries,
-      inProgressInquiries,
-      resolvedInquiries
-    });
+
+    res.json({ totalInquiries, newInquiries, inProgressInquiries, resolvedInquiries });
   } catch (error) {
     console.error('Error fetching support statistics:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+// Delete an inquiry
+router.delete('/inquiry/:id', async (req, res) => {
+  try {
+    const inquiry = await Support.findByIdAndDelete(req.params.id);
+    if (!inquiry) {
+      return res.status(404).json({ message: 'Inquiry not found' });
+    }
+    res.json({ message: 'Inquiry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting inquiry:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 
 module.exports = router;

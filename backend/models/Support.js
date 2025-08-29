@@ -4,11 +4,14 @@ const mongoose = require('mongoose');
 const supportSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    lowercase: true,
+    trim: true
   },
   phone: {
     type: String,
@@ -21,22 +24,26 @@ const supportSchema = new mongoose.Schema({
   },
   subject: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   message: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
-  files: [{
-    filename: String,
-    originalName: String,
-    path: String,
-    size: Number,
-    uploadedAt: {
-      type: Date,
-      default: Date.now
+  files: [
+    {
+      filename: String,
+      originalName: String,
+      path: String,
+      size: Number,
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
     }
-  }],
+  ],
   status: {
     type: String,
     default: 'new',
@@ -53,21 +60,9 @@ const supportSchema = new mongoose.Schema({
       ref: 'User'
     },
     respondedAt: Date
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
-});
-
-// Update the updatedAt field before saving
-supportSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
+}, {
+  timestamps: true // ✅ handles createdAt & updatedAt automatically
 });
 
 module.exports = mongoose.model('Support', supportSchema);

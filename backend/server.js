@@ -8,25 +8,46 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", // Your frontend port
+  credentials: true
+}));
 
-// Test route - make sure this works first
-app.get("/", (req, res) => {
-  res.json({ message: "Server is working!" });
+// MongoDB connection
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/feedbackdb";
+
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("✅ MongoDB connected"))
+.catch(err => {
+  console.error("❌ MongoDB connection error:", err.message);
+  process.exit(1);
 });
 
-// Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/ayuboLanka";
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log("MongoDB connected successfully"))
-  .catch(err => console.log("MongoDB connection error:", err));
+// Test route
+app.get("/", (req, res) => {
+  res.json({ message: "Server is working and MongoDB connected!" });
+});
 
-// Basic error handler
+// Import routes
+const supportRoutes = require('./routes/supportRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+
+app.use("/api/support", supportRoutes);
+app.use("/api/feedback", feedbackRoutes);
+app.use("/api/tickets", ticketRoutes);
+
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Frontend should connect to: http://localhost:${PORT}`);
+});

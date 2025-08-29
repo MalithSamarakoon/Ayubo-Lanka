@@ -1,8 +1,7 @@
-// frontend/src/Component/TicketSystem.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const TicketSystem = () => {
+const TicketSystem = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -44,7 +43,6 @@ const TicketSystem = () => {
     setIsSubmitting(true);
     
     try {
-      // Create FormData to handle file uploads
       const submitData = new FormData();
       Object.keys(formData).forEach(key => {
         if (key !== 'attachments') {
@@ -52,16 +50,14 @@ const TicketSystem = () => {
         }
       });
       
-      // Append files
       selectedFiles.forEach(file => {
         submitData.append('attachments', file);
       });
       
-      // Generate ticket number
       const newTicketNumber = generateTicketNumber();
       submitData.append('ticketNumber', newTicketNumber);
       
-      const response = await axios.post('/api/support/ticket', submitData, {
+      const response = await axios.post('http://localhost:5000/api/tickets', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -79,9 +75,13 @@ const TicketSystem = () => {
         attachments: []
       });
       setSelectedFiles([]);
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error creating ticket:', error);
-      setSubmitStatus({ type: 'error', message: 'Failed to create ticket. Please try again.' });
+      setSubmitStatus({ type: 'error', message: error.response?.data?.message || 'Failed to create ticket. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -286,7 +286,7 @@ const TicketSystem = () => {
             </div>
           )}
         </div>
-        
+
         <div>
           <button
             type="submit"
