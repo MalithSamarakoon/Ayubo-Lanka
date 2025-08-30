@@ -8,24 +8,25 @@ const path = require("path");
 
 const app = express();
 
-/** CORS: allow localhost/127.0.0.1 on any port (dev), or explicit FRONTEND_ORIGIN if set */
+/** CORS: allow any localhost port in dev or explicit FRONTEND_ORIGIN */
 const DEV_LOCAL_REGEX = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/;
 const EXPLICIT_ORIGIN = process.env.FRONTEND_ORIGIN || null;
 
 const corsOptions = {
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // Postman/curl/no-origin
+    if (!origin) return cb(null, true);                 // Postman / curl
     if (DEV_LOCAL_REGEX.test(origin)) return cb(null, true);
     if (EXPLICIT_ORIGIN && origin === EXPLICIT_ORIGIN) return cb(null, true);
     return cb(new Error("Not allowed by CORS: " + origin));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// ✅ Global CORS (handles preflight too; no app.options("*") needed)
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // handle preflight
+
 app.use(express.json());
 
 // Ensure upload dirs exist
