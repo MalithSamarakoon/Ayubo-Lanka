@@ -2,16 +2,18 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
   const handleNavigation = (path) => {
     navigate(path);
   };
 
   const handleLogout = () => {
-    // clear token/session logic here
+    logout();
     navigate("/login");
   };
 
@@ -97,16 +99,24 @@ function AdminDashboard() {
             whileHover={{ scale: 1.02 }}
             className="p-8 bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
           >
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">User Overview</h3>
-            <p className="text-gray-600">Manage registered users, and track activity.</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              User Overview
+            </h3>
+            <p className="text-gray-600">
+              Manage registered users, and track activity.
+            </p>
           </motion.div>
 
           <motion.div
             whileHover={{ scale: 1.02 }}
             className="p-8 bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
           >
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Inventory Status</h3>
-            <p className="text-gray-600">Track stock, suppliers, and update product details.</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              Inventory Status
+            </h3>
+            <p className="text-gray-600">
+              Track stock, suppliers, and update product details.
+            </p>
           </motion.div>
 
           <motion.div
@@ -114,15 +124,21 @@ function AdminDashboard() {
             className="p-8 bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
           >
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Orders</h3>
-            <p className="text-gray-600">View, process, and manage customer orders efficiently.</p>
+            <p className="text-gray-600">
+              View, process, and manage customer orders efficiently.
+            </p>
           </motion.div>
 
           <motion.div
             whileHover={{ scale: 1.02 }}
             className="p-8 bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
           >
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Reports & Analytics</h3>
-            <p className="text-gray-600">Generate insights on sales, trends, and performance.</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              Reports & Analytics
+            </h3>
+            <p className="text-gray-600">
+              Generate insights on sales, trends, and performance.
+            </p>
           </motion.div>
         </div>
       </div>

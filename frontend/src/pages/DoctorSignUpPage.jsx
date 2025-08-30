@@ -52,10 +52,16 @@ const DoctorSignUpPage = () => {
 
     setValidationError("");
 
+    // Prefix "Dr." to name (avoid double prefixing)
+    const cleanedName = name.trim();
+    const prefixedName = /^dr\.?\s*/i.test(cleanedName)
+      ? cleanedName.replace(/^dr\.?\s*/i, "Dr. ")
+      : `Dr. ${cleanedName}`;
+
     try {
       await signup({
         role: "Doctor",
-        name,
+        name: prefixedName,
         doctorLicenseNumber,
         specialization,
         email,
@@ -81,15 +87,80 @@ const DoctorSignUpPage = () => {
           Doctor Registration
         </h2>
         <form onSubmit={handleSignUp}>
-          <Input icon={User} type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input icon={FileText} type="text" placeholder="Doctor License Number" value={doctorLicenseNumber} onChange={(e) => setDoctorLicenseNumber(e.target.value)} />
-          <Input icon={FileText} type="text" placeholder="Specialization" value={specialization} onChange={(e) => setSpecialization(e.target.value)} />
-          <Input icon={Mail} type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input icon={Phone} type="text" placeholder="Mobile Number (10 digits)" value={mobile} onChange={(e) => setMobile(e.target.value)} />
-          <Input icon={Lock} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <Input icon={Lock} type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+          <Input
+            icon={User}
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            icon={FileText}
+            type="text"
+            placeholder="Doctor License Number"
+            value={doctorLicenseNumber}
+            onChange={(e) => setDoctorLicenseNumber(e.target.value)}
+          />
 
-          {(validationError || error) && <p className="text-red-500 font-semibold mt-2">{validationError || error}</p>}
+          {/* Specialization: Patient-friendly dropdown styled like other inputs */}
+          <div className="mb-4 relative">
+            <FileText
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
+              size={18}
+            />
+            <select
+              className="w-full bg-white text-gray-700 placeholder-gray-400 border border-white/20 rounded-lg shadow-sm py-3 pl-12 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              value={specialization}
+              onChange={(e) => setSpecialization(e.target.value)}
+            >
+              <option value="" disabled>
+                Select Specialization
+              </option>
+              <option value="General Ayurveda">General Ayurveda</option>
+              <option value="Women’s Health">Women’s Health</option>
+              <option value="Child Health">Child Health</option>
+              <option value="Detox & Panchakarma">Detox & Panchakarma</option>
+              <option value="Mental Health">Mental Health</option>
+              <option value="Geriatric Care">Geriatric Care</option>
+              <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
+            </select>
+          </div>
+          {/* End specialization dropdown */}
+
+          <Input
+            icon={Mail}
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            icon={Phone}
+            type="text"
+            placeholder="Mobile Number (10 digits)"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+          />
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          {(validationError || error) && (
+            <p className="text-red-500 font-semibold mt-2">
+              {validationError || error}
+            </p>
+          )}
 
           <PasswordStrengthMeter password={password} />
 
@@ -100,13 +171,20 @@ const DoctorSignUpPage = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? <Loader className="animate-spin mx-auto" size={24} /> : "Sign Up as Doctor"}
+            {isLoading ? (
+              <Loader className="animate-spin mx-auto" size={24} />
+            ) : (
+              "Sign Up as Doctor"
+            )}
           </motion.button>
         </form>
       </div>
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
         <p className="text-sm text-gray-600">
-          Already registered? <Link to={"/login"} className="text-green-500 hover:underline">Login</Link>
+          Already registered?{" "}
+          <Link to={"/login"} className="text-green-500 hover:underline">
+            Login
+          </Link>
         </p>
       </div>
     </motion.div>

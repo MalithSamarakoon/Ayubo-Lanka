@@ -18,6 +18,6 @@ userRouter.get("/users", getAllUsers); // Get all users
 userRouter.get("/:id", getUserById);
 userRouter.patch("/:id", updateUser);
 userRouter.delete("/:id", deleteUser);
-userRouter.post("/approve-user/:id", approveUser); // Approve a doctor
+userRouter.patch("/approve/:id", approveUser); // Approve a doctor
 
 export default userRouter;

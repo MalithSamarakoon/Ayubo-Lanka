@@ -16,7 +16,6 @@ const LoginPage = () => {
     e.preventDefault();
     const user = await login(email, password);
     console.log("Login successful");
-    console.log(user);
     if (user.role === "SUPER_ADMIN") navigate("/admin-dashboard");
     else navigate("/home");
   };

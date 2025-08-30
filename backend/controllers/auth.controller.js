@@ -6,7 +6,7 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 import { sendVerificationEmail, sendWelcomeEmail } from "../mailer.js";
 import { sendPasswordResetEmail } from "../mailer.js";
 import { sendPasswordResetSuccessEmail } from "../mailer.js";
-import { sendAdminApprovalRequestEmail, sendUserApprovedEmail } from "../mailer.js";
+import { sendAdminApprovalRequestEmail } from "../mailer.js";
 
 
 export const signup = async (req, res) => {
