@@ -1,12 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
-import { PlusCircle, ShoppingBasket }  from "lucide-react"
+import { CirclePlus, ShoppingBasket }  from "lucide-react"
 import CreateProductForm from '../components/CreateProductForm'
 import ProductsList from '../components/ProductsList'
 
 
 const tabs = [
-    { id: "create", label: "Create Product", icon: PlusCircle },
+    { id: "create", label: "Create Product", icon: CirclePlus },
     { id: "products", label: "Products", icon: ShoppingBasket }
 ]
 
