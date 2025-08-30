@@ -56,108 +56,126 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
+    <div className="relative min-h-screen min-w-full overflow-hidden antialiased text-slate-800 bg-gradient-to-br from-emerald-50 via-lime-50 to-amber-50">
       {/* Navbar always visible */}
       <Navbar />
 
       {/* Main content */}
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
-        <Routes>
-          <Route path="/" element={<div>test</div>} />
+      <div className="min-h-screen w-full">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="text-center text-base md:text-lg font-medium text-slate-700">
+                  test
+                </div>
+              }
+            />
 
-          {/*  Dashboard */}
-          <Route path="/dashboard" element={<UserDashboard />} />
+            {/*  Dashboard */}
+            <Route path="/dashboard" element={<UserDashboard />} />
 
-          {/* Role Selection */}
-          <Route
-            path="/signup"
-            element={
-              <RedirectAuthenticatedUser>
-                <RoleSelection />
-              </RedirectAuthenticatedUser>
-            }
-          />
+            {/* Role Selection */}
+            <Route
+              path="/signup"
+              element={
+                <RedirectAuthenticatedUser>
+                  <RoleSelection />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          {/* Signups */}
-          <Route
-            path="/signup/user"
-            element={
-              <RedirectAuthenticatedUser>
-                <SignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/signup/doctor"
-            element={
-              <RedirectAuthenticatedUser>
-                <DoctorSignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/signup/supplier"
-            element={
-              <RedirectAuthenticatedUser>
-                <SupplierSignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+            {/* Signups */}
+            <Route
+              path="/signup/user"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/signup/doctor"
+              element={
+                <RedirectAuthenticatedUser>
+                  <DoctorSignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/signup/supplier"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SupplierSignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          {/* Auth */}
-          <Route
-            path="/login"
-            element={
-              <RedirectAuthenticatedUser>
-                <LoginPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route path="/verify-email" element={<EmailVerificationPage />} />
-          <Route
-            path="/forgot-password"
-            element={
-              <RedirectAuthenticatedUser>
-                <ForgotPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/reset-password/:token"
-            element={
-              <RedirectAuthenticatedUser>
-                <ResetPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+            {/* Auth */}
+            <Route
+              path="/login"
+              element={
+                <RedirectAuthenticatedUser>
+                  <LoginPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
+            <Route
+              path="/forgot-password"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ForgotPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/reset-password/:token"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ResetPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
 
-          {/* Approval Pending */}
-          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
+            {/* Approval Pending */}
+            <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-          {/* Other Pages */}
-          <Route path="/home" element={<Home />} />
-          <Route path="/doctor" element={<Doctor />} />
-          <Route path="/doctor/:docId" element={<Appointment />} />
-          <Route
-            path="/doctor/:docId/book/patientform"
-            element={<PatientForm />}
-          />
-          <Route
-            path="/doctor/:docId/book/patientdetails"
-            element={<PatientDetails />}
-          />
-          <Route
-            path="/doctor/:docId/book/patientupdate"
-            element={<PatientUpdate />}
-          />
-          <Route path="/onlinepayment" element={<Onlinepayment />} />
+            {/* Other Pages */}
+            <Route path="/home" element={<Home />} />
+            <Route path="/doctor" element={<Doctor />} />
+            <Route path="/doctor/:docId" element={<Appointment />} />
+            <Route
+              path="/doctor/:docId/book/patientform"
+              element={<PatientForm />}
+            />
+            <Route
+              path="/doctor/:docId/book/patientdetails"
+              element={<PatientDetails />}
+            />
+            <Route
+              path="/doctor/:docId/book/patientupdate"
+              element={<PatientUpdate />}
+            />
+           + <Route
+   path="/doctor/:docId/book/onlinepayment"
+   element={<Onlinepayment />}
+ />
 
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </div>
 
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          className:
+            "rounded-xl bg-white/90 backdrop-blur shadow-lg border border-emerald-100 text-slate-800",
+        }}
+        position="top-center"
+      />
     </div>
   );
 }

@@ -57,7 +57,9 @@ const Appointment = () => {
       <div className="flex justify-center items-center h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50">
         <div className="text-center">
           <div className="mx-auto mb-4 h-14 w-14 rounded-full border-4 border-emerald-600 border-t-transparent animate-spin"></div>
-          <p className="text-lg text-slate-600 font-medium">Loading…</p>
+          <p className="text-base md:text-lg text-slate-600 font-medium">
+            Loading…
+          </p>
         </div>
       </div>
     );
@@ -73,10 +75,10 @@ const Appointment = () => {
               <Calendar className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+              <h1 className="text-3xl md:text-4xl leading-tight font-extrabold text-slate-900 tracking-tight">
                 Book Appointment
               </h1>
-              <p className="text-emerald-700">
+              <p className="text-sm md:text-base text-emerald-700">
                 Schedule your Ayurveda consultation with our specialist
               </p>
             </div>
@@ -99,31 +101,43 @@ const Appointment = () => {
                 Available Slots
               </h2>
             </div>
-            <p className="text-emerald-100 mt-2">
+            <p className="text-xs md:text-sm text-emerald-100 mt-2">
               Select your preferred date and time for natural healing
             </p>
           </div>
 
           {/* Content */}
           <div className="p-6 md:p-8 space-y-8">
-            <BookingDateSelector
-              bookingSlots={bookingSlots}
-              selectedDay={selectedDay}
-              setSelectedDay={setSelectedDay}
-            />
+            <div className="space-y-2">
+              <label className="block text-sm md:text-base font-semibold text-slate-700">
+                Choose a date
+              </label>
+              <BookingDateSelector
+                bookingSlots={bookingSlots}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+              />
+            </div>
 
-            <BookingTimeSelector
-              timeSlots={timeSlots}
-              selectedTime={selectedTime}
-              setSelectedTime={setSelectedTime}
-            />
+            <div className="space-y-2">
+              <label className="block text-sm md:text-base font-semibold text-slate-700">
+                Choose a time
+              </label>
+              <BookingTimeSelector
+                timeSlots={timeSlots}
+                selectedTime={selectedTime}
+                setSelectedTime={setSelectedTime}
+              />
+            </div>
 
-            <BookingSummary
-              docInfo={docInfo}
-              bookingSlots={bookingSlots}
-              selectedDay={selectedDay}
-              selectedTime={selectedTime}
-            />
+            <div className="text-base md:text-lg">
+              <BookingSummary
+                docInfo={docInfo}
+                bookingSlots={bookingSlots}
+                selectedDay={selectedDay}
+                selectedTime={selectedTime}
+              />
+            </div>
 
             <button
               onClick={() => navigate(`/doctor/${docId}/book/patientform`)}
@@ -146,7 +160,7 @@ const Appointment = () => {
           </div>
         </div>
 
-        <p className="text-xs text-slate-500 text-center">
+        <p className="text-xs md:text-sm text-slate-500 text-center">
           This is not an emergency service. If you are experiencing a medical
           emergency, please contact your local emergency number immediately.
         </p>
