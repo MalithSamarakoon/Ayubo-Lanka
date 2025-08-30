@@ -1,40 +1,48 @@
-// frontend/src/Component/SupportForm.jsx
 import React, { useState } from 'react';
 import api from '../lib/api';
 
 const SupportForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '',
-    inquiryType: '', subject: '', message: ''
+    name: '',
+    email: '',
+    phone: '',
+    inquiryType: '',
+    subject: '',
+    message: ''
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
   const handleFileChange = (e) => setSelectedFiles(Array.from(e.target.files));
-  const removeFile = (i) => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i));
+  const removeFile = (idx) => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const submitData = new FormData();
-      Object.entries(formData).forEach(([k, v]) => submitData.append(k, v));
-      selectedFiles.forEach(f => submitData.append('files', f));
+      const fd = new FormData();
+      Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
+      selectedFiles.forEach((file) => fd.append('files', file));
 
-      await api.post('/api/support/inquiry', submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await api.post('/api/support/inquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 
       setSubmitStatus({ type: 'success', message: 'Inquiry submitted successfully!' });
-      setFormData({ name:'', email:'', phone:'', inquiryType:'', subject:'', message:'' });
+      setFormData({ name: '', email: '', phone: '', inquiryType: '', subject: '', message: '' });
       setSelectedFiles([]);
-      onSuccess?.();
+
+      // ✅ report success up (so Support.jsx can toast + close)
+      onSuccess?.('Inquiry submitted successfully! We will contact you shortly.');
     } catch (error) {
       console.error('API error:', error?.response?.data || error?.message);
-      setSubmitStatus({ type: 'error', message: error?.response?.data?.message || 'Failed to submit inquiry. Please try again.' });
-    } finally { setIsSubmitting(false); }
+      setSubmitStatus({
+        type: 'error',
+        message: error?.response?.data?.message || 'Failed to submit inquiry. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -51,26 +59,48 @@ const SupportForm = ({ onSuccess }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-            <input name="name" value={formData.name} onChange={handleChange} required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" />
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+            />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+            />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-            <input name="phone" value={formData.phone} onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" />
+            <input
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+            />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type *</label>
-            <select name="inquiryType" value={formData.inquiryType} onChange={handleChange} required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            <select
+              name="inquiryType"
+              value={formData.inquiryType}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+            >
               <option value="">Select Inquiry Type</option>
               <option value="product">Product Inquiry</option>
               <option value="treatment">Treatment Information</option>
@@ -83,14 +113,25 @@ const SupportForm = ({ onSuccess }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
-          <input name="subject" value={formData.subject} onChange={handleChange} required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" />
+          <input
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+          />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
-          <textarea name="message" value={formData.message} onChange={handleChange} required rows="5"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" />
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            rows="5"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+          />
         </div>
 
         <div>
@@ -120,8 +161,11 @@ const SupportForm = ({ onSuccess }) => {
           )}
         </div>
 
-        <button type="submit" disabled={isSubmitting}
-          className="w-full py-3 px-4 bg-green-700 text-white font-medium rounded-md hover:bg-green-800">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-3 px-4 bg-green-700 text-white font-medium rounded-md hover:bg-green-800"
+        >
           {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
         </button>
       </form>
