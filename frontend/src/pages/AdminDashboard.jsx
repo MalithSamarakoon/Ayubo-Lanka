@@ -45,7 +45,7 @@ function AdminDashboard() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleNavigation("/admin/inventory")}
+              onClick={() => handleNavigation("/product-dashboard")}
               className="py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 
                 rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
             >
