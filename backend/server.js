@@ -25,6 +25,8 @@ app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/patients", patientRouter);
+
+//TODO: heshan fix this
 // app.use("/api/support", supportRoutes);
 // app.use("/api/feedback", feedbackRoutes);
 // app.use("/api/tickets", ticketRoutes);
