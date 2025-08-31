@@ -54,7 +54,7 @@ const SupplierSignUpPage = () => {
 
     try {
       await signup({
-        role: "Supplier",
+        role: "SUPPLIER",
         name,
         companyAddress,
         email,

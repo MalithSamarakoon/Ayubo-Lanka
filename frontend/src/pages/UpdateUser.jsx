@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Input from "../components/Input";
-import { User, Mail, Phone } from "lucide-react"; // icons
+import { User, Mail, Phone, DollarSign } from "lucide-react"; // icons
 import Loader from "../components/LoadingSpinner";
 
 function UpdateUser() {
@@ -12,9 +12,14 @@ function UpdateUser() {
   const [inputs, setInputs] = useState({
     name: "",
     email: "",
-    mobile: ""
+    mobile: "",
+    experience: "",
+    consultationFee: "",
+    description: "",
+    availability: "not_available",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole, setUserRole] = useState("");
 
   // Fetch user data
   useEffect(() => {
@@ -22,10 +27,17 @@ function UpdateUser() {
       try {
         const res = await axios.get(`http://localhost:5000/api/user/${id}`);
         if (res.data.user) {
+          const userData = res.data.user;
+           console.log("User Data:", userData);
+          setUserRole(userData.role); // Set user role
           setInputs({
-            name: res.data.user.name || "",
-            email: res.data.user.email || "",
-            mobile: res.data.user.mobile || ""
+            name: userData.name || "",
+            email: userData.email || "",
+            mobile: userData.mobile || "",
+            experience: userData.experience || "",
+            consultationFee: userData.consultationFee || "",
+            description: userData.description || "",
+            availability: userData.availability || "not_available",
           });
         }
       } catch (err) {
@@ -35,6 +47,8 @@ function UpdateUser() {
     fetchHandler();
   }, [id]);
 
+  console.log("User Role:", userRole); // Debugging line
+
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -42,8 +56,9 @@ function UpdateUser() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log("Submitting data:", inputs);
     try {
-      await axios.patch(`http://localhost:5000/api/user/${id}`, inputs);
+      await axios.patch(`http://localhost:5000/api/user/${id}`, {...inputs, role: userRole});
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -100,6 +115,48 @@ function UpdateUser() {
           value={inputs.mobile}
           onChange={handleChange}
         />
+
+        {/* Show doctor-specific fields only for doctors */}
+        {userRole === "DOCTOR" && (
+          <>
+            <Input
+              icon={DollarSign}
+              type="number"
+              name="consultationFee"
+              placeholder="Consultation Fee"
+              value={inputs.consultationFee}
+              onChange={handleChange}
+            />
+
+
+            <input
+            type="number"
+            name="experience"
+            placeholder="Experience (in years)"
+            value={inputs.experience}
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg border border-gray-300 mt-1 placeholder-gray-400 text-gray-700"
+            />
+
+            <textarea
+              name="description"
+              value={inputs.description}
+              onChange={handleChange}
+              placeholder="Description"
+              className="w-full p-3 rounded-lg border border-gray-300 mt-3"
+            />
+            <select
+              name="availability"
+              value={inputs.availability}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg border border-gray-300 mt-3"
+            >
+              <option value="weekday">Weekday</option>
+              <option value="weekend">Weekend</option>
+              <option value="not_available">Not available</option>
+            </select>
+          </>
+        )}
 
         <motion.button
           type="submit"

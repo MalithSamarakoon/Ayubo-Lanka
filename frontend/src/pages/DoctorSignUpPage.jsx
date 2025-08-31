@@ -59,8 +59,9 @@ const DoctorSignUpPage = () => {
       : `Dr. ${cleanedName}`;
 
     try {
+      // Only pass essential fields for signup
       await signup({
-        role: "Doctor",
+        role: "DOCTOR",
         name: prefixedName,
         doctorLicenseNumber,
         specialization,

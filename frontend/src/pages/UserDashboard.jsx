@@ -91,6 +91,24 @@ const UserDashboard = () => {
               <span className="font-semibold">Last Login:</span>{" "}
               {formatDate(user?.lastLogin)}
             </p>
+
+            {/* Show doctor-specific fields only for doctors */}
+            {user?.role === "DOCTOR" && (
+              <>
+                <p>
+                  <span className="font-semibold">Experience:</span> {user?.experience} years
+                </p>
+                <p>
+                  <span className="font-semibold">Consultation Fee:</span> Rs.{user?.consultationFee}
+                </p>
+                <p>
+                  <span className="font-semibold">Description:</span> {user?.description || "No description provided"}
+                </p>
+                <p>
+                  <span className="font-semibold">Availability:</span> {user?.availability}
+                </p>
+              </>
+            )}
           </div>
         </motion.div>
       </div>
