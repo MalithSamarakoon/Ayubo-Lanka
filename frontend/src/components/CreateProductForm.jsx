@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { CirclePlus, Upload, Loader } from 'lucide-react'
+import { useProductStore } from '../stores/useProductStore';
 
 const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"];
 
@@ -15,11 +16,18 @@ const CreateProductForm = () => {
     image: ""
   });
 
-  const loading = false;
+  
+  const {createProduct, loading} = useProductStore();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(newProduct);
+	try {
+		await createProduct(newProduct);
+		setNewProduct({name: "", description: "", category: "", price:"", stock: "", minimumStock: "", image: ""});
+	} catch (error) {
+		console.error("Error creating product:", error);
+	}
+    
   }
 
   const handleImageChange = (e) => {
