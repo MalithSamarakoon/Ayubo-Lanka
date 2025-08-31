@@ -6,7 +6,7 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 import { sendVerificationEmail, sendWelcomeEmail } from "../mailer.js";
 import { sendPasswordResetEmail } from "../mailer.js";
 import { sendPasswordResetSuccessEmail } from "../mailer.js";
-import { sendAdminApprovalRequestEmail, sendUserApprovedEmail } from "../mailer.js";
+import { sendAdminApprovalRequestEmail } from "../mailer.js"; 
 
 export const signup = async (req, res) => {
   const {
@@ -20,6 +20,10 @@ export const signup = async (req, res) => {
     // doctor fields
     doctorLicenseNumber,
     specialization,
+    experience,        // New field
+    consultationFee,   // New field
+    description,       // New field
+    availability,      // New field
     // supplier fields
     companyAddress,
     productCategory,
@@ -52,15 +56,16 @@ export const signup = async (req, res) => {
     }
 
     // Check role-specific fields
-    if (role === "Doctor") {
+    if (role === "DOCTOR") {
+      // If DOCTOR, ensure basic doctor fields are present
       if (!doctorLicenseNumber || !specialization) {
         return res
           .status(400)
-          .json({ success: false, message: "All doctor fields are required" });
+          .json({ success: false, message: "DOCTOR license number and specialization are required" });
       }
     }
 
-    if (role === "Supplier") {
+    if (role === "SUPPLIER") {
       if (!companyAddress || !productCategory) {
         return res
           .status(400)
@@ -68,92 +73,89 @@ export const signup = async (req, res) => {
       }
     }
 
-    // Check if user exists
+    // Check if user exists by email or mobile (optional, based on your need)
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
       return res
         .status(400)
-        .json({ success: false, message: "User already exists" });
+        .json({ success: false, message: "User already exists with this email" });
+    }
+    const userWithMobile = await User.findOne({ mobile });
+    if (userWithMobile) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists with this mobile number" });
     }
 
     // Hash password
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // 🔹 Create user in DB
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      name,
-      mobile,
-      role,
-      doctorLicenseNumber,
-      specialization,
-      companyAddress,
-      productCategory,
-      isApproved: false, // 👈 Awaiting admin approval
-    });
+    // Case 1: Normal USER
+    if (role === "USER") {
+      const verificationToken = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
 
-    // 🔹 Send admin notification
-    await sendAdminApprovalRequestEmail(name, role);
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+        name,
+        mobile,
+        role,
+        isApproved: true,
+        verificationToken,
+        verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      });
 
-    return res.status(201).json({
-      success: true,
-      message:
-        "Signup successful. Awaiting admin approval. You will receive an email once approved.",
-    });
+      // Send verification email
+      await sendVerificationEmail(user.email, user.name, verificationToken);
 
-    // Generate verification token
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+      const { password: _password, ...userTokenData } = user.toObject();
+      generateTokenAndSetCookie(res, userTokenData);
 
-    const user = new User({
-      email,
-      password: hashedPassword,
-      name,
-      mobile,
-      role,
-      isApproved: role === "USER" ? true : false, // only normal users auto-approved
-      verificationToken,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24h
-      // Doctor fields
-      doctorLicenseNumber: role === "Doctor" ? doctorLicenseNumber : undefined,
-      specialization: role === "Doctor" ? specialization : undefined,
-      // Supplier fields
-      companyAddress: role === "Supplier" ? companyAddress : undefined,
-      productCategory: role === "Supplier" ? productCategory : undefined,
-    });
-
-    const createdUser = (await user.save()).toObject();
-
-    // JWT
-    const { password: _password, ...userTokenData } = createdUser;
-    generateTokenAndSetCookie(res, userTokenData);
-
-    // Send verification email
-    if (createdUser.role === "USER")
-      await sendVerificationEmail(
-        createdUser.email,
-        createdUser.name,
-        verificationToken
-      );
-      if (createdUser.role === "Doctor" || createdUser.role === "Supplier") {
-      await sendAdminApprovalRequestEmail(
-        createdUser.name,
-        createdUser.role
-      );
+      return res.status(201).json({
+        success: true,
+        message: "Signup successful. Verification email sent.",
+        user: userTokenData,
+      });
     }
 
-    res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      user: userTokenData,
-    });
+    // Case 2: DOCTOR / SUPPLIER (needs admin approval)
+    if (role === "DOCTOR" || role === "SUPPLIER") {
+      // If role is doctor or supplier, validate and save specific fields
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+        name,
+        mobile,
+        role,
+        doctorLicenseNumber,
+        specialization,
+        experience,       // Save experience for doctor
+        consultationFee,  // Save consultationFee for doctor
+        description,      // Save description for doctor
+        availability,     // Save availability for doctor
+        companyAddress,
+        productCategory,
+        isApproved: false, // pending approval
+      });
+
+      // Send admin approval request email for DOCTOR/SUPPLIER
+      await sendAdminApprovalRequestEmail(user.name, user.role);
+
+      return res.status(201).json({
+        success: true,
+        message:
+          "Signup successful. Awaiting admin approval. You will receive an email once approved.",
+      });
+    }
   } catch (error) {
     console.error("Signup Error:", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
 
 export const verifyEmail = async (req, res) => {
   const { code } = req.body;
@@ -192,6 +194,7 @@ export const verifyEmail = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -207,9 +210,9 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // Block unapproved users (Doctor/Supplier)
+    // Block unapproved users (DOCTOR/SUPPLIER)
     if (
-      (user.role === "Doctor" || user.role === "Supplier") &&
+      (user.role === "DOCTOR" || user.role === "SUPPLIER") &&
       !user.isApproved
     ) {
       return res.status(403).json({
@@ -328,7 +331,7 @@ export const checkAuth = async (req, res) => {
     }
 
     if (
-      (user.role === "Doctor" || user.role === "Supplier") &&
+      (user.role === "DOCTOR" || user.role === "SUPPLIER") &&
       !user.isApproved
     ) {
       return res
@@ -342,3 +345,6 @@ export const checkAuth = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
+

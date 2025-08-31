@@ -4,34 +4,34 @@ import { useNavigate } from "react-router-dom";
 export default function RoleSelection() {
   const navigate = useNavigate();
 
- const roles = [
-  { name: "Doctor", color: "from-blue-500 to-cyan-500", path: "/signup/doctor" },
-  { name: "Supplier", color: "from-green-500 to-emerald-500", path: "/signup/supplier" },
-  { name: "User", color: "from-purple-500 to-pink-500", path: "/signup/user" },
-];
+  const roles = [
+    { name: "Doctor", color: "from-green-400 to-green-600", path: "/signup/doctor" },
+    { name: "Supplier", color: "from-green-300 to-green-500", path: "/signup/supplier" },
+    { name: "User", color: "from-green-200 to-green-400", path: "/signup/user" },
+  ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
       <motion.h1
-        className="text-4xl md:text-5xl font-bold mb-10 text-center"
-        initial={{ opacity: 0, y: -40 }}
+        className="text-3xl md:text-4xl font-bold mb-12 text-gray-800 text-center"
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        Are you registering as a
-        <span className="block text-cyan-400">Doctor, Supplier or User?</span>
+        Who are you registering as?
+        <span className="block text-green-500 mt-2">Doctor, Supplier or User?</span>
       </motion.h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
         {roles.map((role, index) => (
           <motion.div
             key={role.name}
-            className={`p-8 rounded-2xl shadow-xl bg-gradient-to-br ${role.color} cursor-pointer text-center font-semibold text-lg hover:scale-105 transform transition`}
-            whileHover={{ y: -10 }}
+            className={`p-10 rounded-3xl shadow-lg cursor-pointer text-center font-semibold text-lg text-gray-900 bg-gradient-to-br ${role.color} hover:shadow-2xl transition-transform transform`}
+            whileHover={{ scale: 1.05, y: -5 }}
             onClick={() => navigate(role.path)}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.2 }}
+            transition={{ delay: index * 0.2, type: "spring", stiffness: 120 }}
           >
             {role.name}
           </motion.div>
@@ -40,3 +40,4 @@ export default function RoleSelection() {
     </div>
   );
 }
+

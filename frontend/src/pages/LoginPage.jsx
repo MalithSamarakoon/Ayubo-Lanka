@@ -14,9 +14,10 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    const user = await login(email, password);
     console.log("Login successful");
-    navigate("/home");
+    if (user.role === "SUPER_ADMIN") navigate("/admin-dashboard");
+    else navigate("/home");
   };
 
   return (
