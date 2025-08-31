@@ -1,38 +1,35 @@
-import express from 'express';
-import 'dotenv/config';
-import { connectDB } from './lib/db.js'; // Changed to named import
-import cors from 'cors';
+import express from "express";
+import "dotenv/config";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import connectDB from "./lib/db.js";
+
+// routes
+import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.routes.js";
+import patientRouter from "./routes/patientRoutes.js";
+import productRouter from "./routes/product.route.js";
+
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
+
+connectDB();
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 
-// Routes
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    status: "Backend operational",
-    dbStatus: mongoose.connection.readyState 
-  });
-});
+app.use("/api/products", productRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+app.use("/api/patients", patientRouter);
+// app.use("/api/support", supportRoutes);
+// app.use("/api/feedback", feedbackRoutes);
+// app.use("/api/tickets", ticketRoutes);
 
-// Startup
-const start = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('💥 Failed to start:', err.message);
-    process.exit(1);
-  }
-};
-
-start();
-console.log("ENV VARS:", {
-  MONGO_URI: process.env.MONGO_URI ? "exists" : "MISSING",
-  PORT: process.env.PORT
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
+export default app;
