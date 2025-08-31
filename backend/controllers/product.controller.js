@@ -1,153 +1,166 @@
-import Product  from "../models/product.model.js";
+import Product from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
 
 export const createProduct = async (req, res) => {
+  try {
+    console.log("req.body:", req.body); // Debug line
+    const { name, description, category, price, stock, minimumStock, image } =
+      req.body; //getting required information from request.
 
-    try {
-        console.log("req.body:", req.body); // Debug line
-        const { name, description, category, price, stock, minimumStock, image } = req.body;  //getting required information from request.
+    let cloudinaryResponse = null;
 
-        let cloudinaryResponse = null
-
-        if(image){
-            cloudinaryResponse = await cloudinary.uploader.upload(image, {folder: "products"})
-        }
-
-        const product = await Product.create({
-            name,
-            description,
-            category,
-            price,
-            stock,
-            minimumStock,
-            image: cloudinaryResponse ? cloudinaryResponse.secure_url : null
-        })
-
-        res.status(201).json({ 
-            message: "Product created successfully",
-            product 
-        });
-    } catch (error) {
-        console.error("Error creating product:", error);
-        res.status(500).json({ message: "Internal server error" });
-        
+    if (image) {
+      cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
     }
-}
+
+    const product = await Product.create({
+      name,
+      description,
+      category,
+      price,
+      stock,
+      minimumStock,
+      image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
+    });
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const getAllProducts = async (req, res) => {
-      try {
-        const products = await Product.find();
-        res.status(200).json({
-            message: "Products retrieved successfully",
-            products
-        });
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        res.status(500).json({ message: "Internal server error" });
-      }
-}
+  try {
+    const products = await Product.find();
+    res.status(200).json({
+      message: "Products retrieved successfully",
+      products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const getFeaturedProducts = async (req, res) => {
-    try {
-        const featuredProducts = await Product.find({ isFeatured: true }).lean();
-        res.status(200).json({
-            message: "Featured products retrieved successfully",
-            featuredProducts
-        });
-    } catch (error) {
-        console.error("Error fetching featured products:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
+  try {
+    const featuredProducts = await Product.find({ isFeatured: true }).lean();
+    res.status(200).json({
+      message: "Featured products retrieved successfully",
+      featuredProducts,
+    });
+  } catch (error) {
+    console.error("Error fetching featured products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      description,
+      category,
+      price,
+      stock,
+      minimumStock,
+      image,
+      isFeatured,
+    } = req.body;
 
-    try {
-        const { id } = req.params;
-        const { name, description, category, price, stock, minimumStock, image, isFeatured } = req.body;
+    // First, find the existing product
+    const existingProduct = await Product.findById(id);
 
-        // First, find the existing product
-        const existingProduct = await Product.findById(id);
-        
-        if (!existingProduct) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        let imageUrl = existingProduct.image; // Keep existing image by default
-        
-        // Handle image update if a new image is provided
-        if (image) {
-            // Delete the old image from Cloudinary if it exists
-            if (existingProduct.image) {
-                const publicId = existingProduct.image.split('/').pop().split('.')[0]; // Extract public ID from URL
-                try {
-                    await cloudinary.uploader.destroy(`products/${publicId}`);
-                    console.log("Old image deleted from Cloudinary");
-                } catch (error) {
-                    console.log("Error deleting old image from Cloudinary:", error.message);
-                }
-            }
-
-            // Upload the new image to Cloudinary
-            try {
-                const cloudinaryResponse = await cloudinary.uploader.upload(image, {folder: "products"});
-                imageUrl = cloudinaryResponse.secure_url;
-                console.log("New image uploaded to Cloudinary");
-            } catch (error) {
-                console.error("Error uploading new image to Cloudinary:", error);
-                return res.status(500).json({ message: "Error uploading image" });
-            }
-        }
-
-        // Update the product with the new data
-        const updatedProduct = await Product.findByIdAndUpdate(
-            id,
-            {
-                name,
-                description,
-                category,
-                price,
-                stock,
-                minimumStock,
-                image: imageUrl,
-                isFeatured
-            },
-            { new: true } // Return the updated document
-        );
-
-        res.status(200).json({
-            message: "Product updated successfully",
-            product: updatedProduct
-        });
-    } catch (error) {
-        console.error("Error updating product:", error);
-        res.status(500).json({ message: "Internal server error" });
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found" });
     }
-    
-}
+
+    let imageUrl = existingProduct.image; // Keep existing image by default
+
+    // Handle image update if a new image is provided
+    if (image) {
+      // Delete the old image from Cloudinary if it exists
+      if (existingProduct.image) {
+        const publicId = existingProduct.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log("Old image deleted from Cloudinary");
+        } catch (error) {
+          console.log(
+            "Error deleting old image from Cloudinary:",
+            error.message
+          );
+        }
+      }
+
+      // Upload the new image to Cloudinary
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+          folder: "products",
+        });
+        imageUrl = cloudinaryResponse.secure_url;
+        console.log("New image uploaded to Cloudinary");
+      } catch (error) {
+        console.error("Error uploading new image to Cloudinary:", error);
+        return res.status(500).json({ message: "Error uploading image" });
+      }
+    }
+
+    // Update the product with the new data
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        category,
+        price,
+        stock,
+        minimumStock,
+        image: imageUrl,
+        isFeatured,
+      },
+      { new: true } // Return the updated document
+    );
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const deleteProduct = async (req, res) => {
-    try {
-        const product = await Product.findById(req.params.id)
+  try {
+    const product = await Product.findById(req.params.id);
 
-        if(!product){
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        if(product.image){
-            //Delete image from cloudinary
-            const publicId = product.image.split('/').pop().split('.')[0]; // Extract public ID from URL
-            try {
-                await cloudinary.uploader.destroy(`products/${publicId}`);
-                console.log("Image deleted from Cloudinary");
-            } catch (error) {
-                console.log("Error deleting image from Cloudinary", error.message);
-            }
-        }
-
-        await Product.findByIdAndDelete(req.params.id);
-    } catch (error) {
-        console.error("Error deleting product:", error);
-        res.status(500).json({ message: "Internal server error" });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-}
+
+    if (product.image) {
+      //Delete image from cloudinary
+      const publicId = product.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+      try {
+        await cloudinary.uploader.destroy(`products/${publicId}`);
+        console.log("Image deleted from Cloudinary");
+      } catch (error) {
+        console.log("Error deleting image from Cloudinary", error.message);
+      }
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
