@@ -1,4 +1,4 @@
-export const VERIFICATION_EMAIL= (userName, verificationCode) => `
+export const VERIFICATION_EMAIL = (userName, verificationCode) => `
 <!DOCTYPE html>
 <html>
   <head>

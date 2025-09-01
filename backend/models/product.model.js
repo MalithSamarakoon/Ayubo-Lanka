@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const { Schema } = mongoose;
+
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -10,8 +12,8 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     category: {
-        type: ObjectId,
-        ref: "Category"
+        type: String,  // Change to String for now
+        required: false
     },
     price: {
         type: Number,
@@ -28,7 +30,13 @@ const productSchema = new mongoose.Schema({
     
     image: {
         type: String,
-        required: [false, "Image is required."]
+        required: [true, "Image is required."]
+    },
+
+    isFeatured: {
+        type: Boolean,
+        default: false,
+        required: false
     }
 }, {timestamps: true});
 

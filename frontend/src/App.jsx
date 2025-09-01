@@ -1,11 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-
-import FloatingShape from "./components/FloatingShape";
 import Navbar from "./Component/Navbar";
 import LoadingSpinner from "./components/LoadingSpinner";
-
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -16,16 +13,18 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-
 import Doctor from "./pages/Doctor";
 import Home from "./pages/Home";
 import Appointment from "./pages/Appoinment";
+import AdminDashboard from "./pages/AdminDashboard";
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
-
+import UserMgt from "./pages/UserMgt";
+import ProductDashboard from "./pages/ProductDashboard";
 import { useAuthStore } from "./store/authStore";
+import UpdateUser from "./pages/UpdateUser";
 
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
