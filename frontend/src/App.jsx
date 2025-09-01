@@ -61,10 +61,10 @@ function App() {
 
       {/* Main content */}
       <div className="min-h-screen w-full">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="mx-auto w-full ">
           <Routes>
             {/* Home / Landing */}
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LoginPage />} />
 
             {/* Dashboards */}
             <Route path="/dashboard" element={<UserDashboard />} />
