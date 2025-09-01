@@ -60,6 +60,7 @@ function App() {
       <Navbar />
 
       {/* Main content */}
+<<<<<<< HEAD
       <div className="min-h-screen w-full">
         <div className="mx-auto w-full ">
           <Routes>
@@ -68,10 +69,27 @@ function App() {
 
             {/* Dashboards */}
             <Route path="/dashboard" element={<UserDashboard />} />
+<<<<<<< Updated upstream
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/user-management" element={<UserMgt />} />
             <Route path="/dashboard/:id" element={<UpdateUser />} />
             <Route path="/product-dashboard" element={<ProductDashboard />} />
+=======
+=======
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+
+          {/*  Dashboard */}
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-management" element={<UserMgt />} />
+
+          <Route path="/dashboard/:id" element={<UpdateUser />} />
+
+          <Route path="/product-dashboard" element={<ProductDashboard />} />
+>>>>>>> 247f0bc922193c81c1b5adcd9bba498688d50db8
+>>>>>>> Stashed changes
 
             {/* Role Selection */}
             <Route
