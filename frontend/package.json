@@ -23,14 +23,11 @@
     "react-hook-form": "^7.62.0",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.8.1",
-<<<<<<< HEAD
     "zod": "^4.1.1",
-    "zustand": "^5.0.8"
-=======
     "react-to-print": "^3.1.1",
-    "zustand": "^5.0.7"
->>>>>>> 247f0bc922193c81c1b5adcd9bba498688d50db8
+    "zustand": "^5.0.8"
   },
+
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@types/react": "^19.1.10",

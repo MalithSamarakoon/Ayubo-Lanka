@@ -60,35 +60,18 @@ function App() {
       <Navbar />
 
       {/* Main content */}
-<<<<<<< HEAD
       <div className="min-h-screen w-full">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <Routes>
-            <Route
-              path="/"
-              element={
-                <div className="text-center text-base md:text-lg font-medium text-slate-700">
-                  test
-                </div>
-              }
-            />
+            {/* Home / Landing */}
+            <Route path="/" element={<Home />} />
 
-            {/*  Dashboard */}
+            {/* Dashboards */}
             <Route path="/dashboard" element={<UserDashboard />} />
-=======
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-
-          {/*  Dashboard */}
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/user-management" element={<UserMgt />} />
-
-          <Route path="/dashboard/:id" element={<UpdateUser />} />
-
-          <Route path="/product-dashboard" element={<ProductDashboard />} />
->>>>>>> 247f0bc922193c81c1b5adcd9bba498688d50db8
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/user-management" element={<UserMgt />} />
+            <Route path="/dashboard/:id" element={<UpdateUser />} />
+            <Route path="/product-dashboard" element={<ProductDashboard />} />
 
             {/* Role Selection */}
             <Route
@@ -172,10 +155,10 @@ function App() {
               path="/doctor/:docId/book/patientupdate"
               element={<PatientUpdate />}
             />
-           + <Route
-   path="/doctor/:docId/book/onlinepayment"
-   element={<Onlinepayment />}
- />
+            <Route
+              path="/doctor/:docId/book/onlinepayment"
+              element={<Onlinepayment />}
+            />
 
             {/* Fallback route */}
             <Route path="*" element={<Navigate to="/" replace />} />
