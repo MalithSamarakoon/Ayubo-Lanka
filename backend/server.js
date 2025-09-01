@@ -9,6 +9,9 @@ import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.routes.js";
 import patientRouter from "./routes/patientRoutes.js";
 import productRouter from "./routes/product.route.js";
+// backend/server.js (or app entry)
+import cookieParser from "cookie-parser";
+app.use(cookieParser());              // <-- BEFORE your routes
 
 
 const app = express();
