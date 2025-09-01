@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-  const navigate = useNavigate(); // <-- useNavigate hook
+  const navigate = useNavigate();
+  const { user, logout, isLoading, error } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="flex items-center justify-between p-5 font-medium">
@@ -112,10 +119,7 @@ const Navbar = () => {
               </p>
               <p
                 className="cursor-pointer hover:text-black"
-                onClick={() => {
-                  // perform logout logic here if needed
-                  navigate("/login");
-                }}
+                onClick={handleLogout}
               >
                 Logout
               </p>

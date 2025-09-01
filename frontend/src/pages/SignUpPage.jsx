@@ -17,12 +17,32 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
 
+  // ✅ Password validation rules
+  const validatePassword = (pwd) => {
+    const rules = [
+      { regex: /.{6,}/, message: "At least 6 characters" },
+      { regex: /[A-Z]/, message: "Contains uppercase letter" },
+      { regex: /[a-z]/, message: "Contains lowercase letter" },
+      { regex: /[0-9]/, message: "Contains a number" },
+      { regex: /[^A-Za-z0-9]/, message: "Contains special character" },
+    ];
+
+    const failed = rules.filter((rule) => !rule.regex.test(pwd));
+    return failed.length ? failed[0].message : null;
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    // 🔹 Frontend Validations
+    // 🔹 Mobile validation
     if (!/^\d{10}$/.test(mobile)) {
       return setValidationError("Mobile number must be exactly 10 digits.");
+    }
+
+    // 🔹 Password validations
+    const pwdError = validatePassword(password);
+    if (pwdError) {
+      return setValidationError(pwdError);
     }
 
     if (password !== confirmPassword) {
@@ -38,6 +58,7 @@ const SignUpPage = () => {
         mobile: mobile,
         password: password,
         confirmPassword: confirmPassword,
+        role: "USER",
       });
       navigate("/verify-email");
     } catch (error) {
@@ -50,10 +71,10 @@ const SignUpPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20"
+      className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
     >
       <div className="p-8">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
+        <h2 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Create Account
         </h2>
         <form onSubmit={handleSignUp}>
@@ -98,7 +119,7 @@ const SignUpPage = () => {
           />
 
           {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2.5">
+            <p className="text-red-500 font-semibold mt-2.5 drop-shadow-sm">
               {validationError || error}
             </p>
           )}
@@ -106,10 +127,10 @@ const SignUpPage = () => {
           <PasswordStrengthMeter password={password} />
 
           <motion.button
-            className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-              font-bold rounded-lg shadow-lg hover:from-green-600
+            className="mt-6 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+              font-bold rounded-xl shadow-lg hover:from-green-600
               hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-              focus:ring-offset-gray-900 transition duration-200"
+              transition duration-200"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
@@ -123,10 +144,10 @@ const SignUpPage = () => {
           </motion.button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
-        <p className="text-sm text-gray-400">
+      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
+        <p className="text-sm text-gray-600 text-center">
           Already have an account?{" "}
-          <Link to={"/login"} className="text-green-400 hover:underline">
+          <Link to={"/login"} className="text-green-600 font-medium hover:underline">
             Login
           </Link>
         </p>

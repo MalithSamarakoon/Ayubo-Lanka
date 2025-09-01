@@ -22,7 +22,7 @@ const seedSuperAdmin = async () => {
 
     const superAdmin = new User({
       name: "Super Admin",
-      email: "isurindaofficial@gmail.com",
+      email: "ayubolankaitp@gmail.com",
       mobile: "0712345678",
       password: hashedPassword,
       role: "SUPER_ADMIN",

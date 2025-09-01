@@ -20,7 +20,7 @@ export const useAuthStore = create((set) => ({
     role,
     password,
     confirmPassword,
-    license,
+    doctorLicenseNumber,
     specialization,
     companyAddress,
     productCategory,
@@ -36,7 +36,7 @@ export const useAuthStore = create((set) => ({
         password,
         confirmPassword, 
         specialization,
-        doctorLicenseNumber: license,
+        doctorLicenseNumber,
         companyAddress,
         productCategory,
       });
@@ -60,15 +60,19 @@ export const useAuthStore = create((set) => ({
         password,
       });
 
+      console.log(response);
+
       set({
         user: response.data.user,
         isAuthenticated: true,
         error: null,
         isLoading: false,
       });
+
+      return response.data.user
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error logging in",
+        error: error.response?.message || "Error logging in",
         isLoading: false,
       });
       throw error;
@@ -117,6 +121,7 @@ export const useAuthStore = create((set) => ({
     set({ isCheckingAuth: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/check-auth`);
+      console.log(response);
       set({
         user: response.data.user,
         isAuthenticated: true,

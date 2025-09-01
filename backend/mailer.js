@@ -13,7 +13,11 @@ export const transporter = nodemailer.createTransport({
 });
 
 // ------------------ Verification Email ------------------
-export const sendVerificationEmail = async (toEmail, userName, verificationCode) => {
+export const sendVerificationEmail = async (
+  toEmail,
+  userName,
+  verificationCode
+) => {
   try {
     await transporter.sendMail({
       from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
@@ -50,7 +54,11 @@ export const sendWelcomeEmail = async (toEmail, userName) => {
 };
 
 // ------------------ Password Reset Emails ------------------
-export const sendPasswordResetEmail = async (toEmail, resetURL, userName = "") => {
+export const sendPasswordResetEmail = async (
+  toEmail,
+  resetURL,
+  userName = ""
+) => {
   try {
     await transporter.sendMail({
       from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
@@ -99,14 +107,16 @@ export const sendAdminApprovalRequestEmail = async (userName, userRole) => {
         <p>Best regards,<br/>AYUBO LANKA System</p>
       `,
     });
-    console.log(`Admin approval request email sent to ${process.env.GMAIL_USER}`);
+    console.log(
+      `Admin approval request email sent to ${process.env.GMAIL_USER}`
+    );
   } catch (error) {
     console.error("Error sending admin approval request email:", error);
   }
 };
 
 // ------------------ User Approval Email ------------------
-export const sendUserApprovedEmail = async (toEmail, userName, loginURL) => {
+export const sendUserApprovedEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
       from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
@@ -115,8 +125,8 @@ export const sendUserApprovedEmail = async (toEmail, userName, loginURL) => {
       html: `
         <p>Hello ${userName},</p>
         <p>Congratulations! Your account has been approved by the admin.</p>
-        <p>You can now log in using the following link:</p>
-        <a href="${loginURL}" target="_blank" style="color:blue;">Login Here</a>
+        <p>You can now log in and start using our services.</p>
+
         <p>Best regards,<br/>AYUBO LANKA Team</p>
       `,
     });

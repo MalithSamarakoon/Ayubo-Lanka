@@ -41,8 +41,16 @@ const userSchema = new mongoose.Schema(
     },
 
     // Doctor-specific fields
-    doctorLicenseNumber: { type: String }, 
+    doctorLicenseNumber: { type: String },
     specialization: { type: String },
+    experience: { type: Number, min: 0, default: 0 }, // Doctor's years of experience
+    consultationFee: { type: Number, min: 0, default: 0 }, // Consultation fee
+    description: { type: String, maxlength: 2000, default: "" }, // Description about the doctor
+    availability: {
+      type: String,
+      enum: ["weekday", "weekend", "not_available"],
+      default: "not_available", 
+    },
 
     // Supplier-specific fields
     companyName: { type: String },
@@ -56,4 +64,3 @@ const userSchema = new mongoose.Schema(
 );
 
 export const User = mongoose.model("User", userSchema);
-
