@@ -24,7 +24,6 @@ export const useAuthStore = create((set) => ({
     specialization,
     companyAddress,
     productCategory,
-
   }) => {
     set({ isLoading: true, error: null });
     try {
@@ -34,7 +33,7 @@ export const useAuthStore = create((set) => ({
         email,
         mobile,
         password,
-        confirmPassword, 
+        confirmPassword,
         specialization,
         doctorLicenseNumber,
         companyAddress,
@@ -51,7 +50,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- LOGIN ----------
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
@@ -69,7 +67,7 @@ export const useAuthStore = create((set) => ({
         isLoading: false,
       });
 
-      return response.data.user
+      return response.data.user;
     } catch (error) {
       set({
         error: error.response?.message || "Error logging in",
@@ -79,7 +77,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- LOGOUT ----------
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -96,7 +93,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- VERIFY EMAIL ----------
   verifyEmail: async (code) => {
     set({ isLoading: true, error: null });
     try {
@@ -116,7 +112,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- CHECK AUTH ----------
   checkAuth: async () => {
     set({ isCheckingAuth: true, error: null });
     try {
@@ -136,7 +131,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- FORGOT PASSWORD ----------
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
     try {
@@ -154,7 +148,6 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ---------- RESET PASSWORD ----------
   resetPassword: async (token, password) => {
     set({ isLoading: true, error: null });
     try {

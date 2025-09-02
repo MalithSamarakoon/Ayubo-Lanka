@@ -26,7 +26,6 @@ import ProductDashboard from "./pages/ProductDashboard";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 
-// Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
 
@@ -36,7 +35,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Redirect authenticated users away from auth pages
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
 

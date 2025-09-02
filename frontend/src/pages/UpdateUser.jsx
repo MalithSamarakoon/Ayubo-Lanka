@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Input from "../components/Input";
-import { User, Mail, Phone, DollarSign } from "lucide-react"; // icons
+import { User, Mail, Phone, DollarSign } from "lucide-react";
 import Loader from "../components/LoadingSpinner";
 
 function UpdateUser() {
@@ -28,8 +28,8 @@ function UpdateUser() {
         const res = await axios.get(`http://localhost:5000/api/user/${id}`);
         if (res.data.user) {
           const userData = res.data.user;
-           console.log("User Data:", userData);
-          setUserRole(userData.role); // Set user role
+          console.log("User Data:", userData);
+          setUserRole(userData.role);
           setInputs({
             name: userData.name || "",
             email: userData.email || "",
@@ -47,8 +47,6 @@ function UpdateUser() {
     fetchHandler();
   }, [id]);
 
-  console.log("User Role:", userRole); // Debugging line
-
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -58,7 +56,10 @@ function UpdateUser() {
     setIsLoading(true);
     console.log("Submitting data:", inputs);
     try {
-      await axios.patch(`http://localhost:5000/api/user/${id}`, {...inputs, role: userRole});
+      await axios.patch(`http://localhost:5000/api/user/${id}`, {
+        ...inputs,
+        role: userRole,
+      });
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -87,7 +88,9 @@ function UpdateUser() {
         <h1 className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 text-transparent bg-clip-text">
           Update Profile
         </h1>
-        <p className="text-gray-500 mt-1">Edit your personal information below</p>
+        <p className="text-gray-500 mt-1">
+          Edit your personal information below
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,7 +119,6 @@ function UpdateUser() {
           onChange={handleChange}
         />
 
-        {/* Show doctor-specific fields only for doctors */}
         {userRole === "DOCTOR" && (
           <>
             <Input
@@ -128,14 +130,13 @@ function UpdateUser() {
               onChange={handleChange}
             />
 
-
             <input
-            type="number"
-            name="experience"
-            placeholder="Experience (in years)"
-            value={inputs.experience}
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg border border-gray-300 mt-1 placeholder-gray-400 text-gray-700"
+              type="number"
+              name="experience"
+              placeholder="Experience (in years)"
+              value={inputs.experience}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg border border-gray-300 mt-1 placeholder-gray-400 text-gray-700"
             />
 
             <textarea

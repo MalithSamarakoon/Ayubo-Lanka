@@ -52,14 +52,12 @@ const DoctorSignUpPage = () => {
 
     setValidationError("");
 
-    // Prefix "Dr." to name (avoid double prefixing)
     const cleanedName = name.trim();
     const prefixedName = /^dr\.?\s*/i.test(cleanedName)
       ? cleanedName.replace(/^dr\.?\s*/i, "Dr. ")
       : `Dr. ${cleanedName}`;
 
     try {
-      // Only pass essential fields for signup
       await signup({
         role: "DOCTOR",
         name: prefixedName,
@@ -103,7 +101,6 @@ const DoctorSignUpPage = () => {
             onChange={(e) => setDoctorLicenseNumber(e.target.value)}
           />
 
-          {/* Specialization: Patient-friendly dropdown styled like other inputs */}
           <div className="mb-4 relative">
             <FileText
               className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
@@ -126,7 +123,6 @@ const DoctorSignUpPage = () => {
               <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
             </select>
           </div>
-          {/* End specialization dropdown */}
 
           <Input
             icon={Mail}

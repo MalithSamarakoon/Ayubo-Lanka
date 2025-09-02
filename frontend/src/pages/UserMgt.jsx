@@ -22,8 +22,8 @@ function UserMgt() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [editingId, setEditingId] = useState(null); // <- add
-  const [isModalOpen, setIsModalOpen] = useState(false); // <- add
+  const [editingId, setEditingId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch users
   useEffect(() => {
@@ -49,15 +49,13 @@ function UserMgt() {
   }, []);
 
   const downloadUserReport = () => {
-    // Landscape A4 in points (pt)
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "pt",
       format: "A4",
     });
 
-    // ------- Header (brand/title/date) -------
-    const marginX = 48; // left/right padding
+    const marginX = 48;
     const marginTop = 60;
     const lineY = marginTop + 22;
 
@@ -71,13 +69,10 @@ function UserMgt() {
     const dateStr = now.toLocaleString();
     doc.text(`Generated: ${dateStr}`, marginX, marginTop + 16);
 
-    // divider line under header
     doc.setDrawColor(180);
     doc.setLineWidth(0.8);
     doc.line(marginX, lineY, doc.internal.pageSize.getWidth() - marginX, lineY);
 
-    // ------- Table -------
-    // Define the columns you want in the PDF:
     const head = [
       [
         "#",
@@ -93,9 +88,8 @@ function UserMgt() {
       ],
     ];
 
-    // Use your filteredData so search applies
     const body = filteredData.map((u, idx) => [
-      idx + 1, // index
+      idx + 1, 
       u.name || "-",
       u.email || "-",
       u.role || "-",
@@ -119,13 +113,12 @@ function UserMgt() {
         overflow: "linebreak",
       },
       headStyles: {
-        fillColor: [16, 185, 129], // emerald-ish
+        fillColor: [16, 185, 129],
         textColor: 255,
         halign: "left",
       },
       alternateRowStyles: { fillColor: [245, 245, 245] },
       didDrawPage: (data) => {
-        // Footer (page number)
         const pageCount = doc.getNumberOfPages();
         const pageSize = doc.internal.pageSize;
         const pageWidth = pageSize.getWidth();
@@ -146,16 +139,13 @@ function UserMgt() {
       },
     });
 
-    // ------- Save -------
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
     const dd = String(now.getDate()).padStart(2, "0");
     doc.save(`User_Report_${yyyy}-${mm}-${dd}.pdf`);
   };
 
-  // ---------------- Handlers ---------------- //
-
-  // Approve or Reject
+  //approval
   const handleApprovalChange = async (userId, approved) => {
     setUsers((prev) =>
       prev.map((u) => (u._id === userId ? { ...u, isApproved: approved } : u))
@@ -168,7 +158,6 @@ function UserMgt() {
     }
   };
 
-  // Delete user
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
@@ -181,7 +170,6 @@ function UserMgt() {
     }
   };
 
-  // Update user
   const handleUpdate = (user) => {
     setEditingId(user._id);
     setIsModalOpen(true);
@@ -193,7 +181,6 @@ function UserMgt() {
     );
   };
 
-  // ---------------- Search ---------------- //
   const filteredData = useMemo(() => {
     if (!searchTerm.trim()) return users;
     const q = searchTerm.toLowerCase();
@@ -219,7 +206,6 @@ function UserMgt() {
     });
   }, [users, searchTerm]);
 
-  // ---------------- Columns ---------------- //
   const columns = useMemo(
     () => [
       {
@@ -312,7 +298,6 @@ function UserMgt() {
     []
   );
 
-  // ---------------- Table ---------------- //
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -408,7 +393,6 @@ function UserMgt() {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-sm text-gray-600">
             Page{" "}

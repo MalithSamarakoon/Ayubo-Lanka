@@ -34,7 +34,6 @@ const UserDashboard = () => {
     await axios
       .delete(`http://localhost:5000/api/user/${loggedUser?._id}`)
       .then(() => navigate("/login"));
-    console.log("Delete Account success");
   };
 
   return (
@@ -45,7 +44,6 @@ const UserDashboard = () => {
       transition={{ duration: 0.5 }}
       className="max-w-2xl w-full mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl border border-gray-200"
     >
-      {/* Header with Avatar */}
       <div className="flex flex-col items-center text-center">
         <motion.div
           initial={{ scale: 0.8 }}
@@ -92,20 +90,24 @@ const UserDashboard = () => {
               {formatDate(user?.lastLogin)}
             </p>
 
-            {/* Show doctor-specific fields only for doctors */}
+            {/*doctor-specific fields for doctors*/}
             {user?.role === "DOCTOR" && (
               <>
                 <p>
-                  <span className="font-semibold">Experience:</span> {user?.experience} years
+                  <span className="font-semibold">Experience:</span>{" "}
+                  {user?.experience} years
                 </p>
                 <p>
-                  <span className="font-semibold">Consultation Fee:</span> Rs.{user?.consultationFee}
+                  <span className="font-semibold">Consultation Fee:</span> Rs.
+                  {user?.consultationFee}
                 </p>
                 <p>
-                  <span className="font-semibold">Description:</span> {user?.description || "No description provided"}
+                  <span className="font-semibold">Description:</span>{" "}
+                  {user?.description || "No description provided"}
                 </p>
                 <p>
-                  <span className="font-semibold">Availability:</span> {user?.availability}
+                  <span className="font-semibold">Availability:</span>{" "}
+                  {user?.availability}
                 </p>
               </>
             )}
@@ -113,14 +115,12 @@ const UserDashboard = () => {
         </motion.div>
       </div>
 
-      {/* Action Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         className="mt-8 flex flex-col sm:flex-row gap-4"
       >
-        {/* Update Profile */}
         <Link to={`/dashboard/${user?._id}`} className="flex-1">
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -133,7 +133,6 @@ const UserDashboard = () => {
           </motion.button>
         </Link>
 
-        {/* Delete Account */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

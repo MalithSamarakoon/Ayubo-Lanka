@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, Lock, Mail, MapPin, Phone, Building2, Package } from "lucide-react";
+import {
+  Loader,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  Building2,
+  Package,
+} from "lucide-react";
 import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
@@ -81,15 +89,61 @@ const SupplierSignUpPage = () => {
           Supplier Registration
         </h2>
         <form onSubmit={handleSignUp}>
-          <Input icon={Building2} type="text" placeholder="Company Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input icon={MapPin} type="text" placeholder="Company Address" value={companyAddress} onChange={(e) => setcompanyAddress(e.target.value)} />
-          <Input icon={Mail} type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input icon={Phone} type="text" placeholder="Mobile Number (10 digits)" value={mobile} onChange={(e) => setMobile(e.target.value)} />
-          <Input icon={Package} type="text" placeholder="Product Category" value={productCategory} onChange={(e) => setProductCategory(e.target.value)} />
-          <Input icon={Lock} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <Input icon={Lock} type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+          <Input
+            icon={Building2}
+            type="text"
+            placeholder="Company Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            icon={MapPin}
+            type="text"
+            placeholder="Company Address"
+            value={companyAddress}
+            onChange={(e) => setcompanyAddress(e.target.value)}
+          />
+          <Input
+            icon={Mail}
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            icon={Phone}
+            type="text"
+            placeholder="Mobile Number (10 digits)"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+          />
+          <Input
+            icon={Package}
+            type="text"
+            placeholder="Product Category"
+            value={productCategory}
+            onChange={(e) => setProductCategory(e.target.value)}
+          />
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
-          {(validationError || error) && <p className="text-red-500 font-semibold mt-2">{validationError || error}</p>}
+          {(validationError || error) && (
+            <p className="text-red-500 font-semibold mt-2">
+              {validationError || error}
+            </p>
+          )}
 
           <PasswordStrengthMeter password={password} />
 
@@ -100,13 +154,20 @@ const SupplierSignUpPage = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? <Loader className="animate-spin mx-auto" size={24} /> : "Sign Up as Supplier"}
+            {isLoading ? (
+              <Loader className="animate-spin mx-auto" size={24} />
+            ) : (
+              "Sign Up as Supplier"
+            )}
           </motion.button>
         </form>
       </div>
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
         <p className="text-sm text-gray-600">
-          Already registered? <Link to={"/login"} className="text-green-500 hover:underline">Login</Link>
+          Already registered?{" "}
+          <Link to={"/login"} className="text-green-500 hover:underline">
+            Login
+          </Link>
         </p>
       </div>
     </motion.div>

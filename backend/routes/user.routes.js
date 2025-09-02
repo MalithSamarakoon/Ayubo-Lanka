@@ -5,24 +5,16 @@ import {
   getAllUsers,
   updateUser,
   deleteUser,
-  updateDoctorProfile, // New controller to handle doctor profile updates
+  updateDoctorProfile,
 } from "../controllers/user.controller.js";
-
-// Middleware to verify token and admin role
-// userRouter.use(checkAuth); // Uncomment this when implementing checkAuth middleware
-// userRouter.use(verifyAdmin); // Uncomment this if you're using verifyAdmin middleware
 
 const userRouter = express.Router();
 
-// Admin routes
-userRouter.get("/users", getAllUsers); // Get all users
-userRouter.get("/:id", getUserById); // Get user by ID
-userRouter.patch("/:id", updateUser); // Update user by ID
-userRouter.delete("/:id", deleteUser); // Delete user
-userRouter.patch("/approve/:id", approveUser); // Approve a doctor
-
-// Doctor-specific routes
-userRouter.patch("/doctor/profile", updateDoctorProfile); // Update doctor profile (experience, consultation fee, description, availability)
+userRouter.get("/users", getAllUsers);
+userRouter.get("/:id", getUserById);
+userRouter.patch("/:id", updateUser);
+userRouter.delete("/:id", deleteUser);
+userRouter.patch("/approve/:id", approveUser);
+userRouter.patch("/doctor/profile", updateDoctorProfile);
 
 export default userRouter;
-

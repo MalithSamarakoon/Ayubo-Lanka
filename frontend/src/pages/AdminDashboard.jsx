@@ -19,7 +19,6 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
-      {/* Sidebar */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -74,7 +73,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Logout */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

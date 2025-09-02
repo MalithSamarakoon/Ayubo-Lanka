@@ -7,14 +7,12 @@ dotenv.config();
 
 const seedSuperAdmin = async () => {
   try {
-    // ✅ Await the connection inside try/catch
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected");
+    console.log("MongoDB Connected");
 
-    // Check if super admin already exists
     const existingAdmin = await User.findOne({ role: "ADMIN" });
     if (existingAdmin) {
-      console.log("⚠️ Super Admin already exists:", existingAdmin.email);
+      console.log("Super Admin already exists:", existingAdmin.email);
       return;
     }
 
@@ -31,14 +29,12 @@ const seedSuperAdmin = async () => {
 
     await superAdmin.save();
 
-    console.log("🎉 Super Admin created successfully");
+    console.log("Super Admin created successfully");
     process.exit(0);
   } catch (err) {
-    console.error("❌ Error seeding Super Admin:", err);
+    console.error("Error seeding Super Admin:", err);
     process.exit(1);
   }
 };
 
 seedSuperAdmin();
-
-

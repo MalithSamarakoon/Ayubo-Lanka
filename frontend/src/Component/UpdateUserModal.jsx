@@ -31,7 +31,6 @@ export default function UpdateUserModal({ id, open, onClose, onSaved }) {
 
   useOnClickOutside(cardRef, onClose);
 
-  // lock body scroll while open
   useEffect(() => {
     if (!open) return;
     const original = document.body.style.overflow;
@@ -39,7 +38,6 @@ export default function UpdateUserModal({ id, open, onClose, onSaved }) {
     return () => (document.body.style.overflow = original);
   }, [open]);
 
-  // ESC to close
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -47,7 +45,6 @@ export default function UpdateUserModal({ id, open, onClose, onSaved }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // Fetch user data when opening / id changes
   useEffect(() => {
     if (!open || !id) return;
     const fetchUser = async () => {
@@ -79,7 +76,7 @@ export default function UpdateUserModal({ id, open, onClose, onSaved }) {
     try {
       const res = await axios.patch(`${API_BASE}/${id}`, inputs);
       const updated = res.data?.user || { _id: id, ...inputs };
-      onSaved?.(updated); // let parent update the row optimistically
+      onSaved?.(updated);
       onClose();
     } catch (err) {
       console.error(err);
