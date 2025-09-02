@@ -19,7 +19,7 @@ connectDB();
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
