@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const productSchema = new mongoose.Schema({
+const ayurvedicproductSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -40,6 +40,6 @@ const productSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-const Product = mongoose.model("Product", productSchema);
+const ayurvedicProduct = mongoose.model("Product", ayurvedicproductSchema);
 
-export default Product;
+export default ayurvedicProduct;
