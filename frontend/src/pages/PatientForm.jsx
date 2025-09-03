@@ -127,12 +127,12 @@ const PatientForm = () => {
 
     try {
       setSubmitting(true);
-     const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
- const response = await fetch(`${API_BASE}/api/patients`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-});
+      const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/patients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
       const data = await response.json();
       if (response.ok) {
         alert("Your information was submitted successfully!");
@@ -149,64 +149,67 @@ const PatientForm = () => {
     }
   };
 
+  // ---------- THEME (glass + dark like SignUpPage) ----------
   const inputBase =
-    "w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-3 transition-all duration-200 bg-white";
-  const errCls = "border-red-300 focus:border-red-500 focus:ring-red-100";
+    "w-full pl-10 pr-4 py-3 rounded-xl border focus:ring-2 transition-all duration-200 " +
+    "bg-white/5 text-white placeholder-white/50 border-white/20 focus:border-emerald-400 focus:ring-emerald-400/40";
+  const errCls = "border-red-400/60 focus:border-red-400 focus:ring-red-400/30";
   const okCls =
-    "border-green-200 focus:border-emerald-500 focus:ring-emerald-200";
+    "border-white/20 focus:border-emerald-400 focus:ring-emerald-400/40";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-emerald-950 py-10 px-4">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="bg-white shadow-lg rounded-2xl border border-green-100 mb-6 overflow-hidden">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center shadow-lg">
+        <div className="bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden mb-6">
+          <div className="px-6 py-5 bg-gradient-to-r from-green-500 to-emerald-600">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
                 <User className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-extrabold text-white drop-shadow">
                   Patient Registration Form
                 </h1>
-                <p className="text-green-100 text-sm font-medium">
-                  Ayurveda Medical Center - Natural Healing
+                <p className="text-white/90 text-sm font-medium">
+                  Ayurveda Medical Center • Natural Healing
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <div className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden">
-          <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-emerald-50 to-green-50">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center">
-              <FileText className="w-6 h-6 text-emerald-600 mr-3" />
+        {/* Form Card */}
+        <div className="bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="px-6 py-5 border-b border-white/10 bg-white/5">
+            <h2 className="text-xl font-bold text-white flex items-center">
+              <FileText className="w-6 h-6 text-emerald-400 mr-3" />
               Patient Information
             </h2>
-            <p className="text-sm text-emerald-700 mt-2 font-medium">
+            <p className="text-sm text-emerald-300/90 mt-2">
               Please fill out all required fields marked with *
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-8" noValidate>
+          <form onSubmit={handleSubmit} className="p-8 space-y-10" noValidate>
             {/* Personal */}
             <div>
-              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 Personal Information
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
                 <div ref={refs.name}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Full Name <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-white/90 mb-2">
+                    Full Name <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="w-5 h-5 text-emerald-500" />
+                      <User className="w-5 h-5 text-emerald-300" />
                     </div>
                     <input
                       name="name"
@@ -214,9 +217,7 @@ const PatientForm = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="Enter your full name"
-                      className={`${inputBase} ${
-                        errors.name ? errCls : okCls
-                      } hover:border-emerald-300`}
+                      className={`${inputBase} ${errors.name ? errCls : okCls}`}
                       aria-invalid={!!errors.name}
                       aria-describedby="name-error"
                       required
@@ -224,20 +225,21 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.name && (
-                    <p id="name-error" className="mt-2 text-sm text-red-600">
+                    <p id="name-error" className="mt-2 text-sm text-red-300">
                       {errors.name}
                     </p>
                   )}
                 </div>
 
+                {/* Age */}
                 <div ref={refs.age}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Age <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-white/90 mb-2">
+                    Age <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg
-                        className="w-5 h-5 text-emerald-500"
+                        className="w-5 h-5 text-emerald-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -257,9 +259,7 @@ const PatientForm = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="Enter your age"
-                      className={`${inputBase} ${
-                        errors.age ? errCls : okCls
-                      } hover:border-emerald-300`}
+                      className={`${inputBase} ${errors.age ? errCls : okCls}`}
                       aria-invalid={!!errors.age}
                       aria-describedby="age-error"
                       required
@@ -270,7 +270,7 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.age && (
-                    <p id="age-error" className="mt-2 text-sm text-red-600">
+                    <p id="age-error" className="mt-2 text-sm text-red-300">
                       {errors.age}
                     </p>
                   )}
@@ -280,7 +280,7 @@ const PatientForm = () => {
 
             {/* Contact */}
             <div>
-              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
                 <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                   <Phone className="w-5 h-5 text-white" />
                 </div>
@@ -288,13 +288,14 @@ const PatientForm = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Phone */}
                 <div ref={refs.phone}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Phone Number <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-white/90 mb-2">
+                    Phone Number <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="w-5 h-5 text-emerald-500" />
+                      <Phone className="w-5 h-5 text-emerald-300" />
                     </div>
                     <input
                       name="phone"
@@ -305,7 +306,7 @@ const PatientForm = () => {
                       placeholder="0XXXXXXXXX or +94XXXXXXXXX"
                       className={`${inputBase} ${
                         errors.phone ? errCls : okCls
-                      } hover:border-emerald-300`}
+                      }`}
                       aria-invalid={!!errors.phone}
                       aria-describedby="phone-error"
                       required
@@ -313,19 +314,20 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.phone && (
-                    <p id="phone-error" className="mt-2 text-sm text-red-600">
+                    <p id="phone-error" className="mt-2 text-sm text-red-300">
                       {errors.phone}
                     </p>
                   )}
                 </div>
 
+                {/* Email */}
                 <div ref={refs.email}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Email Address <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-white/90 mb-2">
+                    Email Address <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="w-5 h-5 text-emerald-500" />
+                      <Mail className="w-5 h-5 text-emerald-300" />
                     </div>
                     <input
                       name="email"
@@ -336,27 +338,28 @@ const PatientForm = () => {
                       placeholder="Enter email address"
                       className={`${inputBase} ${
                         errors.email ? errCls : okCls
-                      } hover:border-emerald-300`}
+                      }`}
                       aria-invalid={!!errors.email}
                       aria-describedby="email-error"
                       required
                     />
                   </div>
                   {errors.email && (
-                    <p id="email-error" className="mt-2 text-sm text-red-600">
+                    <p id="email-error" className="mt-2 text-sm text-red-300">
                       {errors.email}
                     </p>
                   )}
                 </div>
               </div>
 
+              {/* Address */}
               <div className="mt-6" ref={refs.address}>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Address <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-white/90 mb-2">
+                  Address <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute top-3 left-3 pointer-events-none">
-                    <MapPin className="w-5 h-5 text-emerald-500" />
+                    <MapPin className="w-5 h-5 text-emerald-300" />
                   </div>
                   <textarea
                     name="address"
@@ -367,14 +370,14 @@ const PatientForm = () => {
                     rows={3}
                     className={`${inputBase} pl-10 ${
                       errors.address ? errCls : okCls
-                    } hover:border-emerald-300`}
+                    }`}
                     aria-invalid={!!errors.address}
                     aria-describedby="address-error"
                     required
                   />
                 </div>
                 {errors.address && (
-                  <p id="address-error" className="mt-2 text-sm text-red-600">
+                  <p id="address-error" className="mt-2 text-sm text-red-300">
                     {errors.address}
                   </p>
                 )}
@@ -383,23 +386,23 @@ const PatientForm = () => {
 
             {/* Medical */}
             <div>
-              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 Medical Information
               </h3>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-white/90 mb-2">
                   Medical History / Current Conditions
-                  <span className="text-emerald-600 font-medium ml-2">
+                  <span className="text-emerald-300 font-medium ml-2">
                     (Optional)
                   </span>
                 </label>
                 <div className="relative">
                   <div className="absolute top-3 left-3 pointer-events-none">
-                    <FileText className="w-5 h-5 text-emerald-500" />
+                    <FileText className="w-5 h-5 text-emerald-300" />
                   </div>
                   <textarea
                     name="medicalInfo"
@@ -407,10 +410,10 @@ const PatientForm = () => {
                     onChange={handleChange}
                     placeholder="Provide relevant history, medications, allergies, etc."
                     rows={4}
-                    className={`${inputBase} pl-10 border-green-200 focus:border-emerald-500 focus:ring-emerald-200 hover:border-emerald-300`}
+                    className={`${inputBase} pl-10 border-white/20`}
                   />
                 </div>
-                <p className="text-sm text-emerald-600 mt-2 font-medium bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                <p className="text-sm text-emerald-300 mt-2 bg-white/5 p-3 rounded-lg border border-white/10">
                   This information helps our Ayurveda practitioners provide
                   personalized care. All data is confidential.
                 </p>
@@ -418,18 +421,23 @@ const PatientForm = () => {
             </div>
 
             {/* Submit */}
-            <div className="pt-6 border-t-2 border-green-100">
+            <div className="pt-6 border-t border-white/10">
               <button
                 type="submit"
                 disabled={submitting}
-                className={`w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center ${
+                className={`w-full py-4 px-8 rounded-xl font-bold text-white shadow-lg transition-all duration-200
+                bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700
+                focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-emerald-900
+                ${
                   submitting
                     ? "opacity-70 cursor-not-allowed"
-                    : "hover:from-green-700 hover:via-emerald-700 hover:to-teal-700"
+                    : "hover:shadow-emerald-600/30"
                 }`}
               >
-                <CheckCircle className="w-6 h-6 mr-3" />
-                {submitting ? "Submitting..." : "Submit Patient Information"}
+                <span className="inline-flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 mr-3" />
+                  {submitting ? "Submitting..." : "Submit Patient Information"}
+                </span>
               </button>
             </div>
           </form>
@@ -437,9 +445,10 @@ const PatientForm = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-sm text-emerald-700 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-xl border border-emerald-200 shadow-sm">
-            <strong>Ayurveda Medical Center</strong> © 2024 • Natural Healing &
-            Wellness • All patient information is confidential and secure
+          <p className="text-sm text-white/90 bg-black/10 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20 shadow-sm">
+            <strong className="text-white">Ayurveda Medical Center</strong> ©
+            2024 • Natural Healing & Wellness • All patient information is
+            confidential and secure
           </p>
         </div>
       </div>
