@@ -40,6 +40,6 @@ const ayurvedicproductSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-const ayurvedicProduct = mongoose.model("Product", ayurvedicproductSchema);
+const ayurvedicProduct = mongoose.model("ayurvedicProduct", ayurvedicproductSchema);
 
 export default ayurvedicProduct;
