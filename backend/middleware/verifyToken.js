@@ -1,53 +1,49 @@
 // backend/middleware/verifyToken.js
 import jwt from "jsonwebtoken";
 
-<<<<<<< Updated upstream
-export default function verifyToken(req, res, next) {
+/**
+ * Reads JWT from:
+ *  1) Authorization header: "Bearer <token>"
+ *  2) Cookie: token
+ * On success: sets req.user (full payload) and req.userId (id/userId) then next()
+ */
+function verifyToken(req, res, next) {
   try {
-    // Authorization: Bearer <token>
+    // 1) Try Authorization header
     const auth = req.headers?.authorization;
     let token = null;
 
-    if (auth?.startsWith("Bearer ")) {
+    if (auth && auth.startsWith("Bearer ")) {
       token = auth.split(" ")[1];
     }
 
-    // Fallback: cookie "token"
+    // 2) Fallback to cookie
     if (!token) {
-      token = req.cookies?.token || null;
+      token = req.cookies?.token ?? null;
     }
 
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    return next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
-  }
-}
-=======
-export const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token)
-    return res
-      .status(401)
-      .json({ success: false, message: "unauthorized - no token provided" });
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!decoded)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - invalid token" });
+        .json({ success: false, message: "Unauthorized: no token" });
+    }
 
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    console.log("Error in verifyToken", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // attach claims
+    req.user = decoded;
+    req.userId = decoded.userId || decoded.id || decoded._id || null;
+
+    return next();
+  } catch (err) {
+    const message =
+      err?.name === "TokenExpiredError"
+        ? "Token expired"
+        : err?.name === "JsonWebTokenError"
+        ? "Invalid token"
+        : "Authentication failed";
+    return res.status(401).json({ success: false, message });
   }
-};
->>>>>>> Stashed changes
+}
+
+export default verifyToken;

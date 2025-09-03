@@ -127,11 +127,12 @@ const PatientForm = () => {
 
     try {
       setSubmitting(true);
-      const response = await fetch("http://localhost:3000/api/patients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+     const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+ const response = await fetch(`${API_BASE}/api/patients`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+});
       const data = await response.json();
       if (response.ok) {
         alert("Your information was submitted successfully!");
