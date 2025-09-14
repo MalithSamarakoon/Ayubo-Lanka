@@ -15,15 +15,17 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const product = await ayurvedicProduct.create({
+    const saveProduct = {
       name,
       description,
       category,
-      price,
-      stock,
-      minimumStock,
+      price : price ? Number(price) : 0,
+      stock : stock ? Number(stock) : 0,
+      minimumStock : minimumStock ? Number(minimumStock) : 0,
       image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
-    });
+    }
+
+    const product = await ayurvedicProduct.create(saveProduct);
 
     res.status(201).json({
       message: "Product created successfully",
