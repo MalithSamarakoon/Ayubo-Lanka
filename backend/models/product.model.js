@@ -22,16 +22,16 @@ const ayurvedicproductSchema = new mongoose.Schema(
     },
     stock: {
       type: Schema.Types.Mixed,
-      // required: true
+       required: true
     },
     minimumStock: {
       type: Schema.Types.Mixed,
-      // required: true
+       required: true
     },
 
     image: {
       type: String,
-      // required: [true, "Image is required."]
+       required: [true, "Image is required."]
     },
 
     isFeatured: {

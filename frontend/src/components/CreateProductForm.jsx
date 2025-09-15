@@ -125,6 +125,42 @@ const CreateProductForm = () => {
 					/>
 				</div>
 
+				<div>
+					<label htmlFor='price' className='block text-sm font-medium text-gray-300'>
+						Stock
+					</label>
+					<input
+						type='number'
+						id='stock'
+						name='stock'
+						value={newProduct.stock}
+						onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+						step='0.01'
+						className='mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
+						py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
+						 focus:border-emerald-500'
+						required
+					/>
+				</div>
+
+				<div>
+					<label htmlFor='price' className='block text-sm font-medium text-gray-300'>
+						Minimum Stock
+					</label>
+					<input
+						type='number'
+						id='minimumStock'
+						name='minimumStock'
+						value={newProduct.minimumStock}
+						onChange={(e) => setNewProduct({ ...newProduct, minimumStock: e.target.value })}
+						step='0.01'
+						className='mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
+						py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
+						 focus:border-emerald-500'
+						required
+					/>
+				</div>
+
 				
 
 				<div className='mt-1 flex items-center'>
