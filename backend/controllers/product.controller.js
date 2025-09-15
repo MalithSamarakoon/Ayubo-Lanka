@@ -50,6 +50,7 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+
 export const getFeaturedProducts = async (req, res) => {
   try {
     const featuredProducts = await ayurvedicProduct.find({ isFeatured: true }).lean();
@@ -62,6 +63,25 @@ export const getFeaturedProducts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const toggleFeaturedProduct = async (req, res) => {
+	try {
+		const product = await ayurvedicProduct.findById(req.params.id);
+		if (product) {
+			product.isFeatured = !product.isFeatured;
+			const updatedProduct = await product.save();
+			
+			res.json(updatedProduct);
+		} else {
+			res.status(404).json({ message: "Product not found" });
+		}
+	} catch (error) {
+		console.log("Error in toggleFeaturedProduct controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};
+
 
 export const updateProduct = async (req, res) => {
   try {
@@ -140,6 +160,7 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const deleteProduct = async (req, res) => {
   try {

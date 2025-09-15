@@ -1,8 +1,9 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CirclePlus, ShoppingBasket }  from "lucide-react"
 import CreateProductForm from '../components/CreateProductForm'
 import ProductsList from '../components/ProductsList'
+import { useProductStore } from '../stores/useProductStore'
 
 
 const tabs = [
@@ -12,6 +13,11 @@ const tabs = [
 
 const ProductDashboard = () => {
   const [activeTab, setActiveTab] = useState("create");
+  const { fetchAllProducts } = useProductStore();
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, [fetchAllProducts])
 
   return (
     <div className='min-h-screen bg-gray-900 text-emerald-400 text-center'>
