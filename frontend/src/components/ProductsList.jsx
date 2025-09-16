@@ -4,7 +4,7 @@ import { Trash, Star } from 'lucide-react'
 import { useProductStore }  from '../stores/useProductStore'
 
 function ProductsList() {
-  const { products } = useProductStore();
+  const { products, toggleFeaturedProduct, deleteProduct } = useProductStore();
 
   console.log("products:", products);
 
