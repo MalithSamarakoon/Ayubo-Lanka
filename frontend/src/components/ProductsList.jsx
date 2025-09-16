@@ -15,7 +15,8 @@ function ProductsList() {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.8 }}
 		>
-      
+    
+	<div className='overflow-x-auto'>
       <table className=' min-w-full divide-y divide-gray-700'>
           <thead className='bg-gray-700'>
 					<tr>
@@ -99,11 +100,13 @@ function ProductsList() {
 							<td className='px-6 py-4 whitespace-nowrap'>
 								<button
 									onClick={() => toggleFeaturedProduct(product._id)}
-									className={`p-1 rounded-full ${
-										product.isFeatured ? "bg-yellow-400 text-gray-900" : "bg-gray-600 text-gray-300"
-									} hover:bg-yellow-500 transition-colors duration-200`}
+									className={`p-1 rounded-full transition-colors duration-200 ${
+										product.isFeatured 
+											? "bg-yellow-400 text-gray-900 hover:bg-yellow-300" 
+											: "bg-gray-600 text-gray-300 hover:bg-yellow-500 hover:text-gray-900"
+									}`}
 								>
-									<Star className='h-5 w-5' />
+									<Star className={`h-5 w-5 ${product.isFeatured ? 'fill-current' : ''}`} />
 								</button>
 							</td>
 							<td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
@@ -118,6 +121,7 @@ function ProductsList() {
 					))}
 				</tbody>
       </table>
+	</div>
 
     </motion.div>
   )
