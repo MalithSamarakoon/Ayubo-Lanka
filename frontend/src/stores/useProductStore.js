@@ -42,7 +42,7 @@ export const useProductStore = create((set) => ({
 			// this will update the isFeatured prop of the product
 			set((prevProducts) => ({
 				products: prevProducts.products.map((product) =>
-					product._id === productId ? { ...product, isFeatured: response.data.isFeatured } : product
+					product._id === response.data._id ? response.data : product
 				),
 				loading: false,
 			}));

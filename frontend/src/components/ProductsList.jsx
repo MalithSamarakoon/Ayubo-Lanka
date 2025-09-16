@@ -1,10 +1,10 @@
 import React from 'react'
 import {motion} from 'framer-motion'
-import { Trash, Star } from 'lucide-react'
+import { Trash, Star, SquarePen } from 'lucide-react'
 import { useProductStore }  from '../stores/useProductStore'
 
 function ProductsList() {
-  const { products, toggleFeaturedProduct, deleteProduct } = useProductStore();
+  const { products, toggleFeaturedProduct, deleteProduct, updateProduct } = useProductStore();
 
   console.log("products:", products);
 
@@ -101,14 +101,21 @@ function ProductsList() {
 								<button
 									onClick={() => toggleFeaturedProduct(product._id)}
 									className={`p-1 rounded-full transition-colors duration-200 ${
-										product.isFeatured 
-											? "bg-yellow-400 text-gray-900 hover:bg-yellow-300" 
-											: "bg-gray-600 text-gray-300 hover:bg-yellow-500 hover:text-gray-900"
-									}`}
+										product.isFeatured ? "bg-yellow-400 text-gray-900" : "bg-gray-600 text-gray-300"
+									} hover:bg-yellow-500 transition-colors duration-200`}
 								>
 									<Star className={`h-5 w-5 ${product.isFeatured ? 'fill-current' : ''}`} />
 								</button>
 							</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+								<button
+									onClick={() => updateProduct(product._id)}
+									className='text-red-400 hover:text-red-300'
+								>
+									<SquarePen className='h-5 w-5' />
+								</button>
+							</td>
+
 							<td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
 								<button
 									onClick={() => deleteProduct(product._id)}
