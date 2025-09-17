@@ -26,18 +26,20 @@ import ProductDashboard from "./pages/ProductDashboard";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 
-// Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
+
   return children;
 };
 
-// Redirect authenticated users away from auth pages
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
+
   if (isAuthenticated && user?.isVerified) return <Navigate to="/" replace />;
+
   return children;
 };
 
@@ -51,155 +53,114 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div>
-      {/* === Background layer (subtle, premium look) === */}
-      <div />
-      {/* soft vignette */}
-      <div />
-      {/* grid accent */}
-      <div />
-      {/* Navbar always visible (sticky for better UX) */}
-      <header>
-        <div>
-          <Navbar />
-        </div>
-      </header>
+    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
+      {/* Navbar always visible */}
+      <Navbar />
 
-      {/* Main content container */}
-      <main className="relative">
-        {/* decorative blur blobs */}
-        <div className="pointer-events-none absolute -top-10 right-[-8%] h-[22rem] w-[22rem] rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="pointer-events-none absolute top-[35%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-amber-300/20 blur-3xl" />
+      {/* Main content */}
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
 
-        {/* page content wrapper */}
-        <div className="mx-auto max-w-7xl w-full px-3 sm:px-6 lg:px-8 py-8">
-          {/* page card (gives consistent spacing & elevation) */}
-          <div className="rounded-2xl border border-emerald-100/60 bg-white/80 backdrop-blur-xl shadow-[0_10px_30px_rgba(16,185,129,0.08)]">
-            <div className="p-4 sm:p-6 lg:p-8">
-              <Routes>
-                {/* Landing — keep or swap with <Home /> */}
-                <Route path="/" element={<LoginPage />} />
+          {/*  Dashboard */}
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-management" element={<UserMgt />} />
 
-                {/* Dashboards */}
-                <Route path="/dashboard" element={<UserDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/user-management" element={<UserMgt />} />
-                <Route path="/dashboard/:id" element={<UpdateUser />} />
-                <Route
-                  path="/product-dashboard"
-                  element={<ProductDashboard />}
-                />
+          <Route path="/dashboard/:id" element={<UpdateUser />} />
 
-                {/* Role Selection */}
-                <Route
-                  path="/signup"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <RoleSelection />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
+          <Route path="/product-dashboard" element={<ProductDashboard />} />
 
-                {/* Signups */}
-                <Route
-                  path="/signup/user"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <SignUpPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
-                <Route
-                  path="/signup/doctor"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <DoctorSignUpPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
-                <Route
-                  path="/signup/supplier"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <SupplierSignUpPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
+          {/* Role Selection */}
+          <Route
+            path="/signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <RoleSelection />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-                {/* Auth */}
-                <Route
-                  path="/login"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <LoginPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
-                <Route
-                  path="/verify-email"
-                  element={<EmailVerificationPage />}
-                />
-                <Route
-                  path="/forgot-password"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <ForgotPasswordPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
-                <Route
-                  path="/reset-password/:token"
-                  element={
-                    <RedirectAuthenticatedUser>
-                      <ResetPasswordPage />
-                    </RedirectAuthenticatedUser>
-                  }
-                />
+          {/* Signups */}
+          <Route
+            path="/signup/user"
+            element={
+              <RedirectAuthenticatedUser>
+                <SignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/doctor"
+            element={
+              <RedirectAuthenticatedUser>
+                <DoctorSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/supplier"
+            element={
+              <RedirectAuthenticatedUser>
+                <SupplierSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-                {/* Approval Pending */}
-                <Route
-                  path="/approval-pending"
-                  element={<ApprovalPendingPage />}
-                />
+          {/* Auth */}
+          <Route
+            path="/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-                {/* Other Pages */}
-                <Route path="/home" element={<Home />} />
-                <Route path="/doctor" element={<Doctor />} />
-                <Route path="/doctor/:docId" element={<Appointment />} />
-                <Route
-                  path="/doctor/:docId/book/patientform"
-                  element={<PatientForm />}
-                />
-                <Route
-                  path="/doctor/:docId/book/patientdetails"
-                  element={<PatientDetails />}
-                />
-                <Route
-                  path="/doctor/:docId/book/patientupdate"
-                  element={<PatientUpdate />}
-                />
-                <Route
-                  path="/doctor/:docId/book/onlinepayment"
-                  element={<Onlinepayment />}
-                />
+          {/* Approval Pending */}
+          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </div>
-          </div>
-        </div>
-      </main>
+          {/* Other Pages */}
+          <Route path="/home" element={<Home />} />
+          <Route path="/doctor" element={<Doctor />} />
+          <Route path="/doctor/:docId" element={<Appointment />} />
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={<PatientForm />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={<PatientDetails />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={<PatientUpdate />}
+          />
+          <Route path="/onlinepayment" element={<Onlinepayment />} />
 
-      {/* Toaster: refined look */}
-      <Toaster
-        toastOptions={{
-          className:
-            "rounded-xl bg-white/90 backdrop-blur-md shadow-lg border border-emerald-100 text-slate-800",
-          style: { fontWeight: 600 },
-        }}
-        position="top-center"
-      />
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+
+      <Toaster />
     </div>
   );
 }
