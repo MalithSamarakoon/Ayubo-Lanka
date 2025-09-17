@@ -23,6 +23,7 @@ import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
 import UserMgt from "./pages/UserMgt";
 import ProductDashboard from "./pages/ProductDashboard";
+import UpdateProduct from "./pages/UpdateProduct";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 
@@ -155,6 +156,8 @@ function App() {
             path="/doctor/:docId/book/patientupdate"
             element={<PatientUpdate />}
           />
+
+          <Route path="/update-product/:id" element={<UpdateProduct />} />
           <Route path="/onlinepayment" element={<Onlinepayment />} />
 
           {/* Fallback route */}

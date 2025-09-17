@@ -2,9 +2,15 @@ import React from 'react'
 import {motion} from 'framer-motion'
 import { Trash, Star, SquarePen } from 'lucide-react'
 import { useProductStore }  from '../stores/useProductStore'
+import { useNavigate } from 'react-router-dom'
 
 function ProductsList() {
-  const { products, toggleFeaturedProduct, deleteProduct, updateProduct } = useProductStore();
+  const { products, toggleFeaturedProduct, deleteProduct } = useProductStore();
+  const navigate = useNavigate();
+
+  const handleEditClick = (productId) => {
+    navigate(`/update-product/${productId}`);
+  };
 
   console.log("products:", products);
 
@@ -109,8 +115,8 @@ function ProductsList() {
 							</td>
                             <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
 								<button
-									onClick={() => updateProduct(product._id)}
-									className='text-red-400 hover:text-red-300'
+									onClick={() => handleEditClick(product._id)}
+									className='text-indigo-400 hover:text-indigo-300 mr-3'
 								>
 									<SquarePen className='h-5 w-5' />
 								</button>
