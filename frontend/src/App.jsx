@@ -51,16 +51,16 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden antialiased">
+    <div>
       {/* === Background layer (subtle, premium look) === */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-emerald-50 via-lime-50 to-amber-50" />
+      <div />
       {/* soft vignette */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(65%_60%_at_50%_40%,black,transparent)] bg-[radial-gradient(60rem_40rem_at_20%_-10%,rgba(16,185,129,0.18),transparent),radial-gradient(50rem_32rem_at_120%_20%,rgba(245,158,11,0.14),transparent)]" />
+      <div />
       {/* grid accent */}
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] [background-size:36px_36px]" />
+      <div />
       {/* Navbar always visible (sticky for better UX) */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/60 border-b border-emerald-100/50">
-        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+      <header>
+        <div>
           <Navbar />
         </div>
       </header>
