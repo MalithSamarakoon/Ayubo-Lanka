@@ -34,7 +34,7 @@ function ProductsList() {
 						</th>
 						<th
 							scope='col'
-							className='px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider'
+							className='px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider'
 						>
 							Description
 						</th>
@@ -67,7 +67,7 @@ function ProductsList() {
 						</th>
 						<th
 							scope='col'
-							className='px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider'
+							className='px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider'
 						>
 							Actions
 						</th>
@@ -92,7 +92,7 @@ function ProductsList() {
 								</div>
 							</td>
 							<td className='px-6 py-4 whitespace-nowrap'>
-								<div className='text-sm text-gray-300'>${product.description}</div>
+								<div className='text-sm text-gray-300'>{product.description}</div>
 							</td>
 							<td className='px-6 py-4 whitespace-nowrap'>
 								<div className='text-sm text-gray-300'>{product.category}</div>

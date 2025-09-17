@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Save, Upload, Loader, ArrowLeft } from 'lucide-react';
+import { Save, Upload, Loader, ArrowLeft, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"];
@@ -8,7 +8,6 @@ const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"]
 const UpdateProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -18,10 +17,9 @@ const UpdateProduct = () => {
     minimumStock: "",
     isFeatured: false
   });
-  
-  const [currentImageUrl, setCurrentImageUrl] = useState(""); // For displaying existing image
-  const [newImageFile, setNewImageFile] = useState(null); // For new image upload
-  const [previewImage, setPreviewImage] = useState(""); // For preview of new image
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [newImageFile, setNewImageFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -32,7 +30,6 @@ const UpdateProduct = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/products/${id}`);
         const data = await response.json();
-        
         if (response.ok) {
           const product = data.product;
           setProductData({
@@ -44,7 +41,6 @@ const UpdateProduct = () => {
             minimumStock: product.minimumStock?.toString() || "",
             isFeatured: product.isFeatured || false
           });
-          // Set the current image URL for display
           setCurrentImageUrl(product.image || "");
         } else {
           toast.error(data.message || "Failed to fetch product");
@@ -67,16 +63,12 @@ const UpdateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-    
     try {
-      // Prepare the data to send
       const updateData = { ...productData };
-      
-      // Only include image if a new one was selected
       if (newImageFile) {
-        updateData.image = previewImage; // Send base64 data
+        updateData.image = previewImage;
       }
-      
+
       const response = await fetch(`http://localhost:5000/api/products/${id}`, {
         method: 'PATCH',
         headers: {
@@ -84,9 +76,8 @@ const UpdateProduct = () => {
         },
         body: JSON.stringify(updateData),
       });
-      
+
       const data = await response.json();
-      
       if (response.ok) {
         toast.success("Product updated successfully");
         navigate('/product-dashboard');
@@ -107,7 +98,7 @@ const UpdateProduct = () => {
       setNewImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewImage(reader.result); // Store base64 for upload
+        setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -119,221 +110,200 @@ const UpdateProduct = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="h-10 w-10 animate-spin text-emerald-500 mx-auto mb-4" />
-          <p className="text-gray-300">Loading product data...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader className="animate-spin h-6 w-6 text-green-600" />
+          <span className="text-gray-600">Loading product data...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-8">
-        {/* Header with back button */}
-        <div className="flex items-center mb-6">
-          <button
-            onClick={handleGoBack}
-            className="mr-4 p-2 text-gray-400 hover:text-gray-300 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h2 className="text-2xl font-semibold text-emerald-300">Update Product</h2>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <button
+          onClick={handleGoBack}
+          className="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Products
+        </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Product Name */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-              Product Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={productData.name}
-              onChange={(e) => setProductData({ ...productData, name: e.target.value })}
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2
-               px-3 text-white focus:outline-none focus:ring-2
-              focus:ring-emerald-500 focus:border-emerald-500"
-              required
-            />
+        <div className="max-w-2xl mx-auto">
+          {/* Form Header */}
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <Edit className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Update Product</h2>
+            <p className="text-gray-600">Modify your Ayurvedic product details</p>
           </div>
 
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={productData.description}
-              onChange={(e) => setProductData({ ...productData, description: e.target.value })}
-              rows="3"
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm
-               py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 
-               focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-300">
-              Category
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={productData.category}
-              onChange={(e) => setProductData({ ...productData, category: e.target.value })}
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md
-               shadow-sm py-2 px-3 text-white focus:outline-none 
-               focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              required
-            >
-              <option value="">Select a category</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Price */}
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-300">
-              Price
-            </label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={productData.price}
-              onChange={(e) => setProductData({ ...productData, price: e.target.value })}
-              step="0.01"
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
-              py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
-               focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          {/* Stock */}
-          <div>
-            <label htmlFor="stock" className="block text-sm font-medium text-gray-300">
-              Stock
-            </label>
-            <input
-              type="number"
-              id="stock"
-              name="stock"
-              value={productData.stock}
-              onChange={(e) => setProductData({ ...productData, stock: e.target.value })}
-              step="0.01"
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
-              py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
-               focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          {/* Minimum Stock */}
-          <div>
-            <label htmlFor="minimumStock" className="block text-sm font-medium text-gray-300">
-              Minimum Stock
-            </label>
-            <input
-              type="number"
-              id="minimumStock"
-              name="minimumStock"
-              value={productData.minimumStock}
-              onChange={(e) => setProductData({ ...productData, minimumStock: e.target.value })}
-              step="0.01"
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
-              py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
-               focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Product Image
-            </label>
-            {(previewImage || currentImageUrl) && (
-              <div className="mb-3">
-                <img 
-                  src={previewImage || currentImageUrl} 
-                  alt="Product preview" 
-                  className="w-full h-32 object-cover rounded-md border border-gray-600"
-                />
-                {previewImage && (
-                  <p className="text-sm text-emerald-400 mt-1">New image selected</p>
-                )}
-              </div>
-            )}
-            <div className="mt-1 flex items-center">
-              <input 
-                type="file" 
-                id="image" 
-                className="sr-only" 
-                accept="image/*" 
-                onChange={handleImageChange} 
-              />
-              <label
-                htmlFor="image"
-                className="cursor-pointer bg-gray-700 py-2 px-3 border border-gray-600 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-              >
-                <Upload className="h-5 w-5 inline-block mr-2" />
-                {currentImageUrl ? 'Change Image' : 'Upload Image'}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            {/* Product Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Name *
               </label>
-              {previewImage && (
-                <span className="ml-3 text-sm text-emerald-400">New image ready to upload</span>
+              <input
+                type="text"
+                required
+                value={productData.name}
+                onChange={(e) => setProductData({ ...productData, name: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                placeholder="Enter product name"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description *
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={productData.description}
+                onChange={(e) => setProductData({ ...productData, description: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none"
+                placeholder="Enter product description"
+              />
+            </div>
+
+            {/* Category and Price Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
+                <select
+                  required
+                  value={productData.category}
+                  onChange={(e) => setProductData({ ...productData, category: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price (LKR) *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={productData.price}
+                  onChange={(e) => setProductData({ ...productData, price: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            {/* Stock and Minimum Stock Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Stock *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  value={productData.stock}
+                  onChange={(e) => setProductData({ ...productData, stock: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Enter current stock"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Minimum Stock Level *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  value={productData.minimumStock}
+                  onChange={(e) => setProductData({ ...productData, minimumStock: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Enter minimum stock"
+                />
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Image
+              </label>
+              <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-400 transition-colors">
+                <div className="space-y-1 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="flex text-sm text-gray-600">
+                    <label
+                      htmlFor="image-upload"
+                      className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500"
+                    >
+                      <span>Upload a file</span>
+                      <input
+                        id="image-upload"
+                        type="file"
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+              {(previewImage || currentImageUrl) && (
+                <div className="mt-4">
+                  <img
+                    src={previewImage || currentImageUrl}
+                    alt="Product preview"
+                    className="h-32 w-32 object-cover rounded-lg mx-auto border-2 border-gray-200"
+                  />
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Featured Checkbox */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isFeatured"
-              name="isFeatured"
-              checked={productData.isFeatured}
-              onChange={(e) => setProductData({ ...productData, isFeatured: e.target.checked })}
-              className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-600 rounded bg-gray-700"
-            />
-            <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-300">
-              Featured Product
-            </label>
-          </div>
-
-          {/* Save Button */}
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
-            shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
-            disabled={isUpdating}
-          >
-            {isUpdating ? (
-              <>
-                <Loader className="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
-                Updating...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-5 w-5" />
-                Save Changes
-              </>
-            )}
-          </button>
-        </form>
+            {/* Submit Button */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={isUpdating}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                    Updating Product...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Update Product
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
