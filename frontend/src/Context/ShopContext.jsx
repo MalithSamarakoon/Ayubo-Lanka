@@ -1,12 +1,12 @@
 import { createContext } from "react";
-import { products } from "../assets/frontend_assets/assets";
+
 export const ShopContext=createContext()
 const ShopContextProvider=(props)=>
 {
     const currency=`Rs.`;
     const delivery_fee=10
     const value={
-        products,currency,delivery_fee
+        currency,delivery_fee
 
     }
 

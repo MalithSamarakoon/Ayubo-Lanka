@@ -35,6 +35,17 @@ export const useProductStore = create((set) => ({
         }
     },
 
+    fetchFeaturedProducts: async() => {
+        set({loading: true});
+        try {
+            const response = await axios.get('/products/featuredProducts');
+            set({products: response.data.featuredProducts, loading: false});
+        } catch (error) {
+            set({error: "Failed to fetch featured products", loading: false});
+            toast.error(error.response.data.error || "Failed to fetch featured products");
+        }
+    },
+
     getProductById: async (productId) => {
         set({ loading: true, selectedProduct: null });
         try {
