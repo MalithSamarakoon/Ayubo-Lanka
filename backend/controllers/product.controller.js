@@ -4,7 +4,7 @@ import cloudinary from "../lib/cloudinary.js";
 export const createProduct = async (req, res) => {
   try {
     console.log("req.body:", req.body);
-    const { name, description, category, price, stock, minimumStock, image } =
+    const { name, description, category, price, stock, minimumStock, image, isFeatured } =
       req.body; //getting required information from request.
 
     let cloudinaryResponse = null;
@@ -23,6 +23,7 @@ export const createProduct = async (req, res) => {
       stock : stock ? Number(stock) : 0,
       minimumStock : minimumStock ? Number(minimumStock) : 0,
       image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
+      isFeatured: isFeatured ? Boolean(isFeatured) : false,
     }
 
     const product = await ayurvedicProduct.create(saveProduct);

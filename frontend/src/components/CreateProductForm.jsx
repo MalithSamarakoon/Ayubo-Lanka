@@ -13,7 +13,8 @@ const CreateProductForm = () => {
     price:"",
     stock: "",
     minimumStock: "",
-    image: ""
+    image: "",
+    isFeatured: false
   });
 
   const {createProduct, loading} = useProductStore();
@@ -22,7 +23,7 @@ const CreateProductForm = () => {
     e.preventDefault();
     try {
       await createProduct(newProduct);
-      setNewProduct({name: "", description: "", category: "", price:"", stock: "", minimumStock: "", image: ""});
+      setNewProduct({name: "", description: "", category: "", price:"", stock: "", minimumStock: "", image: "", isFeatured: false});
     } catch (error) {
       console.error("Error creating product:", error);
     }
@@ -150,6 +151,25 @@ const CreateProductForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               placeholder="Enter minimum stock"
             />
+          </div>
+        </div>
+
+        {/* Featured Product Checkbox */}
+        <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <input
+            type="checkbox"
+            id="isFeatured"
+            checked={newProduct.isFeatured}
+            onChange={(e) => setNewProduct({ ...newProduct, isFeatured: e.target.checked })}
+            className="w-5 h-5 text-green-600 bg-white border-2 border-gray-300 rounded focus:ring-green-500 focus:ring-2 transition-colors"
+          />
+          <div className="flex-1">
+            <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 cursor-pointer">
+              Featured Product
+            </label>
+            <p className="text-xs text-gray-500 mt-1">
+              Mark this product as featured to display it prominently on the homepage
+            </p>
           </div>
         </div>
 
