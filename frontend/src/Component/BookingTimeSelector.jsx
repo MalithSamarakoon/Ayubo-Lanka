@@ -3,7 +3,7 @@ import { Clock } from "lucide-react";
 const BookingTimeSelector = ({ timeSlots, selectedTime, setSelectedTime }) => (
   <div className="mb-8">
     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-      <Clock className="w-5 h-5 text-emerald-600" />
+      <Clock className="w-5 h-5 text-black-600" />
       Select Time
     </h3>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
@@ -14,7 +14,7 @@ const BookingTimeSelector = ({ timeSlots, selectedTime, setSelectedTime }) => (
           className={`group relative px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
             selectedTime === time
               ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white border-green-500 shadow-lg transform scale-105"
-              : "bg-white text-gray-700 border-green-200 hover:border-emerald-400 hover:shadow-md hover:bg-green-50"
+              : "bg-white text-black-700 border-black-200 hover:border-emerald-400 hover:shadow-md hover:bg-green-50"
           }`}
         >
           <div

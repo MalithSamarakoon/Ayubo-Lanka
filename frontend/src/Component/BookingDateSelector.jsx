@@ -3,7 +3,7 @@ import { Calendar } from "lucide-react";
 const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
   <div className="mb-8">
     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-      <Calendar className="w-5 h-5 text-emerald-600" />
+      <Calendar className="w-5 h-5 text-emerald-500" />
       Select Date
     </h3>
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -13,14 +13,14 @@ const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
           onClick={() => setSelectedDay(slot.day)}
           className={`group relative p-4 rounded-xl border-2 transition-all duration-200 ${
             selectedDay === slot.day
-              ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white border-green-500 shadow-lg transform scale-105"
-              : "bg-white text-gray-700 border-green-200 hover:border-emerald-400 hover:shadow-md hover:bg-green-50"
+              ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white border-green-400 shadow-lg transform scale-105"
+              : "bg-white text-black-700 border-black-200 hover:border-black-400 hover:shadow-md hover:bg-black-50"
           }`}
         >
           <div className="text-center">
             <div
               className={`text-sm font-medium ${
-                selectedDay === slot.day ? "text-green-100" : "text-emerald-600"
+                selectedDay === slot.day ? "text-black-400" : "text-emerald-500"
               }`}
             >
               {slot.label}

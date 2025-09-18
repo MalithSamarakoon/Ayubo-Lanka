@@ -149,22 +149,21 @@ const PatientForm = () => {
     }
   };
 
-  // ---------- THEME (glass + dark like SignUpPage) ----------
+  // ---------- Light Theme (neutral surfaces + emerald accents) ----------
   const inputBase =
-    "w-full pl-10 pr-4 py-3 rounded-xl border focus:ring-2 transition-all duration-200 " +
-    "bg-white/5 text-white placeholder-white/50 border-white/20 focus:border-emerald-400 focus:ring-emerald-400/40";
-  const errCls = "border-red-400/60 focus:border-red-400 focus:ring-red-400/30";
-  const okCls =
-    "border-white/20 focus:border-emerald-400 focus:ring-emerald-400/40";
+    "w-full pl-10 pr-4 py-3 rounded-xl border bg-white text-gray-900 placeholder-gray-400 " +
+    "border-gray-300 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200";
+  const errCls = "border-red-400 focus:border-red-400 focus:ring-red-400";
+  const okCls = "border-gray-300";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-emerald-950 py-10 px-4">
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
           <div className="px-6 py-5 bg-gradient-to-r from-green-500 to-emerald-600">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow">
                 <User className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -180,13 +179,13 @@ const PatientForm = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="px-6 py-5 border-b border-white/10 bg-white/5">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <FileText className="w-6 h-6 text-emerald-400 mr-3" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center">
+              <FileText className="w-6 h-6 text-emerald-500 mr-3" />
               Patient Information
             </h2>
-            <p className="text-sm text-emerald-300/90 mt-2">
+            <p className="text-sm text-gray-600 mt-2">
               Please fill out all required fields marked with *
             </p>
           </div>
@@ -194,8 +193,8 @@ const PatientForm = () => {
           <form onSubmit={handleSubmit} className="p-8 space-y-10" noValidate>
             {/* Personal */}
             <div>
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 Personal Information
@@ -204,12 +203,12 @@ const PatientForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Name */}
                 <div ref={refs.name}>
-                  <label className="block text-sm font-semibold text-white/90 mb-2">
-                    Full Name <span className="text-red-400">*</span>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Full Name <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="w-5 h-5 text-emerald-300" />
+                      <User className="w-5 h-5 text-emerald-500" />
                     </div>
                     <input
                       name="name"
@@ -225,7 +224,7 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.name && (
-                    <p id="name-error" className="mt-2 text-sm text-red-300">
+                    <p id="name-error" className="mt-2 text-sm text-red-600">
                       {errors.name}
                     </p>
                   )}
@@ -233,13 +232,13 @@ const PatientForm = () => {
 
                 {/* Age */}
                 <div ref={refs.age}>
-                  <label className="block text-sm font-semibold text-white/90 mb-2">
-                    Age <span className="text-red-400">*</span>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Age <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg
-                        className="w-5 h-5 text-emerald-300"
+                        className="w-5 h-5 text-emerald-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -270,7 +269,7 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.age && (
-                    <p id="age-error" className="mt-2 text-sm text-red-300">
+                    <p id="age-error" className="mt-2 text-sm text-red-600">
                       {errors.age}
                     </p>
                   )}
@@ -280,8 +279,8 @@ const PatientForm = () => {
 
             {/* Contact */}
             <div>
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                   <Phone className="w-5 h-5 text-white" />
                 </div>
                 Contact Information
@@ -290,12 +289,12 @@ const PatientForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Phone */}
                 <div ref={refs.phone}>
-                  <label className="block text-sm font-semibold text-white/90 mb-2">
-                    Phone Number <span className="text-red-400">*</span>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Phone Number <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="w-5 h-5 text-emerald-300" />
+                      <Phone className="w-5 h-5 text-emerald-500" />
                     </div>
                     <input
                       name="phone"
@@ -314,7 +313,7 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.phone && (
-                    <p id="phone-error" className="mt-2 text-sm text-red-300">
+                    <p id="phone-error" className="mt-2 text-sm text-red-600">
                       {errors.phone}
                     </p>
                   )}
@@ -322,12 +321,12 @@ const PatientForm = () => {
 
                 {/* Email */}
                 <div ref={refs.email}>
-                  <label className="block text-sm font-semibold text-white/90 mb-2">
-                    Email Address <span className="text-red-400">*</span>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Email Address <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="w-5 h-5 text-emerald-300" />
+                      <Mail className="w-5 h-5 text-emerald-500" />
                     </div>
                     <input
                       name="email"
@@ -345,7 +344,7 @@ const PatientForm = () => {
                     />
                   </div>
                   {errors.email && (
-                    <p id="email-error" className="mt-2 text-sm text-red-300">
+                    <p id="email-error" className="mt-2 text-sm text-red-600">
                       {errors.email}
                     </p>
                   )}
@@ -354,12 +353,12 @@ const PatientForm = () => {
 
               {/* Address */}
               <div className="mt-6" ref={refs.address}>
-                <label className="block text-sm font-semibold text-white/90 mb-2">
-                  Address <span className="text-red-400">*</span>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Address <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute top-3 left-3 pointer-events-none">
-                    <MapPin className="w-5 h-5 text-emerald-300" />
+                    <MapPin className="w-5 h-5 text-emerald-500" />
                   </div>
                   <textarea
                     name="address"
@@ -377,7 +376,7 @@ const PatientForm = () => {
                   />
                 </div>
                 {errors.address && (
-                  <p id="address-error" className="mt-2 text-sm text-red-300">
+                  <p id="address-error" className="mt-2 text-sm text-red-600">
                     {errors.address}
                   </p>
                 )}
@@ -386,23 +385,23 @@ const PatientForm = () => {
 
             {/* Medical */}
             <div>
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 Medical Information
               </h3>
 
               <div>
-                <label className="block text-sm font-semibold text-white/90 mb-2">
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
                   Medical History / Current Conditions
-                  <span className="text-emerald-300 font-medium ml-2">
+                  <span className="text-emerald-700 font-medium ml-2">
                     (Optional)
                   </span>
                 </label>
                 <div className="relative">
                   <div className="absolute top-3 left-3 pointer-events-none">
-                    <FileText className="w-5 h-5 text-emerald-300" />
+                    <FileText className="w-5 h-5 text-emerald-500" />
                   </div>
                   <textarea
                     name="medicalInfo"
@@ -410,10 +409,10 @@ const PatientForm = () => {
                     onChange={handleChange}
                     placeholder="Provide relevant history, medications, allergies, etc."
                     rows={4}
-                    className={`${inputBase} pl-10 border-white/20`}
+                    className={`${inputBase} pl-10`}
                   />
                 </div>
-                <p className="text-sm text-emerald-300 mt-2 bg-white/5 p-3 rounded-lg border border-white/10">
+                <p className="text-sm text-emerald-700 mt-2 bg-emerald-50 p-3 rounded-lg border border-emerald-200">
                   This information helps our Ayurveda practitioners provide
                   personalized care. All data is confidential.
                 </p>
@@ -421,17 +420,17 @@ const PatientForm = () => {
             </div>
 
             {/* Submit */}
-            <div className="pt-6 border-t border-white/10">
+            <div className="pt-6 border-t border-gray-200">
               <button
                 type="submit"
                 disabled={submitting}
-                className={`w-full py-4 px-8 rounded-xl font-bold text-white shadow-lg transition-all duration-200
+                className={`w-full py-4 px-8 rounded-xl font-bold text-white shadow-sm transition-all duration-200
                 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700
-                focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-emerald-900
+                focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-white
                 ${
                   submitting
                     ? "opacity-70 cursor-not-allowed"
-                    : "hover:shadow-emerald-600/30"
+                    : "hover:shadow-md"
                 }`}
               >
                 <span className="inline-flex items-center justify-center">
@@ -445,9 +444,9 @@ const PatientForm = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-sm text-white/90 bg-black/10 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20 shadow-sm">
-            <strong className="text-white">Ayurveda Medical Center</strong> ©
-            2024 • Natural Healing & Wellness • All patient information is
+          <p className="text-sm text-gray-700 bg-white px-6 py-3 rounded-xl border border-gray-200 shadow-sm">
+            <strong className="text-gray-900">Ayurveda Medical Center</strong> ©
+            2024 • Natural Healing &amp; Wellness • All patient information is
             confidential and secure
           </p>
         </div>

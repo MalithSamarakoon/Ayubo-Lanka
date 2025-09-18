@@ -28,18 +28,14 @@ import UpdateUser from "./pages/UpdateUser";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
-
   return children;
 };
 
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-
   if (isAuthenticated && user?.isVerified) return <Navigate to="/" replace />;
-
   return children;
 };
 
@@ -54,24 +50,19 @@ function App() {
 
   return (
     <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
-      {/* Navbar always visible */}
       <Navbar />
-
-      {/* Main content */}
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
           <Route path="/" element={<LoginPage />} />
 
-          {/*  Dashboard */}
+          {/* Dashboards */}
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/user-management" element={<UserMgt />} />
-
           <Route path="/dashboard/:id" element={<UpdateUser />} />
-
           <Route path="/product-dashboard" element={<ProductDashboard />} />
 
-          {/* Role Selection */}
+          {/* Role selection & sign-ups */}
           <Route
             path="/signup"
             element={
@@ -80,8 +71,6 @@ function App() {
               </RedirectAuthenticatedUser>
             }
           />
-
-          {/* Signups */}
           <Route
             path="/signup/user"
             element={
@@ -134,11 +123,11 @@ function App() {
             }
           />
 
-          {/* Approval Pending */}
+          {/* Misc */}
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
-
-          {/* Other Pages */}
           <Route path="/home" element={<Home />} />
+
+          {/* Doctors & booking */}
           <Route path="/doctor" element={<Doctor />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
           <Route
@@ -155,11 +144,10 @@ function App() {
           />
           <Route path="/onlinepayment" element={<Onlinepayment />} />
 
-          {/* Fallback route */}
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-
       <Toaster />
     </div>
   );
