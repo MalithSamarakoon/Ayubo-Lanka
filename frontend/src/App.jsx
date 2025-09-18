@@ -26,6 +26,8 @@ import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
+import Collection from "./pages/Collection";
+import ProductDetail from "./pages/ProductDetail";
 
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
@@ -142,6 +144,8 @@ function App() {
 
           {/* Other Pages */}
           <Route path="/home" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/doctor" element={<Doctor />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
           <Route
