@@ -1,12 +1,13 @@
 import { createContext } from "react";
 
+
 export const ShopContext=createContext()
 const ShopContextProvider=(props)=>
 {
     const currency=`Rs.`;
     const delivery_fee=10
     const value={
-        currency,delivery_fee
+         currency, delivery_fee
 
     }
 
