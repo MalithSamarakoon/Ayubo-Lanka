@@ -1,64 +1,44 @@
 import { Calendar } from "lucide-react";
 
+// BookingDateSelector.jsx
 const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
   <div className="mb-8">
-    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-      <Calendar className="w-5 h-5 text-emerald-500" />
-      Select Date
-    </h3>
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-      {bookingSlots.map((slot) => (
-        <button
-          key={slot.day}
-          onClick={() => setSelectedDay(slot.day)}
-          className={`group relative p-4 rounded-xl border-2 transition-all duration-200 ${
-            selectedDay === slot.day
-              ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white border-green-400 shadow-lg transform scale-105"
-              : "bg-white text-black-700 border-black-200 hover:border-black-400 hover:shadow-md hover:bg-black-50"
-          }`}
-        >
-          <div className="text-center">
-            <div
-              className={`text-sm font-medium ${
-                selectedDay === slot.day ? "text-black-400" : "text-emerald-500"
+    <h3 className="text-sm font-semibold text-gray-700 mb-4">Booking slots</h3>
+
+    {/* horizontal scroll on small screens, even spacing on large */}
+    <div className="flex gap-3 overflow-x-auto pb-1">
+      {bookingSlots.map((slot) => {
+        const isSelected = selectedDay === slot.day;
+
+        return (
+          <button
+            key={slot.day}
+            onClick={() => setSelectedDay(slot.day)}
+            aria-pressed={isSelected}
+            className={`shrink-0 w-16 h-20 sm:w-20 sm:h-24 rounded-[28px] border transition-colors duration-150
+              ${
+                isSelected
+                  ? "bg-emerald-500 text-white border-emerald-500 shadow"
+                  : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
+              }`}
+          >
+            <span
+              className={`block text-xs font-semibold tracking-wide ${
+                isSelected ? "text-white/90" : "text-gray-600"
               }`}
             >
               {slot.label}
-            </div>
-            <div
-              className={`text-xl font-bold mt-1 ${
-                selectedDay === slot.day ? "text-white" : "text-gray-800"
+            </span>
+            <span
+              className={`block mt-1 text-base sm:text-lg font-semibold ${
+                isSelected ? "text-white" : "text-gray-700"
               }`}
             >
               {slot.date}
-            </div>
-            <div
-              className={`text-xs ${
-                selectedDay === slot.day ? "text-green-100" : "text-green-600"
-              }`}
-            >
-              {slot.fullDate}
-            </div>
-          </div>
-          {selectedDay === slot.day && (
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full border-2 border-white flex items-center justify-center shadow-md">
-              <svg
-                className="w-3 h-3 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
-            </div>
-          )}
-        </button>
-      ))}
+            </span>
+          </button>
+        );
+      })}
     </div>
   </div>
 );

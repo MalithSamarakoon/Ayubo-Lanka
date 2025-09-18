@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Fotter from "../Component/Fotter"
 
 import { doctors } from "../assets/frontend_assets/assets";
 
@@ -770,6 +771,7 @@ const Doctor = () => {
           </div>
         </div>
       </div>
+      <Fotter/>
     </div>
   );
 };

@@ -25,6 +25,7 @@ import UserMgt from "./pages/UserMgt";
 import ProductDashboard from "./pages/ProductDashboard";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
+import UploadSlip from "./pages/UploadSlip";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -137,6 +138,10 @@ function App() {
           <Route
             path="/doctor/:docId/book/patientdetails"
             element={<PatientDetails />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails/slip"
+            element={<UploadSlip />}
           />
           <Route
             path="/doctor/:docId/book/patientupdate"

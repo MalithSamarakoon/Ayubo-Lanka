@@ -6,6 +6,7 @@ import DoctorProfileCard from "../Component/DoctorProfileCard";
 import BookingDateSelector from "../Component/BookingDateSelector";
 import BookingTimeSelector from "../Component/BookingTimeSelector";
 import BookingSummary from "../Component/BookingSummary";
+import Fotter from "../Component/Fotter"
 
 const URL = "http://localhost:5000/api/user/users";
 
@@ -23,15 +24,9 @@ const timeSlots = [
   "8:00 AM",
   "8:30 AM",
   "9:00 AM",
-  "9:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "2:00 PM",
+
   "2:30 PM",
-  "3:00 PM",
-  "3:30 PM",
+
   "4:00 PM",
   "4:30 PM",
   "5:00 PM",
@@ -145,7 +140,7 @@ const Appointment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50 text-slate-800">
+    <div>
       {/* Header */}
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-emerald-500 green-400">
         <div className="max-w-6xl mx-auto px-4 py-5">
@@ -180,19 +175,7 @@ const Appointment = () => {
           id="booking-section"
           className="rounded-3xl bg-white/95 border border-emerald-100 shadow-lg shadow-emerald-100/50 overflow-hidden"
         >
-          <div className="bg-gradient-to-r from-emerald-500 via-teal-600 to-green-400 p-6 md:p-7">
-            <div className="flex items-center gap-3 text-white">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                <Clock className="w-6 h-6" />
-              </div>
-              <h2 className="text-xl md:text-2xl font-semibold tracking-tight">
-                Available Slots
-              </h2>
-            </div>
-            <p className="text-xs md:text-sm text-emerald-100 mt-2">
-              Select your preferred date and time for consultation
-            </p>
-          </div>
+         
 
           <div className="p-6 md:p-8 space-y-8">
             <BookingDateSelector
@@ -237,13 +220,13 @@ const Appointment = () => {
           </div>
         </div>
 
-        <p className="text-xs md:text-sm text-slate-500 text-center">
-          This is not an emergency service. If you are experiencing a medical
-          emergency, please contact your local emergency number immediately.
-        </p>
+       
       </div>
+   <Fotter/>
     </div>
-  );
+  
+);
+  
 };
 
 export default Appointment;

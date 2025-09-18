@@ -87,7 +87,7 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
               <div className="bg-gradient-to-r from-gray-50 to-green-25 border border-gray-200 rounded-2xl p-6 mb-6">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  About Dr. {docInfo.name}
+                  About  {docInfo.name}
                 </h3>
                 <p className="text-gray-700 leading-relaxed text-justify">
                   {docInfo.about}
