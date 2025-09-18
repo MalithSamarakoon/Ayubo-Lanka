@@ -38,7 +38,7 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-        <NavLink to="/Collection" className="flex flex-col items-center gap-1">
+        <NavLink to="/collection" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>COLLECTION</p>

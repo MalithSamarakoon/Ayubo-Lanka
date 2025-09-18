@@ -1,7 +1,6 @@
 import React from "react";
 import Hero from "../Component/Hero";
 import LatestCollection from "../Component/LatestCollection";
-import BestSeller from "../Component/BestSeller";
 import OurPrivacy from "../Component/OurPolicy";
 import OurPolicy from "../Component/OurPolicy";
 import NewsLetterBox from "../Component/NewsLetterBox";
@@ -11,7 +10,6 @@ const Home = () => {
     <div className="bg-white">
       <Hero />
       <LatestCollection />
-      <BestSeller />
       <OurPolicy />
       <NewsLetterBox />
     </div>
