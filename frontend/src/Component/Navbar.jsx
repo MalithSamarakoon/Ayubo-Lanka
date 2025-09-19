@@ -104,13 +104,21 @@ const Navbar = () => {
             alt="Profile"
           />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
+            <div className="flex flex-col gap-2 w-46 py-3 px-5 bg-slate-100 text-gray-500 rounded">
               <p
                 className="cursor-pointer hover:text-black"
                 onClick={() => navigate("/dashboard")}
               >
                 My Profile
               </p>
+
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={() => navigate("/my_appoinments")}
+              >
+                My Appointments
+              </p>
+
               <p
                 className="cursor-pointer hover:text-black"
                 onClick={() => navigate("/orders")}

@@ -8,9 +8,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  const handleNavigation = (path) => navigate(path);
 
   const handleLogout = () => {
     logout();
@@ -62,14 +60,15 @@ function AdminDashboard() {
               Orders
             </motion.button>
 
+            {/* FIXED: correct route to match App.jsx */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleNavigation("/admin/reports")}
+              onClick={() => handleNavigation("/CheckAppoinments")}
               className="py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 
                 rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
             >
-              Reports
+              Appointments
             </motion.button>
           </div>
         </div>

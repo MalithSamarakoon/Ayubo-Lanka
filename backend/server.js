@@ -4,11 +4,13 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path"; // NEW
 import receiptsRouter from "./routes/receipts.routes.js";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.routes.js";
 import patientRouter from "./routes/patientRoutes.js";
 import productRouter from "./routes/product.route.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -22,12 +24,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ❌ no static /uploads, no multer
+// NEW: serve uploaded slips publicly (matches createReceipt fileUrl)
+app.use("/uploads", express.static(path.resolve("uploads"))); // NEW
+
 app.use("/api/receipts", receiptsRouter);
 app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/patients", patientRouter);
+
 async function start() {
   try {
     mongoose.set("strictQuery", true);

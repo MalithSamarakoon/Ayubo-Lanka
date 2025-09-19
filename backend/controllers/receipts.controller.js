@@ -1,8 +1,11 @@
 // backend/controllers/receipts.controller.js
+// Ensures patientId + appointmentId are saved so receipt links to the same person + booking
+
 import path from "path";
 import fs from "fs";
 import { isValidObjectId } from "mongoose";
 import Receipt from "../models/Receipt.js";
+import Patient from "../models/patient.js"; // to resolve numeric booking id -> _id
 
 const allowed = ["image/jpeg", "image/png", "application/pdf"];
 
@@ -12,32 +15,64 @@ function isValidDateStr(d) {
 
 export async function createReceipt(req, res) {
   try {
-    const { bank, paymentDate, amount, paymentMethod, branch, notes } =
-      req.body;
+    // linkage fields
+    const {
+      patientId, // logged-in User _id (required)
+      appointmentId, // Patient _id (preferred)
+      appointmentNo, // numeric Patient.id (fallback)
+      // normal fields
+      bank,
+      paymentDate,
+      amount,
+      paymentMethod,
+      branch,
+      notes,
+    } = req.body;
 
-    // Basic validation
     const errors = {};
+
+    // linkage validation
+    if (!patientId || !isValidObjectId(patientId)) {
+      errors.patientId = "Valid patientId (User _id) required";
+    }
+
+    let finalAppointmentId = appointmentId;
+    if (!finalAppointmentId && appointmentNo) {
+      const p = await Patient.findOne({ id: Number(appointmentNo) }).select(
+        "_id"
+      );
+      if (!p) {
+        errors.appointmentId = "Booking not found for given appointmentNo";
+      } else {
+        finalAppointmentId = p._id.toString();
+      }
+    }
+    if (!finalAppointmentId || !isValidObjectId(finalAppointmentId)) {
+      errors.appointmentId =
+        errors.appointmentId || "Valid appointmentId required";
+    }
+
+    // fields validation
     if (!bank) errors.bank = "Bank is required";
     if (!isValidDateStr(paymentDate))
       errors.paymentDate = "Valid date required";
     if (!amount || Number.isNaN(Number(amount)) || Number(amount) <= 0)
       errors.amount = "Amount must be > 0";
     if (
-      !paymentMethod ||
-      !["Online transfer", "Cash deposit", "ATM", "CDM"].includes(paymentMethod)
-    ) {
+      !["Online transfer", "Cash deposit", "ATM", "CDM"].includes(
+        paymentMethod || ""
+      )
+    )
       errors.paymentMethod = "Invalid payment method";
-    }
+
     if (Object.keys(errors).length) {
       return res.status(400).json({ message: "Validation failed", errors });
     }
 
-    // File required
+    // file validation
     if (!req.file) {
       return res.status(400).json({ message: "Receipt file is required" });
     }
-
-    // Defense-in-depth for mime/size (multer already validates)
     if (!allowed.includes(req.file.mimetype)) {
       try {
         await fs.promises.unlink(req.file.path);
@@ -51,16 +86,18 @@ export async function createReceipt(req, res) {
       return res.status(413).json({ message: "File too large (max 5MB)" });
     }
 
-    // Public URL for saved file
+    // public URL (ensure server.js serves /uploads)
     const filename = path.basename(req.file.path);
     const relPath = `uploads/receipts/${filename}`.replace(/\\/g, "/");
-
     const proto =
       req.headers["x-forwarded-proto"]?.split(",")[0] || req.protocol;
     const base = `${proto}://${req.get("host")}`;
     const fileUrl = `${base}/${relPath}`;
 
+    // create receipt with linkage
     const doc = await Receipt.create({
+      patientId,
+      appointmentId: finalAppointmentId,
       bank,
       branch: branch || "",
       paymentDate: new Date(paymentDate),
@@ -83,6 +120,8 @@ export async function createReceipt(req, res) {
       id: doc._id,
       status: doc.status,
       fileUrl: doc.file.url,
+      appointmentId: doc.appointmentId,
+      patientId: doc.patientId,
     });
   } catch (err) {
     console.error("createReceipt error:", err);
@@ -107,10 +146,20 @@ export async function getReceipt(req, res) {
 
 export async function listReceipts(req, res) {
   try {
-    const { status, page = 1, limit = 20, bank } = req.query;
+    const {
+      status,
+      page = 1,
+      limit = 20,
+      bank,
+      appointmentId,
+      patientId,
+    } = req.query;
     const q = {};
     if (status) q.status = status;
     if (bank) q.bank = bank;
+    if (appointmentId && isValidObjectId(appointmentId))
+      q.appointmentId = appointmentId;
+    if (patientId && isValidObjectId(patientId)) q.patientId = patientId;
 
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.min(100, Math.max(1, Number(limit) || 20));
@@ -148,7 +197,7 @@ export async function reviewReceipt(req, res) {
     const doc = await Receipt.findById(id);
     if (!doc) return res.status(404).json({ message: "Not found" });
 
-    const reviewerId = req.user?.id || undefined;
+    const reviewerId = req.user?.id || "admin";
     doc.status = action;
     doc.review = {
       byUserId: reviewerId,

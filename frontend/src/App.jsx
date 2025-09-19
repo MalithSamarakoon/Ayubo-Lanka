@@ -26,6 +26,8 @@ import ProductDashboard from "./pages/ProductDashboard";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 import UploadSlip from "./pages/UploadSlip";
+import CheckAppoinments from "./pages/CheckAppoinments";
+import MyAppoinment from "./pages/MyAppoinment";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -33,8 +35,6 @@ const ProtectedRoute = ({ children }) => {
   if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
   return children;
 };
-
-
 
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -64,6 +64,8 @@ function App() {
           <Route path="/user-management" element={<UserMgt />} />
           <Route path="/dashboard/:id" element={<UpdateUser />} />
           <Route path="/product-dashboard" element={<ProductDashboard />} />
+          <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
+  <Route path="/my_appoinments" element={<MyAppoinment />} />
 
           {/* Role selection & sign-ups */}
           <Route

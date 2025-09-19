@@ -2,10 +2,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ⬅️ ADD
+import {
+  useNavigate,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 export default function ReceiptUploadPage() {
-  const navigate = useNavigate(); // ⬅️ ADD
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuthStore();
+
+  // derive appointment identifiers from router state/params/query
+  const stateApptId = location.state?.appointmentId; // Patient._id
+  const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
+  const queryApptId = searchParams.get("appointmentId");
+  const queryApptNo = searchParams.get("appointmentNo");
+  const paramApptId = params.appointmentId;
+
+  const appointmentId = stateApptId || queryApptId || paramApptId;
+  const appointmentNo = stateApptNo || queryApptNo || undefined;
 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -39,7 +59,6 @@ export default function ReceiptUploadPage() {
     "KeyA",
   ];
   const konamiSeqRef = useRef([]);
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       konamiSeqRef.current = [...konamiSeqRef.current, e.code].slice(-10);
@@ -59,6 +78,10 @@ export default function ReceiptUploadPage() {
 
   function validateForm() {
     const newErrors = {};
+    if (!user?._id) newErrors.patientId = "Not logged in. Please log in again.";
+    if (!appointmentId && !appointmentNo)
+      newErrors.appointmentId =
+        "Missing booking. Open payment from the appointment page.";
     if (!form.bank) newErrors.bank = "Bank selection is required";
     if (!form.paymentDate) newErrors.paymentDate = "Payment date is required";
     if (!form.amount || Number(form.amount) <= 0)
@@ -66,8 +89,6 @@ export default function ReceiptUploadPage() {
     if (!form.paymentMethod)
       newErrors.paymentMethod = "Payment method is required";
     if (!file) newErrors.file = "Receipt file is required (JPG/PNG/PDF)";
-    if (!form.consent) newErrors.consent = "You must confirm the details";
-
     if (form.paymentDate) {
       const selectedDate = new Date(form.paymentDate);
       const today = new Date();
@@ -78,6 +99,7 @@ export default function ReceiptUploadPage() {
       else if (selectedDate < oneYearAgo)
         newErrors.paymentDate = "Payment date cannot be more than 1 year ago";
     }
+    if (!form.consent) newErrors.consent = "You must confirm the details";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,7 +108,6 @@ export default function ReceiptUploadPage() {
   function onFileChange(e) {
     const f = e.target.files?.[0];
     if (!f) return;
-
     const next = { ...errors };
     delete next.file;
 
@@ -122,30 +143,27 @@ export default function ReceiptUploadPage() {
     setLoading(true);
     try {
       const fd = new FormData();
+      fd.append("patientId", user?._id);
+      if (appointmentId) fd.append("appointmentId", appointmentId);
+      if (!appointmentId && appointmentNo)
+        fd.append("appointmentNo", String(appointmentNo));
       fd.append("bank", form.bank);
       fd.append("branch", form.branch);
       fd.append("paymentDate", form.paymentDate);
       fd.append("amount", form.amount);
       fd.append("paymentMethod", form.paymentMethod);
       fd.append("notes", form.notes || "");
-      fd.append("file", file); // IMPORTANT: matches upload.single("file")
+      fd.append("file", file);
 
       const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
       const { data } = await axios.post(`${base}/api/receipts`, fd, {
         withCredentials: true,
-        // Do NOT set Content-Type manually; Axios sets multipart boundary
       });
 
-      // ✅ Success: go to Home page
-      // (If your app uses another path, change "/home" accordingly.)
-      // Optional: pass the new receipt id via location state
-      navigate("/home", { replace: true, state: { receiptId: data?.id } });
-
-      // If you still want a toast/alert, keep this line before navigate:
-      // toast.success(`Submitted! Ref: ${data.id}`)  // if you're using react-hot-toast
-      // or: alert(`✅ Submitted! Ref: ${data.id}`);
-
-      // Clear local UI state (not strictly necessary if the page unmounts)
+      navigate("/home", {
+        replace: true,
+        state: { receiptId: data?.id, appointmentId: data?.appointmentId },
+      });
       setForm({
         bank: "",
         branch: "",
@@ -167,13 +185,7 @@ export default function ReceiptUploadPage() {
   }
 
   return (
-    <div
-      className="
-        min-h-screen 
-        bg-gradient-to-br from-green-50 via-emerald-100 to-teal-50
-        flex items-center justify-center p-4 relative"
-    >
-      {/* Easter Egg overlay */}
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-50 flex items-center justify-center p-4 relative">
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
@@ -250,7 +262,6 @@ export default function ReceiptUploadPage() {
             />
           </div>
 
-          {/* File upload control */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-emerald-900">
               Receipt File *{" "}
@@ -293,7 +304,6 @@ export default function ReceiptUploadPage() {
               <p className="text-red-600 text-sm">{errors.file}</p>
             )}
 
-            {/* Image preview (if image) */}
             {previewUrl && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -307,8 +317,6 @@ export default function ReceiptUploadPage() {
                 />
               </motion.div>
             )}
-
-            {/* PDF hint (no preview) */}
             {file && !previewUrl && file.type === "application/pdf" && (
               <p className="text-xs text-emerald-800/80">
                 📄 PDF selected. Preview not shown here.
@@ -349,6 +357,12 @@ export default function ReceiptUploadPage() {
           </label>
           {errors.consent && (
             <p className="text-red-600 text-sm ml-1">{errors.consent}</p>
+          )}
+
+          {(errors.patientId || errors.appointmentId) && (
+            <p className="text-red-600 text-sm">
+              {errors.patientId || errors.appointmentId}
+            </p>
           )}
 
           <motion.button
@@ -397,7 +411,6 @@ function Input({ label, error, className, ...props }) {
     </div>
   );
 }
-
 function Select({ label, options, error, className, ...props }) {
   const base =
     "w-full border-2 rounded-xl p-3 transition-all duration-300 focus:ring-2 focus:ring-emerald-200";

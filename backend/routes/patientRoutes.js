@@ -1,3 +1,4 @@
+// backend/routes/patientRoutes.js
 import express from "express";
 import {
   createPatient,
@@ -5,6 +6,7 @@ import {
   getPatientById,
   updatePatient,
   deletePatient,
+  getPatientWithPayments, // NEW
 } from "../controllers/patientController.js";
 
 const patientRouter = express.Router();
@@ -12,16 +14,19 @@ const patientRouter = express.Router();
 // Create patient
 patientRouter.post("/", createPatient);
 
-// Get all patients
+// List patients
 patientRouter.get("/", getPatients);
 
-// Get patient by numeric ID
+// NEW: Admin convenience (MUST be before the plain :id route)
+patientRouter.get("/:id/with-payments", getPatientWithPayments); // NEW
+
+// Get patient by numeric id (or ObjectId fallback)
 patientRouter.get("/:id", getPatientById);
 
-// Update patient by numeric ID
+// Update patient
 patientRouter.put("/:id", updatePatient);
 
-// Delete patient by numeric ID
+// Delete patient
 patientRouter.delete("/:id", deletePatient);
 
 export default patientRouter;

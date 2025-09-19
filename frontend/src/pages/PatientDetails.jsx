@@ -23,6 +23,10 @@ const PatientDetails = () => {
   const bookingId =
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
 
+  // IDs to link receipt with this booking
+  const appointmentId = patient?._id || null; // Mongo _id of Patient/Booking
+  const appointmentNo = patient?.id ?? null; // numeric booking no (if you have)
+
   if (!patient) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
@@ -39,8 +43,7 @@ const PatientDetails = () => {
             No Patient Data Found
           </h2>
           <p className="text-gray-600 mb-6">
-            Please insert patient details first to continue with your Ayurveda
-            consultation.
+            Please insert patient details first to continue.
           </p>
           <div className="w-16 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full"></div>
         </motion.div>
@@ -56,7 +59,8 @@ const PatientDetails = () => {
     try {
       const pid = patient.id || patient._id;
       if (!pid) throw new Error("No patient id found");
-      const res = await fetch(`http://localhost:3000/api/patients/${pid}`, {
+      const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+      const res = await fetch(`${base}/api/patients/${pid}`, {
         method: "DELETE",
       });
       const data = await res.json().catch(() => ({}));
@@ -69,9 +73,19 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
-    // If your route is /onlinepayment, use that. Otherwise keep this nested path.
-    navigate(`/onlinepayment`, { state: { ...patient, bookingId, docId } });
-    // navigate(`/doctor/${docId}/book/onlinepayment`, { state: { ...patient, bookingId } });
+    // 👉 Go to Onlinepayment and pass everything needed for UploadSlip
+    navigate(`/onlinepayment`, {
+      state: {
+        docId,
+        bookingId,
+        name: patient.name,
+        phone: patient.phone,
+        email: patient.email,
+        amount: patient.amount, // if stored on patient
+        appointmentId, // Mongo _id
+        appointmentNo, // numeric fallback
+      },
+    });
   };
 
   return (
@@ -94,7 +108,7 @@ const PatientDetails = () => {
                   Patient Appointment Details
                 </h1>
                 <p className="text-white/90 text-sm font-medium">
-                  Ayurveda Medical Center • Natural Healing
+                  Ayurveda Medical Center
                 </p>
               </div>
             </div>
@@ -123,7 +137,6 @@ const PatientDetails = () => {
           {/* Patient info grid */}
           <div className="px-6 md:px-8 py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Name */}
               <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <User className="w-5 h-5 text-emerald-600" />
@@ -136,7 +149,6 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              {/* Age */}
               <div className="bg-gradient-to-br from-green-50 to-teal-100 p-5 rounded-xl border border-green-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <Calendar className="w-5 h-5 text-green-600" />
@@ -149,7 +161,6 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              {/* Phone */}
               <div className="bg-gradient-to-br from-teal-50 to-emerald-100 p-5 rounded-xl border border-teal-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <Phone className="w-5 h-5 text-teal-600" />
@@ -162,7 +173,6 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              {/* Email */}
               <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <Mail className="w-5 h-5 text-emerald-600" />

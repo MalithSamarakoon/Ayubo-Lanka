@@ -11,16 +11,36 @@ import { motion } from "framer-motion";
 export default function Onlinepayment() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { docId } = useParams();
+  const urlParams = useParams();
+
+  // Get docId from URL if present (not for /onlinepayment), else from state
+  const docId = urlParams.docId || state?.docId || "";
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
+  // If someone opened directly without state, send them back safely
   useEffect(() => {
     if (!state?.bookingId) {
-      navigate(`/doctor/${docId}/book/patientdetails`);
+      if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
+      else navigate("/home");
     }
   }, [state, docId, navigate]);
+
+  const goToUploadSlip = () => {
+    navigate(`/doctor/${docId}/book/patientdetails/slip`, {
+      state: {
+        bookingId: state.bookingId,
+        amount: state.amount,
+        name: state.name,
+        phone: state.phone,
+        email: state.email,
+        // pass linkage ids so UploadSlip can attach to the same booking
+        appointmentId: state.appointmentId || null,
+        appointmentNo: state.appointmentNo || null,
+      },
+    });
+  };
 
   const handlePay = async () => {
     try {
@@ -28,19 +48,11 @@ export default function Onlinepayment() {
 
       // If user chose bank slip → go to UploadSlip route
       if (method === "slip") {
-        navigate(`/doctor/${docId}/book/patientdetails/slip`, {
-          state: {
-            bookingId: state.bookingId,
-            amount: state.amount,
-            name: state.name,
-            phone: state.phone,
-            email: state.email,
-          },
-        });
+        goToUploadSlip();
         return;
       }
 
-      // Otherwise (wallet/bank) — your existing simulated payment flow
+      // Otherwise (wallet/bank) — simulate other gateway flow
       await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state.bookingId,
@@ -104,21 +116,36 @@ export default function Onlinepayment() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     key={opt.value}
-                    className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer ${
+                    className={`flex items-center justify-between gap-3 p-4 border rounded-xl cursor-pointer ${
                       method === opt.value
                         ? "border-emerald-500 bg-emerald-50"
                         : "hover:shadow-md"
                     }`}
+                    onDoubleClick={() => {
+                      if (opt.value === "slip") goToUploadSlip();
+                    }}
                   >
-                    <input
-                      type="radio"
-                      name="method"
-                      value={opt.value}
-                      checked={method === opt.value}
-                      onChange={(e) => setMethod(e.target.value)}
-                    />
-                    <opt.icon className="w-5 h-5 text-emerald-600" />
-                    <span className="font-medium">{opt.label}</span>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="method"
+                        value={opt.value}
+                        checked={method === opt.value}
+                        onChange={(e) => setMethod(e.target.value)}
+                      />
+                      <opt.icon className="w-5 h-5 text-emerald-600" />
+                      <span className="font-medium">{opt.label}</span>
+                    </div>
+
+                    {opt.value === "slip" && method === "slip" && (
+                      <button
+                        type="button"
+                        onClick={goToUploadSlip}
+                        className="px-3 py-1.5 text-sm rounded-lg border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                      >
+                        Go to Upload Slip
+                      </button>
+                    )}
                   </motion.label>
                 ))}
               </div>

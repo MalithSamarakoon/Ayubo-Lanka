@@ -10,7 +10,7 @@ const FileSchema = new mongoose.Schema(
       required: true,
       enum: ["image/jpeg", "image/png", "application/pdf"],
     },
-    sizeBytes: { type: Number, required: true, max: 5 * 1024 * 1024 }, // 5MB
+    sizeBytes: { type: Number, required: true, max: 5 * 1024 * 1024 },
     originalName: { type: String, required: true, maxlength: 255 },
     storage: {
       type: String,
@@ -33,6 +33,22 @@ const ReviewSchema = new mongoose.Schema(
 
 const ReceiptSchema = new mongoose.Schema(
   {
+    // the logged-in user who pays (Sunil)
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    // CHANGE: this is the booking document in YOUR codebase (model name "Patient")
+    appointmentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient", // CHANGE: used to be "Appointment"
+      required: true,
+      index: true,
+    },
+
     bank: { type: String, required: true, maxlength: 80 },
     branch: { type: String, maxlength: 120 },
     paymentDate: { type: Date, required: true },
@@ -61,6 +77,10 @@ const ReceiptSchema = new mongoose.Schema(
 ReceiptSchema.index({ createdAt: -1 });
 ReceiptSchema.index({ status: 1, createdAt: -1 });
 ReceiptSchema.index({ bank: 1, createdAt: -1 });
+
+// NEW: fast filters for admin
+ReceiptSchema.index({ appointmentId: 1, createdAt: -1 }); // NEW
+ReceiptSchema.index({ patientId: 1, createdAt: -1 }); // NEW
 
 ReceiptSchema.set("toJSON", {
   virtuals: true,
