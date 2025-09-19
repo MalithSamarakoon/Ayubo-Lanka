@@ -8,7 +8,6 @@ import {
   FileText,
   Check,
   X,
-  Clock,
 } from "lucide-react";
 
 const CheckAppoinments = () => {
@@ -104,19 +103,30 @@ const CheckAppoinments = () => {
 
   // Approve (set status=approved)
   const approveAppointment = async (appointmentId) => {
-    try {
-      // optimistic UI
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt._id === appointmentId ? { ...apt, status: "approved" } : apt
-        )
-      );
+    // Optimistic UI
+    setAppointments((prev) =>
+      prev.map((apt) =>
+        apt._id === appointmentId ? { ...apt, status: "approved" } : apt
+      )
+    );
 
-      await axios.patch(
+    try {
+      const { data } = await axios.patch(
         `${API_BASE}/api/patients/${appointmentId}`,
         { status: "approved" },
         { withCredentials: true }
       );
+
+      // Sync with server response (in case server normalizes)
+      if (data && data._id) {
+        setAppointments((prev) =>
+          prev.map((apt) =>
+            apt._id === data._id
+              ? { ...apt, status: data.status || "approved" }
+              : apt
+          )
+        );
+      }
     } catch (e) {
       setErr(e?.response?.data?.message || "Failed to approve appointment");
       fetchAll(); // revert if failed
@@ -217,18 +227,18 @@ const CheckAppoinments = () => {
     );
   };
 
-  // ✅ normalized + green for approved, amber for pending, red for rejected
+  // ✅ As requested: PENDING and APPROVED both green; REJECTED red.
   const StatusBadge = ({ status }) => {
     const key = String(status || "pending").toLowerCase();
     const styles = {
       approved: "bg-green-100 text-green-800 border-green-200",
+      pending: "bg-green-100 text-green-800 border-green-200",
       rejected: "bg-red-100 text-red-800 border-red-200",
-      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
     };
     const icons = {
       approved: <Check className="w-3 h-3" />,
+      pending: <Check className="w-3 h-3" />,
       rejected: <X className="w-3 h-3" />,
-      pending: <Clock className="w-3 h-3" />,
     };
     const label = key.charAt(0).toUpperCase() + key.slice(1);
 
