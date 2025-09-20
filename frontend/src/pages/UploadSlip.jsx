@@ -18,14 +18,19 @@ export default function ReceiptUploadPage() {
   const { user } = useAuthStore();
 
   // derive appointment identifiers from router state/params/query
-  const stateApptId = location.state?.appointmentId; // Patient._id
-  const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
+  const stateApptId = location.state?.appointmentId || null; // Patient._id
+  const stateApptNo =
+    location.state?.appointmentNo ??
+    location.state?.bookingId ??
+    location.state?.bookingID ??
+    null; // Patient.id (numeric) OR bookingId fallback
   const queryApptId = searchParams.get("appointmentId");
-  const queryApptNo = searchParams.get("appointmentNo");
+  const queryApptNo =
+    searchParams.get("appointmentNo") ?? searchParams.get("bookingId");
   const paramApptId = params.appointmentId;
 
-  const appointmentId = stateApptId || queryApptId || paramApptId;
-  const appointmentNo = stateApptNo || queryApptNo || undefined;
+  const appointmentId = stateApptId || queryApptId || paramApptId || null;
+  const appointmentNo = stateApptNo || queryApptNo || null;
 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -45,7 +50,7 @@ export default function ReceiptUploadPage() {
   const allowed = ["image/jpeg", "image/png", "application/pdf"];
   const maxSize = 5 * 1024 * 1024;
 
-  // Konami code
+  // Konami code (just for fun)
   const konamiCode = [
     "ArrowUp",
     "ArrowUp",
@@ -384,8 +389,6 @@ export default function ReceiptUploadPage() {
               "🚀 Submit Receipt"
             )}
           </motion.button>
-
-        
         </motion.form>
       </motion.div>
     </div>

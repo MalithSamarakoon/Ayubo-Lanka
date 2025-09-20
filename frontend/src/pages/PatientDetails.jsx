@@ -24,8 +24,8 @@ const PatientDetails = () => {
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
 
   // IDs to link receipt with this booking
-  const appointmentId = patient?._id || null; // Mongo _id of Patient/Booking
-  const appointmentNo = patient?.id ?? null; // numeric booking no (if you have)
+  const appointmentId = patient?._id || null; // Mongo _id of Patient
+  const appointmentNo = patient?.id ?? null; // numeric Patient.id (if you have)
 
   if (!patient) {
     return (
@@ -60,8 +60,9 @@ const PatientDetails = () => {
       const pid = patient.id || patient._id;
       if (!pid) throw new Error("No patient id found");
       const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-      const res = await fetch(`${base}/api/patients/${pid}`, {
+      const res = await fetch(`${base}/api/patients/${pid}?cascade=1`, {
         method: "DELETE",
+        credentials: "include",
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Failed to cancel");
@@ -73,7 +74,7 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
-    // 👉 Go to Onlinepayment and pass everything needed for UploadSlip
+    // Go to Onlinepayment and pass everything needed for UploadSlip
     navigate(`/onlinepayment`, {
       state: {
         docId,

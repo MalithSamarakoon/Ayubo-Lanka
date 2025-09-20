@@ -13,13 +13,13 @@ export default function Onlinepayment() {
   const navigate = useNavigate();
   const urlParams = useParams();
 
-  // Get docId from URL if present (not for /onlinepayment), else from state
+  // docId from URL (if present) or from state passed by PatientDetails
   const docId = urlParams.docId || state?.docId || "";
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
-  // If someone opened directly without state, send them back safely
+  // Guard direct opens without context
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -35,9 +35,10 @@ export default function Onlinepayment() {
         name: state.name,
         phone: state.phone,
         email: state.email,
-        // pass linkage ids so UploadSlip can attach to the same booking
-        appointmentId: state.appointmentId || null,
-        appointmentNo: state.appointmentNo || null,
+        // ✅ robust linkage for UploadSlip
+        appointmentId: state.appointmentId ?? state.patient?._id ?? null,
+        appointmentNo:
+          state.appointmentNo ?? state.bookingId ?? state.patient?.id ?? null,
       },
     });
   };
@@ -45,14 +46,11 @@ export default function Onlinepayment() {
   const handlePay = async () => {
     try {
       setLoading(true);
-
-      // If user chose bank slip → go to UploadSlip route
       if (method === "slip") {
         goToUploadSlip();
         return;
       }
-
-      // Otherwise (wallet/bank) — simulate other gateway flow
+      // Simulated alt-gateway flow
       await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state.bookingId,
@@ -63,8 +61,9 @@ export default function Onlinepayment() {
         phone: state.phone,
         email: state.email,
       };
-      navigate(`/doctor/${docId}/book/success`, { state: { order } });
-    } catch (e) {
+      // If you don’t have this route, redirect to /home
+      navigate(`/home`, { state: { order } });
+    } catch {
       alert("Payment failed. Please try again.");
     } finally {
       setLoading(false);
@@ -74,7 +73,7 @@ export default function Onlinepayment() {
   if (!state?.bookingId) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-50 py-8 px-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,9 +120,9 @@ export default function Onlinepayment() {
                         ? "border-emerald-500 bg-emerald-50"
                         : "hover:shadow-md"
                     }`}
-                    onDoubleClick={() => {
-                      if (opt.value === "slip") goToUploadSlip();
-                    }}
+                    onDoubleClick={() =>
+                      opt.value === "slip" && goToUploadSlip()
+                    }
                   >
                     <div className="flex items-center gap-3">
                       <input

@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// NEW: serve uploaded slips publicly (matches createReceipt fileUrl)
+
 app.use("/uploads", express.static(path.resolve("uploads"))); // NEW
 
 app.use("/api/receipts", receiptsRouter);

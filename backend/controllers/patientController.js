@@ -1,11 +1,6 @@
-// backend/controllers/patientController.js
-// Exports: createPatient, getPatients, getPatientById, updatePatient, deletePatient, getPatientWithPayments
-
 import { isValidObjectId } from "mongoose";
 import Patient from "../models/patient.js";
-import Receipt from "../models/Receipt.js"; // used by getPatientWithPayments
-
-// CREATE
+import Receipt from "../models/Receipt.js"; 
 export const createPatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;
@@ -21,8 +16,7 @@ export const createPatient = async (req, res) => {
       email,
       address,
       medicalInfo: medicalInfo || "",
-      // status defaults to "pending" from the model
-    });
+   });
     return res.status(201).json(patient);
   } catch (err) {
     console.error("createPatient error:", err);
@@ -30,7 +24,7 @@ export const createPatient = async (req, res) => {
   }
 };
 
-// LIST
+
 export const getPatients = async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -47,7 +41,6 @@ export const getPatients = async (req, res) => {
   }
 };
 
-// READ (numeric id OR ObjectId)
 export const getPatientById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -67,7 +60,6 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-// UPDATE (supports status: 'approved')
 export const updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
@@ -76,9 +68,6 @@ export const updatePatient = async (req, res) => {
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    // You can whitelist allowed fields if you want:
-    // const allowed = ["status", "name", "age", "phone", "email", "address", "medicalInfo"];
-    // const payload = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     const patient = await Patient.findOneAndUpdate(query, req.body, {
       new: true,
     });

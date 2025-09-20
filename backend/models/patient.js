@@ -1,9 +1,8 @@
-// backend/models/patient.js
 import mongoose from "mongoose";
 
 const patientSchema = new mongoose.Schema(
   {
-    // optional numeric booking id (keep if you already use it)
+ 
     id: { type: Number, index: true },
 
     name: { type: String, required: true },
@@ -13,7 +12,6 @@ const patientSchema = new mongoose.Schema(
     address: { type: String, required: true },
     medicalInfo: { type: String, default: "" },
 
-    // ✅ important for Approve button to work
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
