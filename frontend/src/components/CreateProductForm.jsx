@@ -19,11 +19,51 @@ const CreateProductForm = () => {
 
   const {createProduct, loading} = useProductStore();
 
+  const [errors, setErrors] = useState({
+  name: "",
+  description: "",
+  category: "",
+  price: "",
+  stock: "",
+  minimumStock: "",
+  image: ""
+});
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let newErrors = {};
+
+    if (!newProduct.name.trim()) newErrors.name = "Name is required";
+    if (!newProduct.description.trim()) newErrors.description = "Description is required";
+    if (!newProduct.category.trim()) newErrors.category = "Category is required";
+    if (!newProduct.image) newErrors.image = "Image is required";
+
+   
+    if (!newProduct.price || newProduct.price.trim() === "") {
+      newErrors.price = "Price is required";
+    } else if (Number(newProduct.price) <= 0) {
+      newErrors.price = "Price must be a positive number";
+    }
+
+    if (!newProduct.stock || newProduct.stock.trim() === "") {
+      newErrors.stock = "Stock is required";
+    } else if (Number(newProduct.stock) <= 0) {
+      newErrors.stock = "Stock must be a positive number";
+    }
+
+    if (!newProduct.minimumStock || newProduct.minimumStock.trim() === "") {
+      newErrors.minimumStock = "Minimum stock is required";
+    } else if (Number(newProduct.minimumStock) <= 0) {
+      newErrors.minimumStock = "Minimum stock must be a positive number";
+    }
+
+     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     try {
       await createProduct(newProduct);
       setNewProduct({name: "", description: "", category: "", price:"", stock: "", minimumStock: "", image: "", isFeatured: false});
+      setErrors({});
     } catch (error) {
       console.error("Error creating product:", error);
     }
@@ -66,6 +106,7 @@ const CreateProductForm = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             placeholder="Enter product name"
           />
+          {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
         </div>
 
         {/* Description */}
@@ -81,6 +122,7 @@ const CreateProductForm = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none"
             placeholder="Enter product description"
           />
+          {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
         </div>
 
         {/* Category and Price Row */}
@@ -102,6 +144,7 @@ const CreateProductForm = () => {
                 </option>
               ))}
             </select>
+            {errors.category && <span className="text-red-500 text-xs">{errors.category}</span>}
           </div>
 
           <div>
@@ -118,6 +161,7 @@ const CreateProductForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               placeholder="0.00"
             />
+            {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
           </div>
         </div>
 
@@ -136,6 +180,7 @@ const CreateProductForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               placeholder="Enter current stock"
             />
+            {errors.stock && <span className="text-red-500 text-xs">{errors.stock}</span>}
           </div>
 
           <div>
@@ -151,6 +196,7 @@ const CreateProductForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               placeholder="Enter minimum stock"
             />
+            {errors.minimumStock && <span className="text-red-500 text-xs">{errors.minimumStock}</span>}
           </div>
         </div>
 
@@ -207,6 +253,7 @@ const CreateProductForm = () => {
                 alt="Product preview"
                 className="h-32 w-32 object-cover rounded-lg mx-auto border-2 border-gray-200"
               />
+              {errors.image && <span className="text-red-500 text-xs">{errors.image}</span>}
             </div>
           )}
         </div>
