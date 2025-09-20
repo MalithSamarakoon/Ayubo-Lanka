@@ -222,7 +222,7 @@ const Appointment = () => {
 
        
       </div>
-   <Fotter/>
+
     </div>
   
 );

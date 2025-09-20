@@ -771,7 +771,7 @@ const Doctor = () => {
           </div>
         </div>
       </div>
-      <Fotter/>
+  
     </div>
   );
 };

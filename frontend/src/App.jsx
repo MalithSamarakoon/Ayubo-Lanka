@@ -28,7 +28,8 @@ import UpdateUser from "./pages/UpdateUser";
 import UploadSlip from "./pages/UploadSlip";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
-
+import Fotter from "./Component/Fotter"
+import Footer from "./Component/Fotter";
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -52,7 +53,7 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen w-full bg-white relative">
       <Navbar />
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
@@ -65,7 +66,7 @@ function App() {
           <Route path="/dashboard/:id" element={<UpdateUser />} />
           <Route path="/product-dashboard" element={<ProductDashboard />} />
           <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
-  <Route path="/my_appoinments" element={<MyAppoinment />} />
+          <Route path="/my_appoinments" element={<MyAppoinment />} />
 
           {/* Role selection & sign-ups */}
           <Route
@@ -158,6 +159,7 @@ function App() {
         </Routes>
       </div>
       <Toaster />
+      <Footer />
     </div>
   );
 }

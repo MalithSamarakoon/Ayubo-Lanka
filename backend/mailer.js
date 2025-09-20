@@ -74,6 +74,35 @@ export const sendPasswordResetEmail = async (
   }
 };
 
+// ------------------ Appointment Approved Email ------------------
+export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Appointment Has Been Approved – AYUBO LANKA",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height:1.6">
+          <h2>Appointment Approved ✅</h2>
+          <p>Hello ${userName || "Customer"},</p>
+          <p>Your appointment has been <strong>approved</strong>.</p>
+          <p><strong>Booking ID:</strong> ${bookingId ? "#" + bookingId : "N/A"}</p>
+          <p>We look forward to seeing you.</p>
+          <p style="margin-top:16px">
+            Best regards,<br/>
+            AYUBO LANKA Team
+          </p>
+        </div>
+      `,
+    });
+    console.log(`Appointment approval email sent to ${toEmail}`);
+  } catch (error) {
+    console.error("Error sending appointment approval email:", error);
+    // don't throw, we don't want to fail the API call if email fails
+  }
+};
+
+
 export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
