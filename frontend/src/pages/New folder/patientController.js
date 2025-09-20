@@ -14,13 +14,7 @@ export const createPatient = async (req, res) => {
         .status(400)
         .json({ message: "All required fields must be filled." });
     }
-
-    // Generate a unique booking ID
-    const lastPatient = await Patient.findOne().sort({ id: -1 });
-    const nextId = lastPatient && lastPatient.id ? lastPatient.id + 1 : 1000;
-
     const patient = await Patient.create({
-      id: nextId, // Add the numeric booking ID
       name,
       age,
       phone,
@@ -82,6 +76,9 @@ export const updatePatient = async (req, res) => {
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
+    // You can whitelist allowed fields if you want:
+    // const allowed = ["status", "name", "age", "phone", "email", "address", "medicalInfo"];
+    // const payload = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     const patient = await Patient.findOneAndUpdate(query, req.body, {
       new: true,
     });
@@ -95,38 +92,19 @@ export const updatePatient = async (req, res) => {
   }
 };
 
-// DELETE (with cascade option for receipts) - FIXED
+// DELETE (simple delete; if you want cascade receipts, we can add it)
 export const deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
-    const cascade = req.query.cascade === "1" || req.query.cascade === "true";
-
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    // Find patient first to get the _id for receipt deletion
-    const patient = await Patient.findOne(query);
-    if (!patient) {
+    const patient = await Patient.findOneAndDelete(query);
+    if (!patient)
       return res.status(404).json({ message: "Patient not found." });
-    }
-
-    // Delete associated receipts if cascade is enabled
-    if (cascade) {
-      // Delete receipts by appointmentId (which should be the patient's _id)
-      await Receipt.deleteMany({ appointmentId: patient._id });
-      // Also delete receipts by patientId (user ID) to ensure all related receipts are removed
-      await Receipt.deleteMany({ patientId: patient._id });
-    }
-
-    // Delete the patient
-    await Patient.findOneAndDelete(query);
-
-    return res.json({
-      message: `Patient deleted${cascade ? " with associated receipts" : ""}.`,
-      deletedReceipts: cascade,
-    });
+    return res.json({ message: "Patient deleted." });
   } catch (err) {
     console.error("deletePatient error:", err);
     return res.status(500).json({ message: err.message || "Server error" });

@@ -1,11 +1,5 @@
-// frontend/src/pages/Onlinepayment.jsx
 import React, { useEffect, useState } from "react";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Smartphone,
   CircleDollarSign,
@@ -18,21 +12,14 @@ export default function Onlinepayment() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const urlParams = useParams();
-  const [searchParams] = useSearchParams();
 
-  // doctor id for nested routes like /doctor/:docId/...
+  // Get docId from URL if present (not for /onlinepayment), else from state
   const docId = urlParams.docId || state?.docId || "";
-
-  // read appointment identifiers from state OR querystring (survives refresh)
-  const apptId =
-    state?.appointmentId || searchParams.get("appointmentId") || "";
-  const apptNo =
-    state?.appointmentNo || searchParams.get("appointmentNo") || "";
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
-  // If opened directly without minimal state, try to recover via queries; else send back
+  // If someone opened directly without state, send them back safely
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -41,34 +28,18 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
-    // need a doctor id to build /doctor/:docId/... route
-    const targetDocId = urlParams.docId || state?.docId;
-    if (!targetDocId) {
-      alert("Missing doctor route. Returning to Home.");
-      navigate("/home");
-      return;
-    }
-
-    // Pass appointment linkage via querystring (plus state as backup)
-    const qs = new URLSearchParams();
-    if (apptId) qs.set("appointmentId", String(apptId));
-    if (apptNo) qs.set("appointmentNo", String(apptNo));
-
-    navigate(
-      `/doctor/${targetDocId}/book/patientdetails/slip?${qs.toString()}`,
-      {
-        state: {
-          bookingId: state?.bookingId,
-          amount: state?.amount,
-          name: state?.name,
-          phone: state?.phone,
-          email: state?.email,
-          // linkage for UploadSlip validation
-          appointmentId: apptId || null,
-          appointmentNo: apptNo || null,
-        },
-      }
-    );
+    navigate(`/doctor/${docId}/book/patientdetails/slip`, {
+      state: {
+        bookingId: state.bookingId,
+        amount: state.amount,
+        name: state.name,
+        phone: state.phone,
+        email: state.email,
+        // pass linkage ids so UploadSlip can attach to the same booking
+        appointmentId: state.appointmentId || null,
+        appointmentNo: state.appointmentNo || null,
+      },
+    });
   };
 
   const handlePay = async () => {
@@ -84,15 +55,14 @@ export default function Onlinepayment() {
       // Otherwise (wallet/bank) — simulate other gateway flow
       await new Promise((r) => setTimeout(r, 800));
       const order = {
-        bookingId: state?.bookingId,
+        bookingId: state.bookingId,
         method: method.toUpperCase(),
         paid: true,
         paidAt: new Date().toISOString(),
-        name: state?.name,
-        phone: state?.phone,
-        email: state?.email,
+        name: state.name,
+        phone: state.phone,
+        email: state.email,
       };
-      // you can change this to your real success route
       navigate(`/doctor/${docId}/book/success`, { state: { order } });
     } catch (e) {
       alert("Payment failed. Please try again.");
@@ -121,7 +91,7 @@ export default function Onlinepayment() {
             <p className="text-green-100 text-sm mt-1">
               Booking ID:{" "}
               <span className="font-mono font-semibold text-yellow-200">
-                {state?.bookingId}
+                {state.bookingId}
               </span>
             </p>
           </div>
@@ -190,7 +160,7 @@ export default function Onlinepayment() {
             >
               <p className="text-sm text-emerald-800">
                 You’re paying for the appointment of{" "}
-                <strong>{state?.name}</strong>.
+                <strong>{state.name}</strong>.
               </p>
               {state?.amount && (
                 <p className="text-sm text-emerald-800 mt-1">

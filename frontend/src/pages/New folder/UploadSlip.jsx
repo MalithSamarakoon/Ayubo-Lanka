@@ -189,7 +189,9 @@ export default function ReceiptUploadPage() {
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
-       
+          <div className="absolute animate-bounce text-2xl font-bold text-emerald-700 bg-white px-4 py-2 rounded-lg shadow-lg">
+            🚀 Konami Code Activated! You're a coding legend! 🚀
+          </div>
           <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 opacity-20 animate-pulse"></div>
         </div>
       )}

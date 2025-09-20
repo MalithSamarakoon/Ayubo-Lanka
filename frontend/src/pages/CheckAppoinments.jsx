@@ -75,7 +75,7 @@ const CheckAppoinments = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Delete appointment + cascade receipts (optional)
+  // Delete appointment + cascade receipts
   const deleteAppointment = async (appointmentId) => {
     try {
       const ok = window.confirm(
@@ -84,7 +84,7 @@ const CheckAppoinments = () => {
       if (!ok) return;
 
       await axios.delete(`${API_BASE}/api/patients/${appointmentId}`, {
-        params: { cascade: 1 },
+        params: { cascade: "true" },
         withCredentials: true,
       });
 
@@ -94,8 +94,13 @@ const CheckAppoinments = () => {
         next.delete(appointmentId);
         return next;
       });
+
+      alert("Appointment and associated receipts deleted successfully.");
     } catch (e) {
-      setErr(e?.response?.data?.message || "Failed to delete appointment");
+      const errorMessage =
+        e?.response?.data?.message || "Failed to delete appointment";
+      setErr(errorMessage);
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -128,8 +133,12 @@ const CheckAppoinments = () => {
           )
         );
       }
+      alert("Appointment approved successfully.");
     } catch (e) {
-      setErr(e?.response?.data?.message || "Failed to approve appointment");
+      const errorMessage =
+        e?.response?.data?.message || "Failed to approve appointment";
+      setErr(errorMessage);
+      alert(`Error: ${errorMessage}`);
       fetchAll(); // revert if failed
     }
   };
@@ -253,25 +262,6 @@ const CheckAppoinments = () => {
       </span>
     );
   };
-
-  const ActionButtons = ({ row }) => (
-    <div className="flex items-center gap-1">
-      <button
-        onClick={() => approveAppointment(row._id)}
-        className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-        title="Approve (set status to approved)"
-      >
-        <Check className="w-4 h-4" />
-      </button>
-      <button
-        onClick={() => deleteAppointment(row._id)}
-        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-        title="Reject (delete appointment + receipts)"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -430,7 +420,7 @@ const CheckAppoinments = () => {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-gray-900">
-                          #{row.bookingId}
+                          #{row.bookingId || "N/A"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
