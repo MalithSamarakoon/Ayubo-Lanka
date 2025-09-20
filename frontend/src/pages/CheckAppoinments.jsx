@@ -8,6 +8,7 @@ import {
   FileText,
   Check,
   X,
+  Clock,
 } from "lucide-react";
 
 const CheckAppoinments = () => {
@@ -23,7 +24,6 @@ const CheckAppoinments = () => {
 
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-  // ---- Fetch patients (bookings) ----
   const fetchPatients = async () => {
     const r = await axios.get(`${API_BASE}/api/patients`, {
       params: { limit: 200 },
@@ -32,7 +32,6 @@ const CheckAppoinments = () => {
     return r.data?.items || [];
   };
 
-  // ---- Fetch receipts per appointmentId (Patient._id) ----
   const fetchReceiptsFor = async (appointmentId) => {
     try {
       const r = await axios.get(`${API_BASE}/api/receipts`, {
@@ -76,7 +75,7 @@ const CheckAppoinments = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Delete appointment + cascade receipts
+  // Delete appointment + cascade receipts (optional)
   const deleteAppointment = async (appointmentId) => {
     try {
       const ok = window.confirm(
@@ -85,11 +84,10 @@ const CheckAppoinments = () => {
       if (!ok) return;
 
       await axios.delete(`${API_BASE}/api/patients/${appointmentId}`, {
-        params: { cascade: 1 }, // ✅ cascade delete receipts too
+        params: { cascade: 1 },
         withCredentials: true,
       });
 
-      // Update UI immediately
       setAppointments((prev) => prev.filter((a) => a._id !== appointmentId));
       setReceiptsByAppt((prev) => {
         const next = new Map(prev);
@@ -101,9 +99,9 @@ const CheckAppoinments = () => {
     }
   };
 
-  // Approve (set status=approved)
+  // ✅ Approve (set status=approved) — sync with API response
   const approveAppointment = async (appointmentId) => {
-    // Optimistic UI
+    // optimistic UI (instant flip)
     setAppointments((prev) =>
       prev.map((apt) =>
         apt._id === appointmentId ? { ...apt, status: "approved" } : apt
@@ -117,12 +115,15 @@ const CheckAppoinments = () => {
         { withCredentials: true }
       );
 
-      // Sync with server response (in case server normalizes)
+      // sync with server (keeps it correct after any normalization)
       if (data && data._id) {
         setAppointments((prev) =>
           prev.map((apt) =>
             apt._id === data._id
-              ? { ...apt, status: data.status || "approved" }
+              ? {
+                  ...apt,
+                  status: String(data.status || "approved").toLowerCase(),
+                }
               : apt
           )
         );
@@ -133,7 +134,7 @@ const CheckAppoinments = () => {
     }
   };
 
-  // Search / filters (normalize status for robust matching)
+  // Filters
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     let result = appointments || [];
@@ -152,11 +153,10 @@ const CheckAppoinments = () => {
         (a) => String(a.status || "pending").toLowerCase() === statusFilter
       );
     }
-
     return result;
   }, [appointments, q, statusFilter]);
 
-  // Build rows with sorting
+  // Build rows + sorting
   const rows = useMemo(() => {
     const mappedRows = (filtered || []).map((a) => {
       const recs = receiptsByAppt.get(a._id) || [];
@@ -175,7 +175,7 @@ const CheckAppoinments = () => {
         method,
         fileUrl,
         fileMime,
-        status, // normalized for display
+        status,
         createdAt: a.createdAt,
       };
     });
@@ -227,18 +227,18 @@ const CheckAppoinments = () => {
     );
   };
 
-  // ✅ As requested: PENDING and APPROVED both green; REJECTED red.
+  // Status badge (Approved green, Pending amber, Rejected red)
   const StatusBadge = ({ status }) => {
     const key = String(status || "pending").toLowerCase();
     const styles = {
       approved: "bg-green-100 text-green-800 border-green-200",
-      pending: "bg-green-100 text-green-800 border-green-200",
       rejected: "bg-red-100 text-red-800 border-red-200",
+      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
     };
     const icons = {
       approved: <Check className="w-3 h-3" />,
-      pending: <Check className="w-3 h-3" />,
       rejected: <X className="w-3 h-3" />,
+      pending: <Clock className="w-3 h-3" />,
     };
     const label = key.charAt(0).toUpperCase() + key.slice(1);
 
@@ -287,7 +287,6 @@ const CheckAppoinments = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Appointments Management
@@ -307,10 +306,8 @@ const CheckAppoinments = () => {
           </div>
         )}
 
-        {/* Controls */}
         <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -321,7 +318,6 @@ const CheckAppoinments = () => {
               />
             </div>
 
-            {/* Filters */}
             <div className="flex gap-3">
               <select
                 value={statusFilter}
@@ -357,7 +353,6 @@ const CheckAppoinments = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -372,7 +367,6 @@ const CheckAppoinments = () => {
                       <SortIcon field="bookingId" />
                     </div>
                   </th>
-
                   <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("name")}
@@ -382,11 +376,9 @@ const CheckAppoinments = () => {
                       <SortIcon field="name" />
                     </div>
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
                   </th>
-
                   <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("method")}
@@ -396,11 +388,9 @@ const CheckAppoinments = () => {
                       <SortIcon field="method" />
                     </div>
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Payment Slip
                   </th>
-
                   <th
                     className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={() => handleSort("status")}
@@ -410,7 +400,6 @@ const CheckAppoinments = () => {
                       <SortIcon field="status" />
                     </div>
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -444,24 +433,20 @@ const CheckAppoinments = () => {
                           #{row.bookingId}
                         </div>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-gray-900">
                           {row.name}
                         </div>
                       </td>
-
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900">{row.phone}</div>
                         <div className="text-sm text-gray-500">{row.email}</div>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           {row.method}
                         </span>
                       </td>
-
                       <td className="px-6 py-4">
                         {row.fileUrl ? (
                           row.fileMime === "application/pdf" ||
@@ -494,13 +479,26 @@ const CheckAppoinments = () => {
                           </span>
                         )}
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
                         <StatusBadge status={row.status} />
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <ActionButtons row={row} />
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => approveAppointment(row._id)}
+                            className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
+                            title="Approve (set status to approved)"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteAppointment(row._id)}
+                            className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Reject (delete appointment + receipts)"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -510,7 +508,6 @@ const CheckAppoinments = () => {
           </div>
         </div>
 
-        {/* Footer info */}
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500 bg-white p-4 rounded-xl border">
           <p>
             Showing {rows.length} of {appointments.length} appointments

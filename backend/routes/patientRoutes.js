@@ -1,4 +1,4 @@
-// backend/routes/patientRoutes.js
+// backend/routes/patients.routes.js
 import express from "express";
 import {
   createPatient,
@@ -6,27 +6,17 @@ import {
   getPatientById,
   updatePatient,
   deletePatient,
-  getPatientWithPayments, // NEW
 } from "../controllers/patientController.js";
 
-const patientRouter = express.Router();
+const router = express.Router();
 
-// Create patient
-patientRouter.post("/", createPatient);
+router.get("/", getPatients);
+router.get("/:id", getPatientById);
+router.post("/", createPatient);
 
-// List patients
-patientRouter.get("/", getPatients);
+// ✅ required for Approve action
+router.patch("/:id", updatePatient);
 
-// NEW: Admin convenience (MUST be before the plain :id route)
-patientRouter.get("/:id/with-payments", getPatientWithPayments); // NEW
+router.delete("/:id", deletePatient);
 
-// Get patient by numeric id (or ObjectId fallback)
-patientRouter.get("/:id", getPatientById);
-
-// Update patient
-patientRouter.put("/:id", updatePatient);
-
-// Delete patient
-patientRouter.delete("/:id", deletePatient);
-
-export default patientRouter;
+export default router;

@@ -3,7 +3,7 @@
 
 import { isValidObjectId } from "mongoose";
 import Patient from "../models/patient.js";
-import Receipt from "../models/Receipt.js"; // used for cascade delete + join
+import Receipt from "../models/Receipt.js"; // used by getPatientWithPayments
 
 // CREATE
 export const createPatient = async (req, res) => {
@@ -21,7 +21,7 @@ export const createPatient = async (req, res) => {
       email,
       address,
       medicalInfo: medicalInfo || "",
-      // (status defaults in schema; if you add one, default 'pending')
+      // status defaults to "pending" from the model
     });
     return res.status(201).json(patient);
   } catch (err) {
@@ -76,9 +76,13 @@ export const updatePatient = async (req, res) => {
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
+    // You can whitelist allowed fields if you want:
+    // const allowed = ["status", "name", "age", "phone", "email", "address", "medicalInfo"];
+    // const payload = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     const patient = await Patient.findOneAndUpdate(query, req.body, {
       new: true,
     });
+
     if (!patient)
       return res.status(404).json({ message: "Patient not found." });
     return res.json(patient);
@@ -88,36 +92,19 @@ export const updatePatient = async (req, res) => {
   }
 };
 
-// DELETE (supports cascade receipts deletion via ?cascade=1)
+// DELETE (simple delete; if you want cascade receipts, we can add it)
 export const deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
-    const cascade =
-      req.query.cascade === "1" || req.query.cascade === "true" ? true : false;
-
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    // Find first to get _id for receipts
-    const patient = await Patient.findOne(query);
+    const patient = await Patient.findOneAndDelete(query);
     if (!patient)
       return res.status(404).json({ message: "Patient not found." });
-
-    await Patient.deleteOne({ _id: patient._id });
-
-    let deletedReceipts = 0;
-    if (cascade) {
-      const result = await Receipt.deleteMany({ appointmentId: patient._id });
-      deletedReceipts = result?.deletedCount || 0;
-    }
-
-    return res.json({
-      message: "Patient deleted.",
-      cascade,
-      deletedReceipts,
-    });
+    return res.json({ message: "Patient deleted." });
   } catch (err) {
     console.error("deletePatient error:", err);
     return res.status(500).json({ message: err.message || "Server error" });

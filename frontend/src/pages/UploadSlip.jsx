@@ -385,9 +385,7 @@ export default function ReceiptUploadPage() {
             )}
           </motion.button>
 
-          <p className="text-center text-xs text-emerald-700/70 mt-2">
-            💡 Tip: Try the Konami code for a surprise! ⬆️⬆️⬇️⬇️⬅️➡️⬅️➡️BA
-          </p>
+        
         </motion.form>
       </motion.div>
     </div>
