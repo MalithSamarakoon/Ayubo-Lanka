@@ -191,10 +191,10 @@ export const verifyEmail = async (req, res) => {
     .status(200)
     .json({ success: true, message: "Email verified successfully" });
 };
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
+  console.log("Login attempt:", req.body);
+  
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -221,16 +221,42 @@ export const login = async (req, res) => {
       });
     }
 
-       const { password: _password, ...userTokenData } = user.toObject();
+    // Generate token and set cookie
+    const { password: _password, ...userTokenData } = user.toObject();
     generateTokenAndSetCookie(res, userTokenData);
 
     user.lastLogin = new Date();
     await user.save();
 
+    // Return user data without password
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      mobile: user.mobile,
+      isApproved: user.isApproved,
+      isVerified: user.isVerified,
+      lastLogin: user.lastLogin,
+      // Include doctor-specific fields if applicable
+      ...(user.role === "DOCTOR" && {
+        specialization: user.specialization,
+        experience: user.experience,
+        consultationFee: user.consultationFee,
+        description: user.description,
+        availability: user.availability,
+        doctorLicenseNumber: user.doctorLicenseNumber
+      }),
+      ...(user.role === "SUPPLIER" && {
+        companyAddress: user.companyAddress,
+        productCategory: user.productCategory
+      })
+    };
+
     res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: { ...user._doc, password: undefined },
+      user: userResponse,
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -339,12 +365,36 @@ export const checkAuth = async (req, res) => {
         .json({ success: false, message: "Account pending approval" });
     }
 
-    res.status(200).json({ success: true, user });
+    // Return complete user data
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      mobile: user.mobile,
+      isApproved: user.isApproved,
+      isVerified: user.isVerified,
+      lastLogin: user.lastLogin,
+      // Include doctor-specific fields if applicable
+      ...(user.role === "DOCTOR" && {
+        specialization: user.specialization,
+        experience: user.experience,
+        consultationFee: user.consultationFee,
+        description: user.description,
+        availability: user.availability,
+        doctorLicenseNumber: user.doctorLicenseNumber
+      }),
+      ...(user.role === "SUPPLIER" && {
+        companyAddress: user.companyAddress,
+        productCategory: user.productCategory
+      })
+    };
+
+    res.status(200).json({ success: true, user: userResponse });
   } catch (error) {
     console.error("CheckAuth Error:", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
 
 

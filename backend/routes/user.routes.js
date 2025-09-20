@@ -5,24 +5,41 @@ import {
   getAllUsers,
   updateUser,
   deleteUser,
-  updateDoctorProfile, // New controller to handle doctor profile updates
+  updateDoctorProfile,
 } from "../controllers/user.controller.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
-// Middleware to verify token and admin role
-// userRouter.use(checkAuth); // Uncomment this when implementing checkAuth middleware
-// userRouter.use(verifyAdmin); // Uncomment this if you're using verifyAdmin middleware
+// Try to import verifyAdmin, but provide a fallback if it doesn't exist
+let verifyAdmin;
+try {
+  const adminModule = await import("../middleware/verifyAdmin.js");
+  verifyAdmin = adminModule.verifyAdmin;
+} catch (error) {
+  console.warn("verifyAdmin middleware not found. Using basic admin check.");
+  verifyAdmin = (req, res, next) => {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin privileges required.",
+      });
+    }
+    next();
+  };
+}
 
 const userRouter = express.Router();
 
-// Admin routes
-userRouter.get("/users", getAllUsers); // Get all users
-userRouter.get("/:id", getUserById); // Get user by ID
-userRouter.patch("/:id", updateUser); // Update user by ID
-userRouter.delete("/:id", deleteUser); // Delete user
-userRouter.patch("/approve/:id", approveUser); // Approve a doctor
+// Apply token verification to all routes
+userRouter.use(verifyToken);
+
+// Admin routes (protected routes)
+userRouter.get("/users", verifyAdmin, getAllUsers);
+userRouter.get("/:id", getUserById); // Allow users to view their own profile
+userRouter.patch("/:id", updateUser); // Allow users to update their own profile
+userRouter.delete("/:id", verifyAdmin, deleteUser); // Only admin can delete
+userRouter.patch("/approve/:id", verifyAdmin, approveUser); // Only admin can approve
 
 // Doctor-specific routes
-userRouter.patch("/doctor/profile", updateDoctorProfile); // Update doctor profile (experience, consultation fee, description, availability)
+userRouter.patch("/doctor/profile", updateDoctorProfile);
 
 export default userRouter;
-

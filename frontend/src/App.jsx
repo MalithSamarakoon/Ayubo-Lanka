@@ -28,7 +28,7 @@ import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 import Collection from "./pages/Collection";
 import ProductDetail from "./pages/ProductDetail";
-
+import Cart from "./pages/Cart";
 // Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -71,7 +71,7 @@ function App() {
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/user-management" element={<UserMgt />} />
-
+<Route path="/Cart" element={<Cart />} />
           <Route path="/dashboard/:id" element={<UpdateUser />} />
 
           <Route path="/product-dashboard" element={<ProductDashboard />} />

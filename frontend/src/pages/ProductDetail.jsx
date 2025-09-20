@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useProductStore } from '../stores/useProductStore';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useProductStore } from "../stores/useProductStore";
+// If you already have a cart store, you can import it like this:
+// import { useCartStore } from "../stores/useCartStore";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { selectedProduct, loading, getProductById } = useProductStore();
   const [quantity, setQuantity] = useState(1);
+  // const { addItem } = useCartStore(); // optional, if you maintain a cart store
 
   useEffect(() => {
     if (id) {
@@ -25,10 +28,14 @@ const ProductDetail = () => {
   if (!selectedProduct) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h2>
-        <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Product Not Found
+        </h2>
+        <p className="text-gray-600 mb-6">
+          The product you're looking for doesn't exist.
+        </p>
         <button
-          onClick={() => navigate('/collection')}
+          onClick={() => navigate("/collection")}
           className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300"
         >
           Back to Collection
@@ -37,14 +44,25 @@ const ProductDetail = () => {
     );
   }
 
+  // ✅ Changed Add to Cart
   const handleAddToCart = () => {
-    // Placeholder for cart functionality (will be implemented by team member)
-    alert(`Added ${quantity} x ${selectedProduct.name} to cart!\n(Cart functionality will be implemented by team member)`);
+    // If you have cart store, you can add product here
+    // addItem({ id: selectedProduct._id, name: selectedProduct.name, qty: quantity, price: selectedProduct.price });
+
+    navigate("/Cart", {
+      state: {
+        flash: `🧺 Added ${quantity} × ${selectedProduct.name} to your cart`,
+      },
+    });
   };
 
+  // ✅ Changed Buy Now
   const handleBuyNow = () => {
-    // Placeholder for buy now functionality (will be implemented by team member)
-    alert(`Buy Now: ${quantity} x ${selectedProduct.name}\n(Buy Now functionality will be implemented by team member)`);
+    navigate("/Cart", {
+      state: {
+        flash: `⚡ Buy Now: ${quantity} × ${selectedProduct.name} (review in cart)`,
+      },
+    });
   };
 
   return (
@@ -54,7 +72,7 @@ const ProductDetail = () => {
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
           <li className="inline-flex items-center">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-green-600"
             >
               Home
@@ -62,11 +80,19 @@ const ProductDetail = () => {
           </li>
           <li>
             <div className="flex items-center">
-              <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+              <svg
+                className="w-6 h-6 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                ></path>
               </svg>
               <button
-                onClick={() => navigate('/collection')}
+                onClick={() => navigate("/collection")}
                 className="ml-1 text-sm font-medium text-gray-700 hover:text-green-600 md:ml-2"
               >
                 Collection
@@ -75,8 +101,16 @@ const ProductDetail = () => {
           </li>
           <li aria-current="page">
             <div className="flex items-center">
-              <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+              <svg
+                className="w-6 h-6 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                ></path>
               </svg>
               <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2 truncate">
                 {selectedProduct.name}
@@ -126,9 +160,7 @@ const ProductDetail = () => {
                 ✓ In Stock ({selectedProduct.stock} available)
               </p>
             ) : (
-              <p className="text-red-600 font-medium">
-                ✗ Out of Stock
-              </p>
+              <p className="text-red-600 font-medium">✗ Out of Stock</p>
             )}
           </div>
 
@@ -145,7 +177,10 @@ const ProductDetail = () => {
           {/* Quantity Selector */}
           <div className="mt-8">
             <div className="flex items-center space-x-4">
-              <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="quantity"
+                className="text-sm font-medium text-gray-700"
+              >
                 Quantity:
               </label>
               <div className="flex items-center border border-gray-300 rounded-md">
@@ -160,7 +195,9 @@ const ProductDetail = () => {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(Math.min(selectedProduct.stock, quantity + 1))}
+                  onClick={() =>
+                    setQuantity(Math.min(selectedProduct.stock, quantity + 1))
+                  }
                   className="px-3 py-2 text-gray-600 hover:text-gray-800"
                   disabled={quantity >= selectedProduct.stock}
                 >
@@ -179,7 +216,7 @@ const ProductDetail = () => {
             >
               Add to Cart
             </button>
-            
+
             <button
               onClick={handleBuyNow}
               disabled={selectedProduct.stock <= 0}
@@ -193,23 +230,33 @@ const ProductDetail = () => {
           <div className="mt-8 border-t border-gray-200 pt-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Product Details</h4>
+                <h4 className="text-sm font-medium text-gray-900">
+                  Product Details
+                </h4>
                 <dl className="mt-2 space-y-1">
                   <div className="flex text-sm">
                     <dt className="font-medium text-gray-700 w-24">Category:</dt>
-                    <dd className="text-gray-600">{selectedProduct.category}</dd>
+                    <dd className="text-gray-600">
+                      {selectedProduct.category}
+                    </dd>
                   </div>
                   <div className="flex text-sm">
                     <dt className="font-medium text-gray-700 w-24">Stock:</dt>
-                    <dd className="text-gray-600">{selectedProduct.stock} units</dd>
+                    <dd className="text-gray-600">
+                      {selectedProduct.stock} units
+                    </dd>
                   </div>
                   <div className="flex text-sm">
-                    <dt className="font-medium text-gray-700 w-24">Min Stock:</dt>
-                    <dd className="text-gray-600">{selectedProduct.minimumStock} units</dd>
+                    <dt className="font-medium text-gray-700 w-24">
+                      Min Stock:
+                    </dt>
+                    <dd className="text-gray-600">
+                      {selectedProduct.minimumStock} units
+                    </dd>
                   </div>
                 </dl>
               </div>
-              
+
               <div>
                 <h4 className="text-sm font-medium text-gray-900">Features</h4>
                 <ul className="mt-2 space-y-1 text-sm text-gray-600">
