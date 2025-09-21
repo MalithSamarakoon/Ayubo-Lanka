@@ -1,45 +1,51 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const { Schema } = mongoose;
 
-const productSchema = new mongoose.Schema({
+const ayurvedicproductSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     category: {
-        type: String,  // Change to String for now
-        required: false
+      type: String, // Change to String for now
+      required: false,
     },
     price: {
-        type: Number,
-        required: true
+      type: Schema.Types.Mixed,
+      required: true,
     },
     stock: {
-        type: Number,
-        required: true
+      type: Schema.Types.Mixed,
+       required: true
     },
     minimumStock: {
-        type: Number,
-        required: true
+      type: Schema.Types.Mixed,
+       required: true
     },
-    
+
     image: {
-        type: String,
-        required: [true, "Image is required."]
+      type: String,
+       required: [true, "Image is required."]
     },
 
     isFeatured: {
-        type: Boolean,
-        default: false,
-        required: false
-    }
-}, {timestamps: true});
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+  },
+  { timestamps: true }
+);
 
-const Product = mongoose.model("Product", productSchema);
+const ayurvedicProduct = mongoose.model(
+  "ayurvedicProduct",
+  ayurvedicproductSchema
+);
 
-export default Product;
+export default ayurvedicProduct;
