@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 import {
   useReactTable,
@@ -48,7 +50,7 @@ function UserMgt() {
     fetchHandler();
   }, []);
 
-  const downloadUserReport = () => {
+  const downloadUserReport = (roleFilter = null) => {
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "pt",
@@ -61,7 +63,9 @@ function UserMgt() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("User Management Report", marginX, marginTop);
+    let title = "User Management Report";
+    if (roleFilter) title = `${roleFilter} Report`; 
+    doc.text(title, marginX, marginTop);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -88,8 +92,15 @@ function UserMgt() {
       ],
     ];
 
-    const body = filteredData.map((u, idx) => [
-      idx + 1, 
+    //filter data by role
+    const dataToExport = roleFilter
+      ? filteredData.filter(
+          (u) => (u.role || "").toLowerCase() === roleFilter.toLowerCase()
+        )
+      : filteredData;
+
+    const body = dataToExport.map((u, idx) => [
+      idx + 1,
       u.name || "-",
       u.email || "-",
       u.role || "-",
@@ -142,7 +153,9 @@ function UserMgt() {
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
     const dd = String(now.getDate()).padStart(2, "0");
-    doc.save(`User_Report_${yyyy}-${mm}-${dd}.pdf`);
+
+    const rolePart = roleFilter ? `_${roleFilter}` : "_All";
+    doc.save(`User_Report${rolePart}_${yyyy}-${mm}-${dd}.pdf`);
   };
 
   //approval
@@ -153,21 +166,35 @@ function UserMgt() {
 
     try {
       await axios.patch(`http://localhost:5000/api/user/approve/${userId}`);
+      toast.success("User approval updated");
     } catch (err) {
       console.error("Error updating approval:", err);
+      toast.error("Failed to update approval. Please try again.");
     }
   };
 
   const handleDelete = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete this account?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:5000/api/user/${userId}`);
 
-    setUsers((prev) => prev.filter((u) => u._id !== userId));
+          Swal.fire("Deleted!", "Account deleted successfully.", "success");
 
-    try {
-      await axios.delete(`http://localhost:5000/api/user/${userId}`);
-    } catch (err) {
-      console.error("Error deleting user:", err);
-    }
+        } catch (err) {
+          console.error("Error deleting user:", err);
+          Swal.fire("Error!", "Failed to delete account. Try again.", "error");
+        }
+      }
+    });
   };
 
   const handleUpdate = (user) => {
@@ -445,12 +472,28 @@ function UserMgt() {
             </select>
           </div>
         </div>
-        <button
-          onClick={downloadUserReport}
-          className="mt-6 w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
-        >
-          Download User Report
-        </button>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => downloadUserReport("user")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-xl shadow-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition"
+          >
+            Download User Report
+          </button>
+
+          <button
+            onClick={() => downloadUserReport("doctor")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+          >
+            Download Doctor Report
+          </button>
+
+          <button
+            onClick={() => downloadUserReport("supplier")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition"
+          >
+            Download Supplier Report
+          </button>
+        </div>
 
         <UpdateUserModal
           id={editingId}

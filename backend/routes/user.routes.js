@@ -6,11 +6,13 @@ import {
   updateUser,
   deleteUser,
   updateDoctorProfile,
+  getRoleStats, 
 } from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
 
 userRouter.get("/users", getAllUsers);
+userRouter.get("/role-stats", getRoleStats);
 userRouter.get("/:id", getUserById);
 userRouter.patch("/:id", updateUser);
 userRouter.delete("/:id", deleteUser);

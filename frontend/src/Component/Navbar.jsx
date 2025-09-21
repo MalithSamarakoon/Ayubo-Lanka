@@ -8,6 +8,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout, isLoading, error } = useAuthStore();
 
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -105,24 +107,36 @@ const Navbar = () => {
           />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/dashboard")}
-              >
-                My Profile
-              </p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/orders")}
-              >
-                Orders
-              </p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={handleLogout}
-              >
-                Logout
-              </p>
+              {isAuthenticated ? (
+                <>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    My Profile
+                  </p>
+
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/orders")}
+                  >
+                    Orders
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </p>
+                </>
+              ) : (
+                <p
+                  className="cursor-pointer hover:text-black"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </p>
+              )}
             </div>
           </div>
         </div>

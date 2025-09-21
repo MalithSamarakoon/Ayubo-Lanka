@@ -130,6 +130,7 @@ const SupplierSignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
           />
           <Input
             icon={Lock}
@@ -137,6 +138,7 @@ const SupplierSignUpPage = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
           />
 
           {(validationError || error) && (

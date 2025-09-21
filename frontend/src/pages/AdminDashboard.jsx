@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -16,6 +26,39 @@ function AdminDashboard() {
     logout();
     navigate("/login");
   };
+
+  const [roleStats, setRoleStats] = useState({
+    user: 0,
+    doctor: 0,
+    supplier: 0,
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/user/role-stats"
+        );
+        const s = res.data?.stats || {};
+        setRoleStats({
+          user: s.user || 0,
+          doctor: s.doctor || 0,
+          supplier: s.supplier || 0,
+        });
+      } catch (e) {
+        console.error("Failed to load role stats", e);
+      }
+    };
+    load();
+  }, []);
+
+  const pieData = [
+    { name: "Users", value: roleStats.user },
+    { name: "Doctors", value: roleStats.doctor },
+    { name: "Suppliers", value: roleStats.supplier },
+  ];
+
+  const COLORS = ["#10B981", "#3B82F6", "#F59E0B"];
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
@@ -86,7 +129,6 @@ function AdminDashboard() {
         </motion.button>
       </motion.div>
 
-      {/* Main Content */}
       <div className="flex-1 p-10 overflow-y-auto">
         <h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Welcome, Admin
@@ -103,6 +145,52 @@ function AdminDashboard() {
             <p className="text-gray-600">
               Manage registered users, and track activity.
             </p>
+
+            <div className="w-full" style={{ height: 260 }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  >
+                    {pieData.map((entry, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={COLORS[idx % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+              <div className="bg-white/40 rounded-lg p-3">
+                <div className="text-sm text-gray-600">Users</div>
+                <div className="text-2xl font-bold text-emerald-600">
+                  {roleStats.user}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-3">
+                <div className="text-sm text-gray-600">Doctors</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {roleStats.doctor}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-3">
+                <div className="text-sm text-gray-600">Suppliers</div>
+                <div className="text-2xl font-bold text-amber-600">
+                  {roleStats.supplier}
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div

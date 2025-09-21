@@ -67,6 +67,8 @@ export const useAuthStore = create((set) => ({
         isLoading: false,
       });
 
+      localStorage.setItem("isAuthenticated", true);
+
       return response.data.user;
     } catch (error) {
       set({
@@ -87,6 +89,8 @@ export const useAuthStore = create((set) => ({
         error: null,
         isLoading: false,
       });
+
+      localStorage.removeItem("isAuthenticated", false);
     } catch (error) {
       set({ error: "Error logging out", isLoading: false });
       throw error;
