@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
 import { User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const UserDashboard = () => {
   const { user: loggedUser } = useAuthStore();
@@ -31,10 +32,38 @@ const UserDashboard = () => {
   }, [loggedUser]);
 
   const handleDelete = async () => {
-    await axios
-      .delete(`http://localhost:5000/api/user/${loggedUser?._id}`)
-      .then(() => navigate("/login"));
-    console.log("Delete Account success");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete your account? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(
+            `http://localhost:5000/api/user/${loggedUser?._id}`
+          );
+
+          Swal.fire(
+            "Deleted!",
+            "Your account has been deleted successfully.",
+            "success"
+          );
+
+          navigate("/login");
+        } catch (err) {
+          console.error("Delete failed:", err);
+          Swal.fire(
+            "Error!",
+            "Failed to delete account. Please try again.",
+            "error"
+          );
+        }
+      }
+    });
   };
 
   return (
@@ -45,7 +74,6 @@ const UserDashboard = () => {
       transition={{ duration: 0.5 }}
       className="max-w-2xl w-full mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl border border-gray-200"
     >
-      {/* Header with Avatar */}
       <div className="flex flex-col items-center text-center">
         <motion.div
           initial={{ scale: 0.8 }}
@@ -92,20 +120,24 @@ const UserDashboard = () => {
               {formatDate(user?.lastLogin)}
             </p>
 
-            {/* Show doctor-specific fields only for doctors */}
+            {/*doctor-specific fields for doctors*/}
             {user?.role === "DOCTOR" && (
               <>
                 <p>
-                  <span className="font-semibold">Experience:</span> {user?.experience} years
+                  <span className="font-semibold">Experience:</span>{" "}
+                  {user?.experience} years
                 </p>
                 <p>
-                  <span className="font-semibold">Consultation Fee:</span> Rs.{user?.consultationFee}
+                  <span className="font-semibold">Consultation Fee:</span> Rs.
+                  {user?.consultationFee}
                 </p>
                 <p>
-                  <span className="font-semibold">Description:</span> {user?.description || "No description provided"}
+                  <span className="font-semibold">Description:</span>{" "}
+                  {user?.description || "No description provided"}
                 </p>
                 <p>
-                  <span className="font-semibold">Availability:</span> {user?.availability}
+                  <span className="font-semibold">Availability:</span>{" "}
+                  {user?.availability}
                 </p>
               </>
             )}
@@ -113,14 +145,12 @@ const UserDashboard = () => {
         </motion.div>
       </div>
 
-      {/* Action Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         className="mt-8 flex flex-col sm:flex-row gap-4"
       >
-        {/* Update Profile */}
         <Link to={`/dashboard/${user?._id}`} className="flex-1">
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -133,14 +163,13 @@ const UserDashboard = () => {
           </motion.button>
         </Link>
 
-        {/* Delete Account */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleDelete}
-          className="w-full flex-1 py-3 px-4 bg-red-500 text-white 
-          font-semibold rounded-lg shadow-md hover:bg-red-600
-          focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="w-full flex-1 py-3 px-4 bg-red-500 text-white !bg-red-500 !text-white
+             font-semibold rounded-lg shadow-md hover:bg-red-600
+             focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
           Delete Account
         </motion.button>

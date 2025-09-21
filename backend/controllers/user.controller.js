@@ -1,7 +1,7 @@
 import { sendUserApprovedEmail } from "../mailer.js";
 import { User } from "../models/user.model.js";
 
-// Approve user (remains the same)
+// Approve user
 export const approveUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -22,7 +22,6 @@ export const approveUser = async (req, res) => {
   }
 };
 
-// Get all users (remains the same)
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
@@ -32,7 +31,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Get all doctors (remains the same)
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find({ role: "DOCTOR" }).sort({ createdAt: -1 });
@@ -42,7 +40,7 @@ export const getAllDoctors = async (req, res) => {
   }
 };
 
-// Get user by ID (remains the same)
+// Get user by ID
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -53,19 +51,17 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Update user by ID (modified to handle new doctor fields)
+// Update user
 export const updateUser = async (req, res) => {
   try {
     const { name, email, role, mobile } = req.body;
 
-    // Ensure only doctors can update doctor-specific fields
     if (role === "DOCTOR") {
       console.log(req.body);
       const updateDoctorProfile = {
         ...req.body,
       };
 
-      // Update general and doctor-specific fields
       const updatedUser = await User.findByIdAndUpdate(
         req.params.id,
         updateDoctorProfile,
@@ -78,11 +74,10 @@ export const updateUser = async (req, res) => {
       return res.status(200).json({ user: updatedUser });
     }
 
-    // For non-doctors, only update non-doctor fields
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       { name, email, role, mobile },
-      { new: true } // return updated document
+      { new: true }
     );
 
     if (!updatedUser)
@@ -94,7 +89,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// Delete user (remains the same)
+// Delete user
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -112,12 +107,10 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// New controller to update only doctor profile fields
 export const updateDoctorProfile = async (req, res) => {
   try {
     const { experience, consultationFee, description, availability } = req.body;
 
-    // Validate that only doctors can update these fields
     if (req.user.role !== "DOCTOR") {
       return res
         .status(403)
@@ -127,7 +120,7 @@ export const updateDoctorProfile = async (req, res) => {
     const updatedDoctorProfile = await User.findByIdAndUpdate(
       req.user.id,
       { experience, consultationFee, description, availability },
-      { new: true, runValidators: true } // return updated document with validation
+      { new: true, runValidators: true }
     );
 
     if (!updatedDoctorProfile) {
@@ -139,3 +132,25 @@ export const updateDoctorProfile = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// count users by role
+export const getRoleStats = async (req, res) => {
+  try {
+    
+    const rows = await User.aggregate([
+      { $group: { _id: { $toLower: "$role" }, count: { $sum: 1 } } }
+    ]);
+
+    const stats = { user: 0, doctor: 0, supplier: 0, admin: 0 };
+    rows.forEach(r => {
+      if (stats.hasOwnProperty(r._id)) stats[r._id] = r.count;
+    });
+
+    return res.json({ ok: true, stats });
+  } catch (err) {
+    console.error("getRoleStats error:", err);
+    return res.status(500).json({ ok: false, message: "Failed to get stats" });
+  }
+};
+
+
