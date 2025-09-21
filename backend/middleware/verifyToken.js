@@ -1,13 +1,12 @@
 // backend/middleware/verifyToken.js
 import jwt from "jsonwebtoken";
 
-/**
- * Reads JWT from:
- *  1) Authorization header: "Bearer <token>"
- *  2) Cookie: token
- * On success: sets req.user (full payload) and req.userId (id/userId) then next()
- */
-function verifyToken(req, res, next) {
+export const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token)
+    return res
+      .status(401)
+      .json({ success: false, message: "unauthorized - no token provided" });
   try {
     // 1) Try Authorization header
     const auth = req.headers?.authorization;

@@ -56,6 +56,7 @@ const ResetPasswordPage = () => {
             placeholder="New Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
             required
           />
 
@@ -65,6 +66,7 @@ const ResetPasswordPage = () => {
             placeholder="Confirm New Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
             required
           />
           <motion.button
