@@ -1,37 +1,63 @@
-import express from "express";
+// backend/server.js
 import "dotenv/config";
+import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import connectDB from "./lib/db.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
-
-import authRouter from "./routes/auth.route.js";
-import userRouter from "./routes/user.routes.js";
-import patientRouter from "./routes/patientRoutes.js";
-import productRouter from "./routes/product.route.js";
-
+import feedbackRoutes from "./routes/feedbackRoutes.js";
+import supportRoutes from "./routes/supportRoutes.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-connectDB();
-
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-
-
-
+// middleware
 app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5175"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-// Middleware
-app.use(express.json({ limit: "10mb" }));
- 
+// static /uploads
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api/products", productRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/user", userRouter);
-app.use("/api/patients", patientRouter);
+// mongo
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ayurvedicDB";
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// health
+app.get("/api/health", (req, res) => res.json({ ok: true }));
+
+// routes
+app.use("/api/feedback", feedbackRoutes);
+app.use("/api/support", supportRoutes);
+app.use("/api/tickets", ticketRoutes);
+
+// helpful 404
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Not found",
+    path: `${req.method} ${req.originalUrl}`,
+  });
 });
-export default app;
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

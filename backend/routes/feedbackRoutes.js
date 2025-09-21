@@ -1,10 +1,10 @@
-// backend/routes/feedbackRoutes.js
-const express = require('express');
-const Feedback = require('../models/Feedback');
+import express from "express";
+import Feedback from "../models/Feedback.js";
+import sendMail from '../utils/sendMail.js';
 const router = express.Router();
 
 // Create new feedback
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { name, email, rating, feedback, category, consent } = req.body;
 
@@ -14,43 +14,42 @@ router.post('/', async (req, res) => {
       rating,
       feedback,
       category,
-      consent
+      consent,
     });
 
     await newFeedback.save();
 
-    res.status(201).json({
-      message: 'Feedback submitted successfully',
-      feedback: newFeedback
-    });
+    res
+      .status(201)
+      .json({ message: "Feedback submitted successfully", feedback: newFeedback });
   } catch (error) {
-    console.error('Error creating feedback:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Error creating feedback:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Get all feedback
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const feedback = await Feedback.find().sort({ createdAt: -1 });
     res.json(feedback);
   } catch (error) {
-    console.error('Error fetching feedback:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Error fetching feedback:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Get feedback stats
-router.get('/stats/overview', async (req, res) => {
+router.get("/stats/overview", async (req, res) => {
   try {
     const result = await Feedback.aggregate([
       {
         $group: {
           _id: null,
-          averageRating: { $avg: '$rating' },
-          totalFeedback: { $sum: 1 }
-        }
-      }
+          averageRating: { $avg: "$rating" },
+          totalFeedback: { $sum: 1 },
+        },
+      },
     ]);
 
     const featuredFeedback = await Feedback.find({ featured: true })
@@ -61,23 +60,23 @@ router.get('/stats/overview', async (req, res) => {
       return res.json({
         averageRating: 0,
         totalFeedback: 0,
-        featuredFeedback
+        featuredFeedback,
       });
     }
 
     res.json({
       averageRating: Math.round(result[0].averageRating * 10) / 10,
       totalFeedback: result[0].totalFeedback,
-      featuredFeedback
+      featuredFeedback,
     });
   } catch (error) {
-    console.error('Error calculating feedback statistics:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Error calculating feedback statistics:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// ✅ Update feedback
-router.put('/:id', async (req, res) => {
+// Update feedback
+router.put("/:id", async (req, res) => {
   try {
     const updatedFeedback = await Feedback.findByIdAndUpdate(
       req.params.id,
@@ -86,33 +85,31 @@ router.put('/:id', async (req, res) => {
     );
 
     if (!updatedFeedback) {
-      return res.status(404).json({ message: 'Feedback not found' });
+      return res.status(404).json({ message: "Feedback not found" });
     }
 
     res.json({
-      message: 'Feedback updated successfully',
-      feedback: updatedFeedback
+      message: "Feedback updated successfully",
+      feedback: updatedFeedback,
     });
   } catch (error) {
-    console.error('Error updating feedback:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Error updating feedback:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// ✅ Delete feedback
-router.delete('/:id', async (req, res) => {
+// Delete feedback
+router.delete("/:id", async (req, res) => {
   try {
     const deletedFeedback = await Feedback.findByIdAndDelete(req.params.id);
-
     if (!deletedFeedback) {
-      return res.status(404).json({ message: 'Feedback not found' });
+      return res.status(404).json({ message: "Feedback not found" });
     }
-
-    res.json({ message: 'Feedback deleted successfully' });
+    res.json({ message: "Feedback deleted successfully" });
   } catch (error) {
-    console.error('Error deleting feedback:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Error deleting feedback:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-module.exports = router;
+export default router;

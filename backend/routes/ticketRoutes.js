@@ -1,18 +1,26 @@
-// backend/routes/ticketRoutes.js
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const Ticket = require('../models/Ticket');
-const sendMail = require('../utils/sendMail');
+// backend/routes/ticketRoutes.js (ESM)
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import Ticket from '../models/Ticket.js';
+import sendMail from '../utils/sendMail.js';
 
 const router = express.Router();
 
-// multer storage
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure upload root exists (…/uploads/tickets)
+const uploadRoot = path.join(__dirname, '..', 'uploads', 'tickets');
+fs.mkdirSync(uploadRoot, { recursive: true });
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join('uploads', 'tickets')),
+  destination: (req, file, cb) => cb(null, uploadRoot),
   filename: (req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, 'file-' + unique + path.extname(file.originalname));
+    cb(null, 'file-' + unique + path.extname(file.originalname || ''));
   }
 });
 
@@ -20,9 +28,12 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = /jpeg|jpg|png|pdf|doc|docx/i.test(path.extname(file.originalname)) &&
-               /jpeg|jpg|png|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/i.test(file.mimetype);
-    ok ? cb(null, true) : cb(new Error('Only document and image files are allowed'));
+    const extOk = /\.(jpe?g|png|pdf|docx?|)$/i.test(file.originalname || "");
+    const mimeOk = /(image\/jpeg|image\/png|application\/pdf|application\/msword|application\/vnd.openxmlformats-officedocument.wordprocessingml.document)/i
+      .test(file.mimetype || "");
+    return extOk && mimeOk
+      ? cb(null, true)
+      : cb(new Error('Only document and image files are allowed'));
   }
 });
 
@@ -35,15 +46,21 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
     const attachments = (req.files || []).map(file => ({
       filename: file.filename,
       originalName: file.originalname,
-      path: file.path,
+      path: `/uploads/tickets/${file.filename}`, // public path
       size: file.size
     }));
 
     const ticket = await Ticket.create({
-      ticketNumber, name, email, priority, department, subject, description, attachments
+      ticketNumber,
+      name,
+      email,
+      priority,
+      department,
+      subject,
+      description,
+      attachments
     });
 
-    // email receipt (optional)
     await sendMail({
       to: email,
       subject: `Ticket received: ${ticketNumber}`,
@@ -52,14 +69,18 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
              <p><b>Subject:</b> ${subject}<br /><b>Status:</b> ${ticket.status}</p>`
     });
 
-    res.status(201).json({ message: 'Ticket created successfully', ticket, ticketNumber: ticket.ticketNumber });
+    res.status(201).json({
+      message: 'Ticket created successfully',
+      ticket,
+      ticketNumber: ticket.ticketNumber
+    });
   } catch (error) {
     console.error('Error creating ticket:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// ---- static routes first
+// Stats
 router.get('/stats/overview', async (req, res) => {
   try {
     const totalTickets = await Ticket.countDocuments();
@@ -83,7 +104,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Param routes
 router.get('/:ticketNumber', async (req, res) => {
   try {
     const ticket = await Ticket.findOne({ ticketNumber: req.params.ticketNumber });
@@ -113,10 +133,10 @@ router.put('/:id/status', async (req, res) => {
 
 // Multer error handler
 router.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError || /Only document and image files/.test(err.message)) {
+  if (err instanceof multer.MulterError || /Only document and image files/.test(err.message || "")) {
     return res.status(400).json({ message: err.message });
   }
   next(err);
 });
 
-module.exports = router;
+export default router;
