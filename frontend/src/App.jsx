@@ -60,7 +60,7 @@ function App() {
       <Navbar />
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<Home />} />
 
           {/* Dashboards */}
           <Route path="/dashboard" element={<UserDashboard />} />
