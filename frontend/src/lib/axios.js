@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
 
 	baseURL:  "http://localhost:5000/api" ,
 	withCredentials: true, // send cookies to the server
- b2c6a573197a45c710c738d5892571900cb52a80
+
 });
 
 export default axiosInstance;
