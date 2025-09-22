@@ -1,3 +1,4 @@
+// src/pages/LoginPage.jsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
@@ -8,17 +9,57 @@ import { useAuthStore } from "../store/authStore";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [localErr, setLocalErr] = useState("");
 
-  const { login, isLoading, error } = useAuthStore();
+  const navigate = useNavigate();
+  const { login, isLoading, error: storeErr } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const user = await login(email, password);
-    console.log("Login successful");
-    if (user.role === "SUPER_ADMIN") navigate("/admin-dashboard");
-    else navigate("/home");
+    setLocalErr("");
+
+    const em = email.trim();
+    const pw = password;
+
+    if (!em || !pw) {
+      setLocalErr("Please enter email and password.");
+      return;
+    }
+
+    try {
+      // login() should POST to your backend and return the user on success
+      const user = await login(em, pw);
+
+      if (!user) {
+        // store will have set a message; still show a fallback
+        setLocalErr("Login failed.");
+        return;
+      }
+
+      // optional verification gate
+      if (user.isVerified === false) {
+        navigate("/verify-email");
+        return;
+      }
+
+      const role = String(user.role || "").toUpperCase();
+      if (role === "SUPER_ADMIN" || role === "ADMIN") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/home");
+      }
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Error logging in";
+      setLocalErr(msg);
+      console.error("LOGIN ERROR:", err?.response?.status, err?.response?.data);
+    }
   };
+
+  const errorMsg = localErr || storeErr;
 
   return (
     <motion.div
@@ -32,13 +73,14 @@ const LoginPage = () => {
           Welcome Back
         </h2>
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} noValidate>
           <Input
             icon={Mail}
             type="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
 
           <Input
@@ -47,36 +89,31 @@ const LoginPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
 
           <div className="flex items-center mb-6">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-green-400 hover:underline"
-            >
+            <Link to="/forgot-password" className="text-sm text-green-400 hover:underline">
               Forgot password?
             </Link>
           </div>
 
-          {error && <p className="text-red-500 font-semibold mb-2">{error}</p>}
+          {errorMsg && <p className="text-red-500 font-semibold mb-3">{errorMsg}</p>}
 
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: isLoading ? 1 : 1.02 }}
+            whileTap={{ scale: isLoading ? 1 : 0.98 }}
             className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg
-                         hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-                         focus:ring-offset-gray-900 transition duration-200"
+                       hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500
+                       focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200 disabled:opacity-70"
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? (
-              <Loader className="w-6 h-6 animate-spin mx-auto" />
-            ) : (
-              "Login"
-            )}
+            {isLoading ? <Loader className="w-6 h-6 animate-spin mx-auto" /> : "Login"}
           </motion.button>
         </form>
       </div>
+
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
         <p className="text-sm text-gray-400">
           Don't have an account?{" "}

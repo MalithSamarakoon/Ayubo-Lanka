@@ -1,12 +1,20 @@
-import React, { useState } from "react";
-import { assets } from "../assets/frontend_assets/assets";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { assets } from "../assets/frontend_assets/assets";
 import { useAuthStore } from "../store/authStore";
+import { getCartCount, onCartChange } from "../utils/cartCounter";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
-  const { user, logout, isLoading, error } = useAuthStore();
+  const { user, logout } = useAuthStore();
+
+  useEffect(() => {
+    setCartCount(getCartCount());            // init
+    const off = onCartChange(setCartCount);  // subscribe
+    return off;
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -24,7 +32,7 @@ const Navbar = () => {
         />
       </Link>
 
-      {/* Navigation Links */}
+      {/* Links */}
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/home" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
@@ -38,6 +46,7 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
@@ -50,6 +59,7 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+
         <NavLink to="/Doctor" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
@@ -62,6 +72,7 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+
         <NavLink to="/About" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
@@ -74,6 +85,7 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+
         <NavLink to="/Contact" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
@@ -90,50 +102,50 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex items-center gap-6">
-        <img
-          src={assets.search_icon}
-          className="w-5 cursor-pointer"
-          alt="Search"
-        />
+        <img src={assets.search_icon} className="w-5 cursor-pointer" alt="Search" />
 
-        {/* Profile Dropdown */}
+        {/* Profile */}
         <div className="group relative">
-          <img
-            className="w-5 cursor-pointer"
-            src={assets.profile_icon}
-            alt="Profile"
-          />
+          <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/dashboard")}
-              >
-                My Profile
-              </p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/orders")}
-              >
-                Orders
-              </p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={handleLogout}
-              >
-                Logout
-              </p>
+              {user ? (
+                <>
+                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/dashboard")}>
+                    My Profile
+                  </p>
+                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/orders")}>
+                    Orders
+                  </p>
+                  <p className="cursor-pointer hover:text-black" onClick={handleLogout}>
+                    Logout
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/login")}>
+                    Login
+                  </p>
+                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/register")}>
+                    Register
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        <Link to="/Cart" className="relative">
+        {/* Cart (LOWERCASE PATH) */}
+        <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
-          <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-            {/* Add cart count here if needed */}
-          </p>
+          {cartCount > 0 && (
+            <span className="absolute right-[-6px] bottom-[-6px] min-w-4 h-4 px-1 flex items-center justify-center text-[10px] leading-4 bg-black text-white rounded-full">
+              {cartCount > 99 ? "99+" : cartCount}
+            </span>
+          )}
         </Link>
 
+        {/* Mobile menu toggle */}
         <img
           onClick={() => setVisible(true)}
           src={assets.menu_icon}
@@ -142,51 +154,28 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (pointer-events fix) */}
       <div
         className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
-          visible ? "w-full" : "w-0"
+          visible ? "w-full pointer-events-auto" : "w-0 pointer-events-none"
         }`}
       >
         <div className="flex flex-col text-gray-600">
-          <div
-            onClick={() => setVisible(false)}
-            className="flex items-center gap-4 p-3"
-          >
-            <img
-              className="h-4 rotate-180"
-              src={assets.dropdown_icon}
-              alt="Back"
-            />
+          <div onClick={() => setVisible(false)} className="flex items-center gap-4 p-3">
+            <img className="h-4 rotate-180" src={assets.dropdown_icon} alt="Back" />
             <p>Back</p>
           </div>
 
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/">
             HOME
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Collection"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Collection">
             COLLECTION
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/About"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/About">
             ABOUT
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Contact"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Contact">
             CONTACT
           </NavLink>
         </div>
