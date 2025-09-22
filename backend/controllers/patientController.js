@@ -1,12 +1,9 @@
-// backend/controllers/patientController.js
-// Exports: createPatient, getPatients, getPatientById, updatePatient, deletePatient, getPatientWithPayments
-
 import { isValidObjectId } from "mongoose";
 import Patient from "../models/patient.js";
 import Receipt from "../models/Receipt.js";
-import { sendAppointmentApprovedEmail } from "../mailer.js"; // <-- make sure this path is correct
+import { sendAppointmentApprovedEmail } from "../mailer.js"; 
 
-// CREATE
+
 export const createPatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;
@@ -16,22 +13,23 @@ export const createPatient = async (req, res) => {
         .json({ message: "All required fields must be filled." });
     }
 
-    // Generate a unique booking ID (numeric)
+
     const lastPatient = await Patient.findOne().sort({ id: -1 }).lean();
+
+    //generate id
     const nextId =
-      lastPatient && Number.isFinite(lastPatient.id)
+      lastPatient && Number.isFinite(lastPatient.id) // Check if lastPatient exists and has a valid id
         ? Number(lastPatient.id) + 1
         : 1000;
 
     const patient = await Patient.create({
-      id: nextId, // numeric booking ID
+      id: nextId,
       name,
       age,
       phone,
       email,
       address,
       medicalInfo: medicalInfo || "",
-      // status should default to "pending" in your model schema
     });
 
     return res.status(201).json(patient);
@@ -41,16 +39,19 @@ export const createPatient = async (req, res) => {
   }
 };
 
-// LIST
+
+//LIST OF PATIENTS
 export const getPatients = async (req, res) => {
   try {
-    const page = Math.max(1, Number(req.query.page) || 1);
-    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+    const page = Math.max(1, Number(req.query.page) || 1); //getting page number from query, default is 1  (Math.max use to ensure page is at least 1)
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));//pagination
+
     const skip = (page - 1) * limit;
 
+    //promise.all use to run both queries at the same time 
     const [items, total] = await Promise.all([
       Patient.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Patient.countDocuments(),
+      Patient.countDocuments(),//use to get all patients in the database
     ]);
 
     return res.json({ items, total, page, pages: Math.ceil(total / limit) });
@@ -60,7 +61,6 @@ export const getPatients = async (req, res) => {
   }
 };
 
-// READ (numeric id OR ObjectId)
 export const getPatientById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -83,12 +83,12 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-// UPDATE (detect status change → send approval email)
+
 export const updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
 
-    // Build query by numeric booking id or Mongo _id
+  
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
@@ -132,7 +132,7 @@ export const updatePatient = async (req, res) => {
 export const deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
-    const cascade = req.query.cascade === "1" || req.query.cascade === "true";
+    const cascade = req.query.cascade === "1" || req.query.cascade === "true";//cascade use to link delete patient with receipts
 
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
@@ -164,7 +164,6 @@ export const deletePatient = async (req, res) => {
   }
 };
 
-// ADMIN: BOOKING + PAYMENTS
 export const getPatientWithPayments = async (req, res) => {
   try {
     const id = req.params.id;
@@ -179,8 +178,8 @@ export const getPatientWithPayments = async (req, res) => {
     }
 
     const payments = await Receipt.find({ appointmentId: patient._id })
-      .sort({ createdAt: -1 })
-      .populate("patientId", "name email mobile role");
+      .sort({ createdAt: -1 })//newest first
+      .populate("patientId", "name email mobile role");//populate use to get patient details from patientId field in Receipt model
 
     return res.json({ patient, payments });
   } catch (err) {

@@ -1,11 +1,8 @@
-// backend/controllers/receipts.controller.js
-// Ensures patientId + appointmentId are saved so receipt links to the same person + booking
-
 import path from "path";
 import fs from "fs";
 import { isValidObjectId } from "mongoose";
 import Receipt from "../models/Receipt.js";
-import Patient from "../models/patient.js"; // to resolve numeric booking id -> _id
+import Patient from "../models/patient.js"; 
 
 const allowed = ["image/jpeg", "image/png", "application/pdf"];
 
@@ -15,7 +12,6 @@ function isValidDateStr(d) {
 
 export async function createReceipt(req, res) {
   try {
-    // linkage fields
     const {
       patientId, // logged-in User _id (required)
       appointmentId, // Patient _id (preferred)
