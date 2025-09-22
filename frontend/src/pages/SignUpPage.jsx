@@ -105,6 +105,7 @@ const SignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
           />
 
           <Input
@@ -113,6 +114,7 @@ const SignUpPage = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
           />
 
           {(validationError || error) && (

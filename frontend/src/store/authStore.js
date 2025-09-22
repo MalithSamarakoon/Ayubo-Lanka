@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth";
+// CHANGE: use Vite base URL, fallback to 5000
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000"; // CHANGE
+const API_URL = `${API_BASE}/api/auth`; // CHANGE
 
 axios.defaults.withCredentials = true;
 
@@ -44,7 +46,7 @@ export const useAuthStore = create((set) => ({
     } catch (err) {
       set({
         isLoading: false,
-        error: err.response?.data?.message || "Signup failed",
+        error: err.response?.data?.message || "Signup failed", // CHANGE
       });
       throw err;
     }
@@ -58,19 +60,19 @@ export const useAuthStore = create((set) => ({
         password,
       });
 
-      console.log(response);
-
       set({
-        user: response.data.user,
+        user: response.data.user, // must include _id for receipt linkage
         isAuthenticated: true,
         error: null,
         isLoading: false,
       });
 
+      localStorage.setItem("isAuthenticated", true);
+
       return response.data.user;
     } catch (error) {
       set({
-        error: error.response?.message || "Error logging in",
+        error: error.response?.data?.message || "Error logging in", // CHANGE
         isLoading: false,
       });
       throw error;
@@ -87,6 +89,8 @@ export const useAuthStore = create((set) => ({
         error: null,
         isLoading: false,
       });
+
+      localStorage.removeItem("isAuthenticated", false);
     } catch (error) {
       set({ error: "Error logging out", isLoading: false });
       throw error;
@@ -105,7 +109,7 @@ export const useAuthStore = create((set) => ({
       return response.data;
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error verifying email",
+        error: error.response?.data?.message || "Error verifying email", // CHANGE
         isLoading: false,
       });
       throw error;
@@ -116,7 +120,6 @@ export const useAuthStore = create((set) => ({
     set({ isCheckingAuth: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/check-auth`);
-      console.log(response);
       set({
         user: response.data.user,
         isAuthenticated: true,

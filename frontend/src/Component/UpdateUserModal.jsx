@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Input from "../components/Input";
 import { User, Mail, Phone, X } from "lucide-react";
 import Loader from "../components/LoadingSpinner";
+import { toast } from "react-hot-toast";
 
 const API_BASE = "http://localhost:5000/api/user";
 
@@ -72,14 +73,22 @@ export default function UpdateUserModal({ id, open, onClose, onSaved }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!id) return;
+
+     if (!/^\d{10}$/.test(inputs.mobile)) {
+      toast.error("Mobile number must be exactly 10 digits");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await axios.patch(`${API_BASE}/${id}`, inputs);
       const updated = res.data?.user || { _id: id, ...inputs };
+      toast.success("User updated successfully");
       onSaved?.(updated);
       onClose();
     } catch (err) {
       console.error(err);
+      toast.error("Update failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -132,3 +132,25 @@ export const updateDoctorProfile = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// count users by role
+export const getRoleStats = async (req, res) => {
+  try {
+    
+    const rows = await User.aggregate([
+      { $group: { _id: { $toLower: "$role" }, count: { $sum: 1 } } }
+    ]);
+
+    const stats = { user: 0, doctor: 0, supplier: 0, admin: 0 };
+    rows.forEach(r => {
+      if (stats.hasOwnProperty(r._id)) stats[r._id] = r.count;
+    });
+
+    return res.json({ ok: true, stats });
+  } catch (err) {
+    console.error("getRoleStats error:", err);
+    return res.status(500).json({ ok: false, message: "Failed to get stats" });
+  }
+};
+
+

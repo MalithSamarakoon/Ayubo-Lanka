@@ -1,19 +1,34 @@
-import { Award, User, MapPin, Calendar, Star } from "lucide-react";
+import { Award, User, Calendar, Star } from "lucide-react";
 
-const DoctorProfileCard = ({ docInfo }) => {
+/**
+ * Optional props:
+ *  - onBook?: () => void   -> show CTA if provided (e.g., scroll to booking section)
+ */
+const DoctorProfileCard = ({ docInfo, onBook }) => {
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-green-100 mb-8 overflow-hidden transform hover:shadow-2xl transition-all duration-500">
       <div className="flex flex-col lg:flex-row">
         {/* Left Section - Doctor Image */}
         <div className="relative lg:w-80">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-green-700 to-teal-800"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 "></div>
           <div className="relative p-8 flex flex-col items-center justify-center h-full min-h-[320px]">
             <div className="relative mb-6">
-              <img
-                src={docInfo.image}
-                alt={`Dr. ${docInfo.name}`}
-                className="w-36 h-44 lg:w-44 lg:h-52 rounded-3xl object-cover shadow-2xl border-4 border-white/30 transform hover:scale-105 transition-transform duration-300"
-              />
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                <svg
+                  className="w-10 h-10 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+
               <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg">
                 <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
               </div>
@@ -23,6 +38,7 @@ const DoctorProfileCard = ({ docInfo }) => {
               <p className="text-sm font-medium opacity-95 bg-white/10 px-3 py-1 rounded-full">
                 Available for Consultation
               </p>
+              
             </div>
           </div>
         </div>
@@ -35,7 +51,7 @@ const DoctorProfileCard = ({ docInfo }) => {
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
                 <div className="mb-4 lg:mb-0">
                   <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
-                    Dr. {docInfo.name}
+                     {docInfo.name}
                   </h2>
                   <div className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
                     <Award className="w-5 h-5" />
@@ -46,7 +62,7 @@ const DoctorProfileCard = ({ docInfo }) => {
                   </div>
                 </div>
                 <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 px-6 py-4 rounded-2xl text-center shadow-sm">
-                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-700 bg-clip-text text-transparent">
+                  <p className="text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-400 bg-clip-text text-transparent">
                     Rs. {docInfo.fees}
                   </p>
                   <p className="text-sm text-emerald-700 font-medium mt-1">
@@ -71,7 +87,7 @@ const DoctorProfileCard = ({ docInfo }) => {
               <div className="bg-gradient-to-r from-gray-50 to-green-25 border border-gray-200 rounded-2xl p-6 mb-6">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  About Dr. {docInfo.name}
+                  About  {docInfo.name}
                 </h3>
                 <p className="text-gray-700 leading-relaxed text-justify">
                   {docInfo.about}

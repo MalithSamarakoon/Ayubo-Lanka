@@ -3,8 +3,10 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Input from "../components/Input";
-import { User, Mail, Phone, DollarSign } from "lucide-react";
+import { User, Mail, Phone, DollarSign, ArrowLeft } from "lucide-react";
 import Loader from "../components/LoadingSpinner";
+import { toast } from "react-hot-toast";
+
 
 function UpdateUser() {
   const { id } = useParams();
@@ -53,6 +55,21 @@ function UpdateUser() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!/^\d{10}$/.test(inputs.mobile)) {
+      toast.error("Mobile number must be exactly 10 digits");
+      return;
+    }
+    if (userRole === "DOCTOR") {
+      if (Number(inputs.consultationFee) <= 0) {
+        toast.error("Consultation fee must be a positive number");
+        return;
+      }
+      if (Number(inputs.experience) <= 0) {
+        toast.error("Experience must be a positive number");
+        return;
+      }
+    }
     setIsLoading(true);
     console.log("Submitting data:", inputs);
     try {
@@ -60,9 +77,11 @@ function UpdateUser() {
         ...inputs,
         role: userRole,
       });
+      toast.success("User updated successfully");
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Update failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +95,14 @@ function UpdateUser() {
       transition={{ duration: 0.5 }}
       className="max-w-md w-full mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl border border-gray-200"
     >
+      <button
+        type="button"
+        onClick={() => navigate("/dashboard")}
+        className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 text-gray-200 hover:bg-gray-300 hover:text-green-600"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
       <div className="flex flex-col items-center text-center mb-6">
         <motion.div
           initial={{ scale: 0.8 }}

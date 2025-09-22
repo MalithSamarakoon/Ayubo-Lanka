@@ -35,7 +35,13 @@ import UserMgt from "./pages/UserMgt";
 import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
 
-import { useAuthStore } from "./store/authStore";
+import UploadSlip from "./pages/UploadSlip";
+import CheckAppoinments from "./pages/CheckAppoinments";
+import MyAppoinment from "./pages/MyAppoinment";
+import Footer from "./Component/Fotter";
+import Collection from "./pages/Collection";
+import ProductDetail from "./pages/ProductDetail";
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -60,13 +66,13 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
-      <Navbar />
 
+    <div className="min-h-screen w-full bg-white relative">
+      <Navbar />
       <div className="flex flex-col items-center justify-center min-h-screen px-4">
         <Routes>
-          {/* Auth entry */}
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<Home />} />
+
 
           {/* Dashboards */}
           <Route path="/dashboard" element={<UserDashboard />} />
@@ -74,8 +80,12 @@ function App() {
           <Route path="/user-management" element={<UserMgt />} />
           <Route path="/dashboard/:id" element={<UpdateUser />} />
           <Route path="/product-dashboard" element={<ProductDashboard />} />
+          <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
+          <Route path="/my_appoinments" element={<MyAppoinment />} />
 
-          {/* Role selection & signups */}
+
+          {/* Role selection & sign-ups */}
+
           <Route
             path="/signup"
             element={
@@ -136,13 +146,31 @@ function App() {
             }
           />
 
-          {/* Approval Pending */}
+          {/* Misc */}
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-          {/* Public pages */}
           <Route path="/home" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/doctor" element={<Doctor />} />
+          <Route path="/doctor/:docId" element={<Appointment />} />
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={<PatientForm />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={<PatientDetails />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails/slip"
+            element={<UploadSlip />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={<PatientUpdate />}
+          />
+
 
           {/* ← Order here: Doctor → Support → About */}
           <Route path="/doctor" element={<Doctor />} />
@@ -163,8 +191,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-
       <Toaster />
+      <Footer />
     </div>
   );
 }
