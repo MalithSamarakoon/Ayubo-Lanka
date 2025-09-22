@@ -5,7 +5,6 @@ import fs from "fs";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import Support from "../models/Support.js";
-import sendMail from "../utils/sendMail.js";
 
 const router = express.Router();
 
@@ -17,8 +16,8 @@ const uploadRoot = path.join(__dirname, "..", "uploads", "support");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadRoot),
-  filename: (req, file, cb) => {
+  destination: (_req, _file, cb) => cb(null, uploadRoot),
+  filename: (_req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, "file-" + unique + path.extname(file.originalname || ""));
   },
@@ -27,11 +26,10 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
+    // allow .png .jpg .jpeg .pdf
     const extOk = /\.(png|jpe?g|pdf)$/i.test(file.originalname || "");
-    const mimeOk = /(image\/png|image\/jpeg|application\/pdf)$/i.test(
-      file.mimetype || ""
-    );
+    const mimeOk = /(image\/png|image\/jpeg|application\/pdf)$/i.test(file.mimetype || "");
     return extOk && mimeOk
       ? cb(null, true)
       : cb(new Error("Only PNG, JPG, JPEG, PDF allowed"));
@@ -40,6 +38,20 @@ const upload = multer({
 
 // Create a new support inquiry (multipart/form-data)
 router.post("/inquiry", upload.array("files", 5), async (req, res) => {
+  // Debug
+  console.log("---- POST /api/support/inquiry ----");
+  console.log("BODY:", req.body);
+  console.log(
+    "FILES:",
+    (req.files || []).map((f) => ({
+      field: f.fieldname,
+      original: f.originalname,
+      stored: f.filename,
+      mimetype: f.mimetype,
+      size: f.size,
+    }))
+  );
+
   try {
     const { name, email, phone, inquiryType, subject, message } = req.body;
 
@@ -48,6 +60,7 @@ router.post("/inquiry", upload.array("files", 5), async (req, res) => {
       originalName: f.originalname,
       path: `/uploads/support/${f.filename}`, // public path under static mount
       size: f.size,
+      mimetype: f.mimetype,
     }));
 
     const inquiry = await Support.create({
@@ -60,9 +73,7 @@ router.post("/inquiry", upload.array("files", 5), async (req, res) => {
       files,
     });
 
-    res
-      .status(201)
-      .json({ message: "Inquiry submitted successfully", inquiry });
+    res.status(201).json({ message: "Inquiry submitted successfully", inquiry });
   } catch (error) {
     console.error("Error creating support inquiry:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -70,7 +81,7 @@ router.post("/inquiry", upload.array("files", 5), async (req, res) => {
 });
 
 // List
-router.get("/inquiries", async (req, res) => {
+router.get("/inquiries", async (_req, res) => {
   try {
     const inquiries = await Support.find().sort({ createdAt: -1 });
     res.json(inquiries);
@@ -104,36 +115,23 @@ router.delete("/inquiry/:id", async (req, res) => {
 });
 
 // Stats
-router.get("/stats/overview", async (req, res) => {
+router.get("/stats/overview", async (_req, res) => {
   try {
-    const [
-      totalInquiries,
-      newInquiries,
-      inProgressInquiries,
-      resolvedInquiries,
-    ] = await Promise.all([
+    const [totalInquiries, newInquiries, inProgressInquiries, resolvedInquiries] = await Promise.all([
       Support.countDocuments(),
       Support.countDocuments({ status: "new" }),
       Support.countDocuments({ status: "in-progress" }),
       Support.countDocuments({ status: "resolved" }),
     ]);
-    res.json({
-      totalInquiries,
-      newInquiries,
-      inProgressInquiries,
-      resolvedInquiries,
-    });
+    res.json({ totalInquiries, newInquiries, inProgressInquiries, resolvedInquiries });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Multer / validation errors for this router
-router.use((err, req, res, next) => {
-  if (
-    err instanceof multer.MulterError ||
-    /(Only PNG, JPG, JPEG, PDF allowed)/i.test(err.message || "")
-  ) {
+router.use((err, _req, res, next) => {
+  if (err instanceof multer.MulterError || /(Only PNG, JPG, JPEG, PDF allowed)/i.test(err.message || "")) {
     return res.status(400).json({ message: err.message });
   }
   next(err);
