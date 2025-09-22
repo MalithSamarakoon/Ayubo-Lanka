@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, Lock, Mail, Phone, User, FileText } from "lucide-react";
+import { Loader, Lock, Mail, Phone, User, FileText,Eye, EyeOff } from "lucide-react";
 import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
+
 
 const DoctorSignUpPage = () => {
   const [name, setName] = useState("");
@@ -15,6 +16,8 @@ const DoctorSignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState("");
+
+
 
   const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
@@ -52,14 +55,12 @@ const DoctorSignUpPage = () => {
 
     setValidationError("");
 
-    // Prefix "Dr." to name (avoid double prefixing)
     const cleanedName = name.trim();
     const prefixedName = /^dr\.?\s*/i.test(cleanedName)
       ? cleanedName.replace(/^dr\.?\s*/i, "Dr. ")
       : `Dr. ${cleanedName}`;
 
     try {
-      // Only pass essential fields for signup
       await signup({
         role: "DOCTOR",
         name: prefixedName,
@@ -103,7 +104,6 @@ const DoctorSignUpPage = () => {
             onChange={(e) => setDoctorLicenseNumber(e.target.value)}
           />
 
-          {/* Specialization: Patient-friendly dropdown styled like other inputs */}
           <div className="mb-4 relative">
             <FileText
               className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
@@ -126,7 +126,6 @@ const DoctorSignUpPage = () => {
               <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
             </select>
           </div>
-          {/* End specialization dropdown */}
 
           <Input
             icon={Mail}
@@ -148,13 +147,17 @@ const DoctorSignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
+            
           />
+           
           <Input
             icon={Lock}
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
           />
 
           {(validationError || error) && (

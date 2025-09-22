@@ -4,6 +4,7 @@ import { Mail, Lock, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -15,9 +16,16 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     const user = await login(email, password);
-    console.log("Login successful");
-    if (user.role === "SUPER_ADMIN") navigate("/admin-dashboard");
-    else navigate("/home");
+
+    if (user) {
+      if (user.role === "SUPER_ADMIN") {
+        toast.success("Admin logged in successfully");
+        navigate("/admin-dashboard");
+      } else {
+        toast.success("User logged in successfully");
+        navigate("/home");
+      }
+    }
   };
 
   return (
@@ -47,6 +55,7 @@ const LoginPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
           />
 
           <div className="flex items-center mb-6">

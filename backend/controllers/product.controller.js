@@ -1,10 +1,10 @@
-import Product from "../models/product.model.js";
+import ayurvedicProduct from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("req.body:", req.body); // Debug line
-    const { name, description, category, price, stock, minimumStock, image } =
+    console.log("req.body:", req.body);
+    const { name, description, category, price, stock, minimumStock, image, isFeatured } =
       req.body; //getting required information from request.
 
     let cloudinaryResponse = null;
@@ -15,15 +15,18 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.create({
+    const saveProduct = {
       name,
       description,
       category,
-      price,
-      stock,
-      minimumStock,
+      price : price ? Number(price) : 0,
+      stock : stock ? Number(stock) : 0,
+      minimumStock : minimumStock ? Number(minimumStock) : 0,
       image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
-    });
+      isFeatured: isFeatured ? Boolean(isFeatured) : false,
+    }
+
+    const product = await ayurvedicProduct.create(saveProduct);
 
     res.status(201).json({
       message: "Product created successfully",
@@ -37,7 +40,7 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await ayurvedicProduct.find();
     res.status(200).json({
       message: "Products retrieved successfully",
       products,
@@ -48,9 +51,10 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+
 export const getFeaturedProducts = async (req, res) => {
   try {
-    const featuredProducts = await Product.find({ isFeatured: true }).lean();
+    const featuredProducts = await ayurvedicProduct.find({ isFeatured: true }).lean();
     res.status(200).json({
       message: "Featured products retrieved successfully",
       featuredProducts,
@@ -60,6 +64,45 @@ export const getFeaturedProducts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const product = await ayurvedicProduct.findById(id);
+    
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    
+    res.status(200).json({
+      message: "Product retrieved successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+export const toggleFeaturedProduct = async (req, res) => {
+	try {
+		const product = await ayurvedicProduct.findById(req.params.id);
+		if (product) {
+			product.isFeatured = !product.isFeatured;
+			const updatedProduct = await product.save();
+			
+			res.json({ updatedProduct });
+		} else {
+			res.status(404).json({ message: "Product not found" });
+		}
+	} catch (error) {
+		console.log("Error in toggleFeaturedProduct controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};
+
 
 export const updateProduct = async (req, res) => {
   try {
@@ -76,7 +119,7 @@ export const updateProduct = async (req, res) => {
     } = req.body;
 
     // First, find the existing product
-    const existingProduct = await Product.findById(id);
+    const existingProduct = await ayurvedicProduct.findById(id);
 
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
@@ -114,15 +157,15 @@ export const updateProduct = async (req, res) => {
     }
 
     // Update the product with the new data
-    const updatedProduct = await Product.findByIdAndUpdate(
+    const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
       id,
       {
         name,
         description,
         category,
-        price,
-        stock,
-        minimumStock,
+        price: price ? Number(price) : 0,
+        stock: stock ? Number(stock) : 0,
+        minimumStock: minimumStock ? Number(minimumStock) : 0,
         image: imageUrl,
         isFeatured,
       },
@@ -139,9 +182,10 @@ export const updateProduct = async (req, res) => {
   }
 };
 
+
 export const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await ayurvedicProduct.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -158,7 +202,7 @@ export const deleteProduct = async (req, res) => {
       }
     }
 
-    await Product.findByIdAndDelete(req.params.id);
+    await ayurvedicProduct.findByIdAndDelete(req.params.id);
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ message: "Internal server error" });

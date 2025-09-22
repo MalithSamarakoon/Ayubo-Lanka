@@ -1,4 +1,3 @@
-// backend/routes/receipts.routes.js
 import express from "express";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
