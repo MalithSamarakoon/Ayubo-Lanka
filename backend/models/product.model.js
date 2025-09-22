@@ -83,7 +83,7 @@ const ayurvedicproductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Add compound validation
+
 ayurvedicproductSchema.pre('save', function(next) {
   if (this.minimumStock > this.stock) {
     next(new Error('Minimum stock cannot be greater than current stock'));

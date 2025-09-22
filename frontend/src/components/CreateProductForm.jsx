@@ -82,7 +82,7 @@ const CreateProductForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Form Header */}
+      
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
           <CirclePlus className="w-8 h-8 text-green-600" />
@@ -91,9 +91,9 @@ const CreateProductForm = () => {
         <p className="text-gray-600">Add a new Ayurvedic product to your inventory</p>
       </div>
 
-      {/* Form */}
+      
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Name */}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Product Name *
@@ -109,7 +109,7 @@ const CreateProductForm = () => {
           {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
         </div>
 
-        {/* Description */}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Description *
@@ -125,7 +125,7 @@ const CreateProductForm = () => {
           {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
         </div>
 
-        {/* Category and Price Row */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -165,7 +165,7 @@ const CreateProductForm = () => {
           </div>
         </div>
 
-        {/* Stock and Minimum Stock Row */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -200,7 +200,7 @@ const CreateProductForm = () => {
           </div>
         </div>
 
-        {/* Featured Product Checkbox */}
+        
         <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-gray-50">
           <input
             type="checkbox"
@@ -219,7 +219,7 @@ const CreateProductForm = () => {
           </div>
         </div>
 
-        {/* Image Upload */}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Product Image
@@ -258,7 +258,7 @@ const CreateProductForm = () => {
           )}
         </div>
 
-        {/* Submit Button */}
+        
         <div className="pt-4">
           <button
             type="submit"

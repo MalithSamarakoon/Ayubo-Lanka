@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import toast from 'react-hot-toast';
 import axios from '../lib/axios';
 
-// Client-side validation helper
+
 const validateProductData = (productData) => {
   const errors = [];
   
@@ -59,7 +59,7 @@ export const useProductStore = create((set) => ({
     setProducts: (products) => set({products}),
 
     createProduct: async (productData) => {
-        // Client-side validation
+        
         const validationErrors = validateProductData(productData);
         if (validationErrors.length > 0) {
             validationErrors.forEach(error => toast.error(error));
@@ -86,7 +86,7 @@ export const useProductStore = create((set) => ({
     },
 
     getProductById: async (productId) => {
-        // Validate product ID format
+        
         if (!validateProductId(productId)) {
             toast.error("Invalid product ID format");
             return null;
@@ -109,13 +109,13 @@ export const useProductStore = create((set) => ({
     },
 
     updateProduct: async (productId, productData) => {
-        // Validate product ID format
+        
         if (!validateProductId(productId)) {
             toast.error("Invalid product ID format");
             return { success: false, errors: ["Invalid product ID format"] };
         }
 
-        // Client-side validation
+        
         const validationErrors = validateProductData(productData);
         if (validationErrors.length > 0) {
             validationErrors.forEach(error => toast.error(error));
@@ -145,7 +145,7 @@ export const useProductStore = create((set) => ({
     },
 
     toggleFeaturedProduct: async (productId) => {
-        // Validate product ID format
+        
         if (!validateProductId(productId)) {
             toast.error("Invalid product ID format");
             return;
@@ -169,7 +169,7 @@ export const useProductStore = create((set) => ({
     },
 
     deleteProduct: async (productId) => {
-        // Validate product ID format
+        
         if (!validateProductId(productId)) {
             toast.error("Invalid product ID format");
             return;
@@ -190,7 +190,7 @@ export const useProductStore = create((set) => ({
         }
     },
 
-    // Keep your existing fetchAllProducts and fetchFeaturedProducts methods unchanged
+    
 
     fetchAllProducts: async() => {
         set({loading: true});

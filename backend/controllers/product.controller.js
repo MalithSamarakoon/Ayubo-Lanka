@@ -1,7 +1,7 @@
 import ayurvedicProduct from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
 
-// Validation helper functions
+
 const validateProductData = (data) => {
   const errors = [];
   
@@ -47,7 +47,7 @@ export const createProduct = async (req, res) => {
   try {
     const { name, description, category, price, stock, minimumStock, image, isFeatured } = req.body;
 
-    // Validate input data
+    
     const validationErrors = validateProductData(req.body);
     if (validationErrors.length > 0) {
       return res.status(400).json({
@@ -94,7 +94,7 @@ export const createProduct = async (req, res) => {
   } catch (error) {
     console.error("Error creating product:", error);
     
-    // Handle Mongoose validation errors
+   
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({
@@ -111,7 +111,7 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Validate ObjectId format
+    
     if (!validateObjectId(id)) {
       return res.status(400).json({ 
         message: "Invalid product ID format" 
@@ -148,20 +148,20 @@ export const updateProduct = async (req, res) => {
       isFeatured,
     } = req.body;
 
-    // First, find the existing product
+    
     const existingProduct = await ayurvedicProduct.findById(id);
 
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    let imageUrl = existingProduct.image; // Keep existing image by default
+    let imageUrl = existingProduct.image; 
 
-    // Handle image update if a new image is provided
+    
     if (image) {
-      // Delete the old image from Cloudinary if it exists
+      
       if (existingProduct.image) {
-        const publicId = existingProduct.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+        const publicId = existingProduct.image.split("/").pop().split(".")[0]; 
         try {
           await cloudinary.uploader.destroy(`products/${publicId}`);
           console.log("Old image deleted from Cloudinary");
@@ -173,7 +173,7 @@ export const updateProduct = async (req, res) => {
         }
       }
 
-      // Upload the new image to Cloudinary
+     
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(image, {
           folder: "products",
@@ -186,7 +186,7 @@ export const updateProduct = async (req, res) => {
       }
     }
 
-    // Update the product with the new data
+    
     const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
       id,
       {
@@ -199,7 +199,7 @@ export const updateProduct = async (req, res) => {
         image: imageUrl,
         isFeatured,
       },
-      { new: true } // Return the updated document
+      { new: true } 
     );
 
     res.status(200).json({
@@ -216,7 +216,7 @@ export const toggleFeaturedProduct = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Validate ObjectId format
+    
     if (!validateObjectId(id)) {
       return res.status(400).json({ 
         message: "Invalid product ID format" 
@@ -242,7 +242,7 @@ export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Validate ObjectId format
+    
     if (!validateObjectId(id)) {
       return res.status(400).json({ 
         message: "Invalid product ID format" 
@@ -256,7 +256,7 @@ export const deleteProduct = async (req, res) => {
     }
 
     if (product.image) {
-      //Delete image from cloudinary
+      
       const publicId = product.image.split("/").pop().split(".")[0];
       try {
         await cloudinary.uploader.destroy(`products/${publicId}`);
@@ -277,7 +277,7 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-// Keep your existing getAllProducts and getFeaturedProducts methods unchanged
+
 
 export const getAllProducts = async (req, res) => {
   try {
