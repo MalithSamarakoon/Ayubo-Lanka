@@ -4,14 +4,15 @@ import path from "path";
 import fs from "fs";
 import multer from "multer";
 import { fileURLToPath } from "url";
-import Support from "../models/Support.js";
+import Support from "../models/support.js"; // << lowercase file name
+// import sendMail from "../utils/sendMail.js"; // not used here; keep if you need later
 
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure upload root exists (…/uploads/support)
+// /uploads/support
 const uploadRoot = path.join(__dirname, "..", "uploads", "support");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
@@ -27,96 +28,125 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (_req, file, cb) => {
-    const extOk = /\.(png|jpe?g|pdf)$/i.test(file.originalname || "");
-    const mimeOk = /(image\/png|image\/jpeg|application\/pdf)$/i.test(
+    const okExt = /\.(png|jpe?g|pdf)$/i.test(file.originalname || "");
+    const okMime = /(image\/png|image\/jpeg|application\/pdf)$/i.test(
       file.mimetype || ""
     );
-    return extOk && mimeOk
+    return okExt && okMime
       ? cb(null, true)
       : cb(new Error("Only PNG, JPG, JPEG, PDF allowed"));
   },
 });
 
-// CREATE
+const unlinkSafe = async (abs) => {
+  try { await fs.promises.unlink(abs); } catch {/* ignore */}
+};
+const parseKeep = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.filter(Boolean);
+  try {
+    const arr = JSON.parse(val);
+    return Array.isArray(arr) ? arr.filter(Boolean) : [];
+  } catch {
+    return String(val).split(",").map(s => s.trim()).filter(Boolean);
+  }
+};
+
+// ---------- Create ----------
 router.post("/inquiry", upload.array("files", 5), async (req, res) => {
   try {
     const { name, email, phone, inquiryType, subject, message } = req.body;
-
     const files = (req.files || []).map((f) => ({
       filename: f.filename,
       originalName: f.originalname,
       path: `/uploads/support/${f.filename}`,
       size: f.size,
       mimetype: f.mimetype,
+      uploadedAt: new Date(),
     }));
 
     const inquiry = await Support.create({
-      name,
-      email,
-      phone,
-      inquiryType,
-      subject,
-      message,
-      files,
+      name, email, phone, inquiryType, subject, message, files,
     });
 
     res.status(201).json({ message: "Inquiry submitted successfully", inquiry });
-  } catch (error) {
-    console.error("Error creating support inquiry:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    console.error("Create inquiry error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// 🔹 READ by id (NEW)
+// ---------- Read by ID (for review page) ----------
 router.get("/inquiry/:id", async (req, res) => {
   try {
     const inquiry = await Support.findById(req.params.id);
     if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
-    res.json({ inquiry });
-  } catch (error) {
-    console.error("Error fetching inquiry:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.json(inquiry);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// LIST
+// ---------- Update (text + files) ----------
+router.put("/inquiry/:id", upload.array("files", 5), async (req, res) => {
+  try {
+    const doc = await Support.findById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Inquiry not found" });
+
+    const keepNames = parseKeep(req.body.keep); // array of filenames to keep
+    const kept = (doc.files || []).filter((f) => keepNames.includes(f.filename));
+    const newFiles = (req.files || []).map((f) => ({
+      filename: f.filename,
+      originalName: f.originalname,
+      path: `/uploads/support/${f.filename}`,
+      size: f.size,
+      mimetype: f.mimetype,
+      uploadedAt: new Date(),
+    }));
+
+    if (kept.length + newFiles.length > 5) {
+      return res.status(400).json({ message: "Maximum 5 total attachments allowed" });
+    }
+
+    // remove dropped files from disk
+    const removed = (doc.files || []).filter((f) => !keepNames.includes(f.filename));
+    await Promise.all(removed.map((f) => unlinkSafe(path.join(uploadRoot, f.filename))));
+
+    // update fields
+    const fields = ["name", "email", "phone", "inquiryType", "subject", "message", "status"];
+    fields.forEach((k) => { if (k in req.body) doc[k] = req.body[k]; });
+
+    doc.files = [...kept, ...newFiles];
+    await doc.save();
+
+    res.json({ message: "Inquiry updated successfully", inquiry: doc });
+  } catch (err) {
+    console.error("Update inquiry error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ---------- List / Delete / Stats ----------
 router.get("/inquiries", async (_req, res) => {
   try {
     const inquiries = await Support.find().sort({ createdAt: -1 });
     res.json(inquiries);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// UPDATE
-router.put("/inquiry/:id", async (req, res) => {
-  try {
-    const inquiry = await Support.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
-    res.json({ message: "Inquiry updated successfully", inquiry });
-  } catch (error) {
-    console.error("Error updating inquiry:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
-// DELETE
 router.delete("/inquiry/:id", async (req, res) => {
   try {
-    const inquiry = await Support.findByIdAndDelete(req.params.id);
-    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
+    const doc = await Support.findByIdAndDelete(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Inquiry not found" });
+    await Promise.all((doc.files || []).map((f) => unlinkSafe(path.join(uploadRoot, f.filename))));
     res.json({ message: "Inquiry deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting inquiry:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// Stats (unchanged)
 router.get("/stats/overview", async (_req, res) => {
   try {
     const [totalInquiries, newInquiries, inProgressInquiries, resolvedInquiries] =
@@ -126,23 +156,15 @@ router.get("/stats/overview", async (_req, res) => {
         Support.countDocuments({ status: "in-progress" }),
         Support.countDocuments({ status: "resolved" }),
       ]);
-    res.json({
-      totalInquiries,
-      newInquiries,
-      inProgressInquiries,
-      resolvedInquiries,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.json({ totalInquiries, newInquiries, inProgressInquiries, resolvedInquiries });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// Multer / validation errors
+// ---------- Multer error handler ----------
 router.use((err, _req, res, next) => {
-  if (
-    err instanceof multer.MulterError ||
-    /(Only PNG, JPG, JPEG, PDF allowed)/i.test(err.message || "")
-  ) {
+  if (err instanceof multer.MulterError || /(Only PNG, JPG, JPEG, PDF allowed)/i.test(err.message || "")) {
     return res.status(400).json({ message: err.message });
   }
   next(err);
