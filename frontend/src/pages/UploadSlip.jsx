@@ -1,4 +1,3 @@
-// frontend/src/pages/UploadSlip.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -17,7 +16,6 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-  // derive appointment identifiers from router state/params/query
   const stateApptId = location.state?.appointmentId; // Patient._id
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");
@@ -379,7 +377,7 @@ export default function ReceiptUploadPage() {
                 Submitting Receipt...
               </span>
             ) : (
-              "🚀 Submit Receipt"
+              " Submit Receipt"
             )}
           </motion.button>
 
@@ -390,7 +388,7 @@ export default function ReceiptUploadPage() {
   );
 }
 
-/* Reusable fields */
+
 function Input({ label, error, className, ...props }) {
   const base =
     "w-full border-2 rounded-xl p-3 transition-all duration-300 focus:ring-2 focus:ring-emerald-200";

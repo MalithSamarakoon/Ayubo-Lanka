@@ -48,10 +48,21 @@ const PatientForm = () => {
     let msg = "";
     switch (field) {
       case "name":
-        if (!value.trim()) msg = "Name is required.";
-        else if (value.trim().length < 2)
+        if (!value.trim()) {
+          msg = "Name is required.";
+        } else if (value.trim().length < 2) {
           msg = "Name must be at least 2 characters.";
+        } else if (value.trim().length > 50) {
+          msg = "Name must be less than 50 characters.";
+        } else if (/\d/.test(value)) {
+          msg = "Name cannot contain numbers.";
+        } else if (/[^a-zA-Z\s]/.test(value)) {
+          msg = "Name cannot contain special characters.";
+        } else if (/\s{2,}/.test(value)) {
+          msg = "Name cannot contain multiple spaces in a row.";
+        }
         break;
+
       case "age": {
         if (value === "" || value === null) msg = "Age is required.";
         else {
@@ -61,11 +72,34 @@ const PatientForm = () => {
         }
         break;
       }
+
       case "phone":
-        if (!value.trim()) msg = "Phone is required.";
-        else if (!sriLankaPhone.test(value.trim()))
+        const phone = value.trim();
+
+        if (!phone) {
+          msg = "Phone is required.";
+        }
+        else if (!/^\+?\d+$/.test(phone)) {
+          msg = "Phone can only contain digits or + sign.";
+        }
+        // ✅ Must start with 0 or +94
+        else if (!(phone.startsWith("0") || phone.startsWith("+94"))) {
           msg = "Use 0XXXXXXXXX or +94XXXXXXXXX.";
+        }
+        else if (phone.startsWith("0") && !/^0\d{9}$/.test(phone)) {
+          msg = "Local numbers must be exactly 10 digits.";
+        }
+        else if (phone.startsWith("+94") && !/^\+94\d{9}$/.test(phone)) {
+          msg = "International format must be +94 followed by 9 digits.";
+        }
+        else if (/^(\d)\1+$/.test(phone.replace("+94", ""))) {
+          msg = "Phone cannot be all the same digit.";
+        }
+        else if (/(.)\1{5,}/.test(phone.replace("+94", ""))) {
+          msg = "Phone cannot contain excessive repeated digits.";
+        }
         break;
+
       case "email":
         if (!value.trim()) msg = "Email is required.";
         else if (!emailRegex.test(value.trim()))
@@ -152,7 +186,6 @@ const PatientForm = () => {
     }
   };
 
-  // Modern input styling
   const inputBase =
     "w-full pl-12 pr-4 py-4 rounded-xl border bg-white text-gray-900 placeholder-gray-500 " +
     "border-gray-200 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-300 shadow-sm";
@@ -167,7 +200,6 @@ const PatientForm = () => {
         transition={{ duration: 0.5 }}
         className="max-w-3xl w-full mx-auto bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
       >
-        {/* Top header (inside the glass card) */}
         <div className="px-8 py-6 bg-gradient-to-r from-green-400 to-emerald-500">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
@@ -184,7 +216,6 @@ const PatientForm = () => {
           </div>
         </div>
 
-        {/* White body with the form */}
         <div className="bg-white">
           <div className="px-8 py-6 border-b border-gray-100">
             <h2 className="text-xl font-bold text-gray-900 flex items-center">
@@ -199,7 +230,7 @@ const PatientForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-12" noValidate>
-            {/* Personal */}
+           
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                 <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
@@ -209,7 +240,7 @@ const PatientForm = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Name */}
+              
                 <div ref={refs.name}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name <span className="text-rose-500">*</span>
@@ -252,7 +283,7 @@ const PatientForm = () => {
                   )}
                 </div>
 
-                {/* Age */}
+             
                 <div ref={refs.age}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Age <span className="text-rose-500">*</span>
@@ -449,7 +480,6 @@ const PatientForm = () => {
               </div>
             </div>
 
-            {/* Medical */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                 <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
@@ -484,8 +514,6 @@ const PatientForm = () => {
                 </p>
               </div>
             </div>
-
-            {/* Submit */}
             <div className="pt-8 border-t border-gray-100">
               <button
                 type="submit"
@@ -508,8 +536,6 @@ const PatientForm = () => {
           </form>
         </div>
       </motion.div>
-
-      {/* Footer outside the animated card */}
       <div className="mt-10 max-w-3xl mx-auto">
         <Footer />
       </div>

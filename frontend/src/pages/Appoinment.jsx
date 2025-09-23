@@ -6,7 +6,7 @@ import DoctorProfileCard from "../Component/DoctorProfileCard";
 import BookingDateSelector from "../Component/BookingDateSelector";
 import BookingTimeSelector from "../Component/BookingTimeSelector";
 import BookingSummary from "../Component/BookingSummary";
-import Fotter from "../Component/Fotter"
+
 
 const URL = "http://localhost:5000/api/user/users";
 
@@ -43,7 +43,6 @@ const Appointment = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch doctor by id every time the id changes
   useEffect(() => {
     const fetchDoctor = async () => {
       if (!docId) {
@@ -60,7 +59,7 @@ const Appointment = () => {
         );
         if (doctor) {
           const transformedDoctor = {
-            ...doctor, // keep _id for downstream routes
+            ...doctor, 
             name: doctor.name || "Unknown Doctor",
             speciality: doctor.specialization || "General Practice",
             fees: 2500,
@@ -141,7 +140,7 @@ const Appointment = () => {
 
   return (
     <div>
-      {/* Header */}
+      
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-emerald-500 green-400">
         <div className="max-w-6xl mx-auto px-4 py-5">
           <div className="flex items-center gap-3">
@@ -160,7 +159,7 @@ const Appointment = () => {
         </div>
       </div>
 
-      {/* Body */}
+     
       <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
         <DoctorProfileCard
           docInfo={docInfo}

@@ -8,7 +8,6 @@ import { doctors } from "../assets/frontend_assets/assets";
 const URL = "http://localhost:5000/api/user/users";
 
 const Doctor = () => {
-  // -------------------- Users (doctor-only) --------------------
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const Doctor = () => {
         setIsLoading(true);
         const res = await axios.get(URL);
 
-        // Normalize
+       
         const normalized = (res.data?.users || []).map((u) => ({
           _id: u._id || u.id || `${u.email ?? "user"}-${Math.random()}`,
           name: u.name ?? "-",
@@ -37,7 +36,7 @@ const Doctor = () => {
           createdAt: u.createdAt ?? null,
         }));
 
-        // 🔒 Accept/keep ONLY doctors
+
         const doctorsOnly = normalized.filter(
           (u) => u.role?.toLowerCase() === "doctor"
         );
@@ -52,19 +51,17 @@ const Doctor = () => {
     fetchHandler();
   }, []);
 
-  // Extra safety: even if users changes, keep doctor-only
   const filteredData = useMemo(
     () => users.filter((u) => u.role?.toLowerCase() === "doctor"),
     [users]
   );
 
-  // -------------------- Navigation Handlers --------------------
   const handleBook = (_id) => {
     if (!_id) {
       console.error("Doctor ID is required for booking");
       return;
     }
-    // ✅ FIX: this must match your Route: /doctor/:docId
+
     navigate(`/doctor/${_id}`);
   };
 
@@ -76,7 +73,6 @@ const Doctor = () => {
     navigate(`/doctor/${_id}`);
   };
 
-  // -------------------- Doctor filter (sidebar demo) --------------------
   const [activeSpec, setActiveSpec] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
@@ -194,7 +190,6 @@ const Doctor = () => {
     };
   }, [processedDoctors]);
 
-  // Filter API doctors based on search and specialization
   const filteredApiDoctors = useMemo(() => {
     let filtered = filteredData;
 
@@ -214,7 +209,6 @@ const Doctor = () => {
       );
     }
 
-    // Sort the filtered API doctors
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "name":
@@ -231,10 +225,9 @@ const Doctor = () => {
     return filtered;
   }, [filteredData, searchQuery, activeSpec, sortBy]);
 
-  // -------------------- UI --------------------
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
