@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import Ticket from "../models/Ticket.js";
-import sendMail from "../utils/sendMail.js";
 
 const router = express.Router();
 
@@ -26,11 +25,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    // allow .jpg .jpeg .png .pdf .doc .docx
+    // fixed: removed trailing "|" that allowed empty extension
     const extOk = /\.(jpe?g|png|pdf|docx?)$/i.test(file.originalname || "");
-    const mimeOk = /(image\/jpeg|image\/png|application\/pdf|application\/msword|application\/vnd.openxmlformats-officedocument.wordprocessingml.document)/i
+    const mimeOk = /(image\/jpeg|image\/png|application\/pdf|application\/msword|application\/vnd.openxmlformats-officedocument\.wordprocessingml\.document)/i
       .test(file.mimetype || "");
     return extOk && mimeOk
       ? cb(null, true)
@@ -38,30 +37,16 @@ const upload = multer({
   },
 });
 
-// Create a new ticket
+// CREATE
 router.post("/", upload.array("attachments", 5), async (req, res) => {
-  // Debug
-  console.log("---- POST /api/tickets ----");
-  console.log("BODY:", req.body);
-  console.log(
-    "FILES:",
-    (req.files || []).map((f) => ({
-      field: f.fieldname,
-      original: f.originalname,
-      stored: f.filename,
-      mimetype: f.mimetype,
-      size: f.size,
-    }))
-  );
-
   try {
-    const { name, email, priority, department, subject, description } = req.body;
+    const { name, email, department, subject, description } = req.body;
     const ticketNumber = Ticket.generateTicketNumber();
 
     const attachments = (req.files || []).map((file) => ({
       filename: file.filename,
       originalName: file.originalname,
-      path: `/uploads/tickets/${file.filename}`, // public path (served by server.js)
+      path: `/uploads/tickets/${file.filename}`,
       size: file.size,
       mimetype: file.mimetype,
     }));
@@ -70,25 +55,11 @@ router.post("/", upload.array("attachments", 5), async (req, res) => {
       ticketNumber,
       name,
       email,
-      priority,
       department,
       subject,
       description,
       attachments,
     });
-
-    // Optional notify email
-    try {
-      await sendMail({
-        to: email,
-        subject: `Ticket received: ${ticketNumber}`,
-        html: `<p>Dear ${name || "Customer"},</p>
-               <p>We received your ticket <b>${ticketNumber}</b>.</p>
-               <p><b>Subject:</b> ${subject}<br /><b>Status:</b> ${ticket.status}</p>`,
-      });
-    } catch (mailErr) {
-      console.warn("sendMail failed (continuing):", mailErr?.message);
-    }
 
     res.status(201).json({
       message: "Ticket created successfully",
@@ -101,20 +72,7 @@ router.post("/", upload.array("attachments", 5), async (req, res) => {
   }
 });
 
-// Stats
-router.get("/stats/overview", async (_req, res) => {
-  try {
-    const totalTickets = await Ticket.countDocuments();
-    const openTickets = await Ticket.countDocuments({ status: "open" });
-    const inProgressTickets = await Ticket.countDocuments({ status: "in-progress" });
-    const resolvedTickets = await Ticket.countDocuments({ status: "resolved" });
-    res.json({ totalTickets, openTickets, inProgressTickets, resolvedTickets });
-  } catch (error) {
-    console.error("Error fetching ticket statistics:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
+// LIST
 router.get("/", async (_req, res) => {
   try {
     const tickets = await Ticket.find().sort({ createdAt: -1 });
@@ -125,9 +83,12 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// READ by ticketNumber (kept for compatibility)
 router.get("/:ticketNumber", async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({ ticketNumber: req.params.ticketNumber });
+    const ticket = await Ticket.findOne({
+      ticketNumber: req.params.ticketNumber,
+    });
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
     res.json(ticket);
   } catch (error) {
@@ -136,25 +97,58 @@ router.get("/:ticketNumber", async (req, res) => {
   }
 });
 
-router.put("/:id/status", async (req, res) => {
+// 🔹 READ by Mongo _id (NEW, used by review page)
+router.get("/by-id/:id", async (req, res) => {
   try {
-    const { status } = req.body;
-    const update = { status };
-    if (status === "resolved") update.resolvedAt = Date.now();
-    if (status === "closed") update.closedAt = Date.now();
-
-    const ticket = await Ticket.findByIdAndUpdate(req.params.id, update, { new: true });
+    const ticket = await Ticket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
-    res.json({ message: "Status updated successfully", ticket });
+    res.json(ticket);
   } catch (error) {
-    console.error("Error updating ticket status:", error);
+    console.error("Error fetching ticket by id:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// 🔹 UPDATE core fields by _id (NEW)
+router.put("/:id", async (req, res) => {
+  try {
+    const allowed = ["name", "email", "department", "subject", "description", "status"];
+    const payload = {};
+    for (const k of allowed) if (k in req.body) payload[k] = req.body[k];
+
+    if (payload.status === "resolved") payload.resolvedAt = Date.now();
+    if (payload.status === "closed") payload.closedAt = Date.now();
+
+    const ticket = await Ticket.findByIdAndUpdate(req.params.id, payload, {
+      new: true,
+      runValidators: true,
+    });
+    if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+    res.json({ message: "Ticket updated", ticket });
+  } catch (error) {
+    console.error("Error updating ticket:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// 🔹 DELETE by _id (NEW)
+router.delete("/:id", async (req, res) => {
+  try {
+    const ticket = await Ticket.findByIdAndDelete(req.params.id);
+    if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+    res.json({ message: "Ticket deleted" });
+  } catch (error) {
+    console.error("Error deleting ticket:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Multer error handler
 router.use((err, _req, res, next) => {
-  if (err instanceof multer.MulterError || /Only document and image files/.test(err.message || "")) {
+  if (
+    err instanceof multer.MulterError ||
+    /Only document and image files/.test(err.message || "")
+  ) {
     return res.status(400).json({ message: err.message });
   }
   next(err);

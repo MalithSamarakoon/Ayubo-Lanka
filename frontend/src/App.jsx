@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 
 import Navbar from "./Component/Navbar";
-import Footer from "./Component/Fotter"; // keep path as your file name
+import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { useAuthStore } from "./store/authStore";
@@ -41,6 +41,11 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
+
+// Review pages
+import TicketReview from "./pages/TicketReview";
+import SupportReview from "./pages/SupportReview";
+import FeedbackReview from "./pages/FeedbackReview";
 
 // ---------- helpers ----------
 const ProtectedRoute = ({ children }) => {
@@ -168,20 +173,49 @@ function App() {
             />
 
             {/* Dashboards / protected */}
-            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
-            <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/user-management" element={<ProtectedRoute><UserMgt /></ProtectedRoute>} />
-            <Route path="/dashboard/:id" element={<ProtectedRoute><UpdateUser /></ProtectedRoute>} />
-            <Route path="/product-dashboard" element={<ProtectedRoute><ProductDashboard /></ProtectedRoute>} />
-            <Route path="/update-product/:id" element={<ProtectedRoute><UpdateProduct /></ProtectedRoute>} />
-            <Route path="/CheckAppoinments" element={<ProtectedRoute><CheckAppoinments /></ProtectedRoute>} />
-            <Route path="/my_appoinments" element={<ProtectedRoute><MyAppoinment /></ProtectedRoute>} />
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/admin-dashboard"
+              element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/user-management"
+              element={<ProtectedRoute><UserMgt /></ProtectedRoute>}
+            />
+            <Route
+              path="/dashboard/:id"
+              element={<ProtectedRoute><UpdateUser /></ProtectedRoute>}
+            />
+            <Route
+              path="/product-dashboard"
+              element={<ProtectedRoute><ProductDashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/update-product/:id"
+              element={<ProtectedRoute><UpdateProduct /></ProtectedRoute>}
+            />
+            <Route
+              path="/CheckAppoinments"
+              element={<ProtectedRoute><CheckAppoinments /></ProtectedRoute>}
+            />
+            <Route
+              path="/my_appoinments"
+              element={<ProtectedRoute><MyAppoinment /></ProtectedRoute>}
+            />
+
+            {/* Review pages (after submit redirects) */}
+            <Route path="/tickets/review/:id" element={<TicketReview />} />
+            <Route path="/support/review/:id" element={<SupportReview />} />
+            <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
             {/* Misc */}
             <Route path="/onlinepayment" element={<Onlinepayment />} />
             <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-            {/* Fallback */}
+            {/* Fallback (keep this LAST) */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

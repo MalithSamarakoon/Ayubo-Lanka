@@ -1,5 +1,6 @@
 // frontend/src/Component/TicketSystem.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
 const TicketSystem = ({ onSuccess }) => {
@@ -8,12 +9,14 @@ const TicketSystem = ({ onSuccess }) => {
     email: "",
     department: "general",
     subject: "",
-    description: ""
+    description: "",
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [ticketNumber, setTicketNumber] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -41,6 +44,11 @@ const TicketSystem = ({ onSuccess }) => {
         type: "success",
         message: "Ticket created successfully!",
       });
+
+      // Redirect to review page for this ticket
+      navigate(`/tickets/review/${data.ticket._id}`);
+
+      // (Optionally reset local state; not needed if you immediately navigate)
       setFormData({
         name: "",
         email: "",
@@ -191,6 +199,7 @@ const TicketSystem = ({ onSuccess }) => {
                   id="file-upload"
                   type="file"
                   multiple
+                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
                   onChange={handleFileChange}
                   className="sr-only"
                 />

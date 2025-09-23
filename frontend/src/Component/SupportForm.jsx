@@ -1,22 +1,31 @@
- import React, { useState } from 'react';
-import api from '../lib/api';
+// frontend/src/Component/SupportForm.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
 
 const SupportForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    inquiryType: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    inquiryType: "",
+    subject: "",
+    message: "",
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
-  const handleFileChange = (e) => setSelectedFiles(Array.from(e.target.files));
-  const removeFile = (idx) => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
+  const navigate = useNavigate();
+
+  const handleChange = (e) =>
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleFileChange = (e) =>
+    setSelectedFiles(Array.from(e.target.files || []));
+
+  const removeFile = (idx) =>
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,21 +33,38 @@ const SupportForm = ({ onSuccess }) => {
     try {
       const fd = new FormData();
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
-      selectedFiles.forEach((file) => fd.append('files', file));
+      selectedFiles.forEach((file) => fd.append("files", file));
 
-      await api.post('/api/support/inquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await api.post("/api/support/inquiry", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      setSubmitStatus({ type: 'success', message: 'Inquiry submitted successfully!' });
-      setFormData({ name: '', email: '', phone: '', inquiryType: '', subject: '', message: '' });
+      setSubmitStatus({
+        type: "success",
+        message: "Inquiry submitted successfully!",
+      });
+      // optional resets (you'll navigate right away)
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        inquiryType: "",
+        subject: "",
+        message: "",
+      });
       setSelectedFiles([]);
 
-      // ✅ report success up (so Support.jsx can toast + close)
-      onSuccess?.('Inquiry submitted successfully! We will contact you shortly.');
+      onSuccess?.("Inquiry submitted successfully! We will contact you shortly.");
+
+      // 👉 redirect to review page
+      navigate(`/support/review/${data.inquiry._id}`);
     } catch (error) {
-      console.error('API error:', error?.response?.data || error?.message);
+      console.error("API error:", error?.response?.data || error?.message);
       setSubmitStatus({
-        type: 'error',
-        message: error?.response?.data?.message || 'Failed to submit inquiry. Please try again.',
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Failed to submit inquiry. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -47,10 +73,18 @@ const SupportForm = ({ onSuccess }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-green-800 mb-6">Submit Your Inquiry</h2>
+      <h2 className="text-2xl font-semibold text-green-800 mb-6">
+        Submit Your Inquiry
+      </h2>
 
       {submitStatus && (
-        <div className={`p-4 rounded-md mb-6 ${submitStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+        <div
+          className={`p-4 rounded-md mb-6 ${
+            submitStatus.type === "success"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           {submitStatus.message}
         </div>
       )}
@@ -58,7 +92,9 @@ const SupportForm = ({ onSuccess }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name *
+            </label>
             <input
               name="name"
               value={formData.name}
@@ -69,7 +105,9 @@ const SupportForm = ({ onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address *
+            </label>
             <input
               type="email"
               name="email"
@@ -83,7 +121,9 @@ const SupportForm = ({ onSuccess }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
             <input
               name="phone"
               value={formData.phone}
@@ -93,7 +133,9 @@ const SupportForm = ({ onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Inquiry Type *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Inquiry Type *
+            </label>
             <select
               name="inquiryType"
               value={formData.inquiryType}
@@ -112,7 +154,9 @@ const SupportForm = ({ onSuccess }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Subject *
+          </label>
           <input
             name="subject"
             value={formData.subject}
@@ -123,7 +167,9 @@ const SupportForm = ({ onSuccess }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Message *
+          </label>
           <textarea
             name="message"
             value={formData.message}
@@ -135,12 +181,24 @@ const SupportForm = ({ onSuccess }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Attach Files (Optional)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Attach Files (Optional)
+          </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
-              <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-green-600">
+              <label
+                htmlFor="file-upload"
+                className="relative cursor-pointer bg-white rounded-md font-medium text-green-600"
+              >
                 <span>Upload files</span>
-                <input id="file-upload" type="file" multiple onChange={handleFileChange} className="sr-only" />
+                <input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.pdf"
+                  onChange={handleFileChange}
+                  className="sr-only"
+                />
               </label>
               <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
             </div>
@@ -148,12 +206,25 @@ const SupportForm = ({ onSuccess }) => {
 
           {selectedFiles.length > 0 && (
             <div className="mt-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Selected Files:
+              </h4>
               <ul className="space-y-2">
                 {selectedFiles.map((file, index) => (
-                  <li key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                    <span className="text-sm text-gray-600 truncate">{file.name}</span>
-                    <button type="button" onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">✕</button>
+                  <li
+                    key={index}
+                    className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
+                  >
+                    <span className="text-sm text-gray-600 truncate">
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -166,7 +237,7 @@ const SupportForm = ({ onSuccess }) => {
           disabled={isSubmitting}
           className="w-full py-3 px-4 bg-green-700 text-white font-medium rounded-md hover:bg-green-800"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
+          {isSubmitting ? "Submitting..." : "Submit Inquiry"}
         </button>
       </form>
     </div>

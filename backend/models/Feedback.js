@@ -1,37 +1,15 @@
+// backend/models/Feedback.js
 import mongoose from "mongoose";
 
-const feedbackSchema = new mongoose.Schema({
-  name: { type: String, default: "" },
-  email: { type: String, default: "" },
-  rating: { type: Number, required: true, min: 1, max: 5 },
-  feedback: { type: String, required: true },
-  category: {
-    type: String,
-    enum: ["product", "service", "treatment", "website", "general"],
-    default: "general",
+const FeedbackSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true },
+    email: { type: String, trim: true, lowercase: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
+    feedback: { type: String, required: true, trim: true },
+    consent: { type: Boolean, default: false },
   },
-  consent: { type: Boolean, default: false },
-  featured: { type: Boolean, default: false },
-  responded: { type: Boolean, default: false },
-  response: {
-    message: String,
-    respondedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    respondedAt: Date,
-  },
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-// Virtual for rating text
-feedbackSchema.virtual("ratingText").get(function () {
-  const ratings = {
-    1: "Poor",
-    2: "Fair",
-    3: "Good",
-    4: "Very Good",
-    5: "Excellent",
-  };
-  return ratings[this.rating] || "Unknown";
-});
-
-const Feedback = mongoose.model("Feedback", feedbackSchema);
-export default Feedback;
+export default mongoose.model("Feedback", FeedbackSchema);
