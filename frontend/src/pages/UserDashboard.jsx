@@ -97,9 +97,9 @@ const UserDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <h3 className="text-lg font-semibold text-green-600 mb-3">
+          <center><h1 className="text-lg font-semibold text-green-600 mb-3">
             Profile Information
-          </h3>
+          </h1></center>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
             <p>
               <span className="font-semibold">Role:</span> {user?.role}

@@ -129,9 +129,10 @@ function AdminDashboard() {
       </motion.div>
 
       <div className="flex-1 p-10 overflow-y-auto">
-        <h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
+        <center><h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Welcome, Admin
         </h1>
+        </center>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           <motion.div

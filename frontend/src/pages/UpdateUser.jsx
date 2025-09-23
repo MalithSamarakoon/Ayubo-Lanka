@@ -98,7 +98,7 @@ function UpdateUser() {
       <button
         type="button"
         onClick={() => navigate("/dashboard")}
-        className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 text-gray-200 hover:bg-gray-300 hover:text-green-600"
+        className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-green-600"
       >
         <ArrowLeft className="w-5 h-5" />
       </button>

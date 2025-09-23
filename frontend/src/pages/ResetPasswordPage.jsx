@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import Input from "../components/Input";
-import PasswordStrengthMeter from "../components/PasswordStrengthMeter"; 
+import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { Lock } from "lucide-react";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -64,13 +64,6 @@ const ResetPasswordPage = () => {
           Reset Password
         </h2>
 
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-        {message && <p className="text-green-600 text-sm mb-2">{message}</p>}
-
-        {validationError && (
-          <p className="text-red-500 font-semibold mb-2">{validationError}</p>
-        )}
-
         <form onSubmit={handleSubmit}>
           <Input
             icon={Lock}
@@ -82,8 +75,6 @@ const ResetPasswordPage = () => {
             required
           />
 
-          
-
           <Input
             icon={Lock}
             type="password"
@@ -93,6 +84,20 @@ const ResetPasswordPage = () => {
             togglePassword
             required
           />
+
+          <center>
+            {(validationError || error || message) && (
+              <div className="mb-2">
+                {validationError && (
+                  <p className="text-red-500 font-semibold">
+                    {validationError}
+                  </p>
+                )}
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {message && <p className="text-green-600 text-sm">{message}</p>}
+              </div>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 
