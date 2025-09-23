@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, setError } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,9 +21,11 @@ const LoginPage = () => {
       if (user.role === "SUPER_ADMIN") {
         toast.success("Admin logged in successfully");
         navigate("/admin-dashboard");
+        setError(null)
       } else {
         toast.success("User logged in successfully");
         navigate("/home");
+          setError(null)
       }
     }
   };
@@ -89,7 +91,7 @@ const LoginPage = () => {
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
         <p className="text-sm text-gray-400">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-green-400 hover:underline">
+          <Link to="/signup" className="text-green-400 hover:underline" onClick={() => setError(null)}>
             Sign up
           </Link>
         </p>

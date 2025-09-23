@@ -28,8 +28,6 @@ export const signup = async (req, res) => {
     productCategory,
   } = req.body;
 
-  console.log(req.body);
-
   try {
     if (!email || !password || !confirmPassword || !name || !mobile || !role) {
       return res
