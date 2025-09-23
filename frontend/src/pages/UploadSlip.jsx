@@ -379,7 +379,7 @@ export default function ReceiptUploadPage() {
                 Submitting Receipt...
               </span>
             ) : (
-              "🚀 Submit Receipt"
+              " Submit Receipt"
             )}
           </motion.button>
 
@@ -390,7 +390,7 @@ export default function ReceiptUploadPage() {
   );
 }
 
-/* Reusable fields */
+
 function Input({ label, error, className, ...props }) {
   const base =
     "w-full border-2 rounded-xl p-3 transition-all duration-300 focus:ring-2 focus:ring-emerald-200";

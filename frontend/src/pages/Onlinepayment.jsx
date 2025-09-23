@@ -20,7 +20,6 @@ export default function Onlinepayment() {
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
 
-  // doctor id for nested routes like /doctor/:docId/...
   const docId = urlParams.docId || state?.docId || "";
 
   // read appointment identifiers from state OR querystring (survives refresh)
@@ -115,19 +114,14 @@ export default function Onlinepayment() {
           whileHover={{ scale: 1.01 }}
           className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden"
         >
-          {/* Header */}
+       
           <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600">
             <h1 className="text-2xl font-bold text-white">Online Payment</h1>
-            <p className="text-green-100 text-sm mt-1">
-              Booking ID:{" "}
-              <span className="font-mono font-semibold text-yellow-200">
-                {state?.bookingId}
-              </span>
-            </p>
+            
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Methods */}
+         
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">
                 Select a payment method

@@ -1,3 +1,4 @@
+// src/pages/CheckAppoinments.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
@@ -10,6 +11,8 @@ import {
   X,
   Clock,
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const CheckAppoinments = () => {
   const [loading, setLoading] = useState(true);
@@ -23,6 +26,26 @@ const CheckAppoinments = () => {
   const [paymentFilter, setPaymentFilter] = useState("all");
 
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+
+  const toAbs = (u) => {
+    if (!u) return "";
+    return /^https?:\/\//i.test(u)
+      ? u
+      : `${API_BASE}${u.startsWith("/") ? "" : "/"}${u}`;
+  };
+
+  const fmtLK = (iso) =>
+    iso
+      ? new Date(iso).toLocaleString("en-LK", {
+          timeZone: "Asia/Colombo",
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "-";
 
   const fetchPatients = async () => {
     const r = await axios.get(`${API_BASE}/api/patients`, {
@@ -72,10 +95,10 @@ const CheckAppoinments = () => {
 
   useEffect(() => {
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // Delete appointment + cascade receipts
+
   const deleteAppointment = async (appointmentId) => {
     try {
       const ok = window.confirm(
@@ -104,9 +127,9 @@ const CheckAppoinments = () => {
     }
   };
 
-  // ✅ Approve (set status=approved) — sync with API response
+
   const approveAppointment = async (appointmentId) => {
-    // optimistic UI (instant flip)
+  
     setAppointments((prev) =>
       prev.map((apt) =>
         apt._id === appointmentId ? { ...apt, status: "approved" } : apt
@@ -120,7 +143,7 @@ const CheckAppoinments = () => {
         { withCredentials: true }
       );
 
-      // sync with server (keeps it correct after any normalization)
+    
       if (data && data._id) {
         setAppointments((prev) =>
           prev.map((apt) =>
@@ -139,11 +162,11 @@ const CheckAppoinments = () => {
         e?.response?.data?.message || "Failed to approve appointment";
       setErr(errorMessage);
       alert(`Error: ${errorMessage}`);
-      fetchAll(); // revert if failed
+      fetchAll();
     }
   };
 
-  // Filters
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     let result = appointments || [];
@@ -165,13 +188,12 @@ const CheckAppoinments = () => {
     return result;
   }, [appointments, q, statusFilter]);
 
-  // Build rows + sorting
   const rows = useMemo(() => {
     const mappedRows = (filtered || []).map((a) => {
       const recs = receiptsByAppt.get(a._id) || [];
       const latest = recs[0] || null;
       const method = latest?.paymentMethod || "-";
-      const fileUrl = latest?.file?.url || "";
+      const fileUrl = toAbs(latest?.file?.url || "");
       const fileMime = latest?.file?.mime || "";
       const status = String(a.status || "pending").toLowerCase();
 
@@ -236,7 +258,7 @@ const CheckAppoinments = () => {
     );
   };
 
-  // Status badge (Approved green, Pending amber, Rejected red)
+
   const StatusBadge = ({ status }) => {
     const key = String(status || "pending").toLowerCase();
     const styles = {
@@ -261,6 +283,117 @@ const CheckAppoinments = () => {
         {label}
       </span>
     );
+  };
+
+
+  const generatePdf = () => {
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "A4",
+      });
+
+      // Header
+      doc.setFontSize(16);
+      doc.text("Ayurveda Medical Center — Appointments Report", 40, 40);
+      doc.setFontSize(10);
+      const now = new Date().toLocaleString("en-LK", {
+        timeZone: "Asia/Colombo",
+      });
+      doc.text(`Generated: ${now} (Sri Lanka/Colombo)`, 40, 58);
+    doc.text(
+        `Rows: ${rows.length} (of ${appointments.length} total)`,
+        40,
+        86
+      );
+
+      
+      const body = rows.map((r) => {
+        const apt = appointments.find((a) => a._id === r._id) || {};
+        const recs = receiptsByAppt.get(r._id) || [];
+        const latest = recs[0] || null;
+
+        const payMethod = latest?.paymentMethod || "-";
+        const payAmount =
+          latest?.amount != null && latest?.amount !== ""
+            ? String(latest.amount)
+            : "-";
+        const payDate = latest?.paymentDate ? fmtLK(latest.paymentDate) : "-";
+        const slipUrl = latest?.file?.url ? toAbs(latest.file.url) : "-";
+
+        return [
+          r.bookingId || "",
+          apt.name || "",
+          apt.age ?? "",
+          apt.phone || "",
+          apt.email || "",
+          apt.address || "",
+          (r.status || "").toString(),
+          payMethod,
+          payAmount,
+          payDate,
+          slipUrl,
+          fmtLK(apt.createdAt),
+        ];
+      });
+
+      autoTable(doc, {
+        head: [
+          [
+            "Booking ID",
+            "Name",
+            "Age",
+            "Phone",
+            "Email",
+            "Address",
+            "Status",
+            "Payment",
+            "Amount",
+            "Paid On",
+            "Slip URL",
+            "Created",
+          ],
+        ],
+        body,
+        startY: 110,
+        styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+        headStyles: { fillColor: [16, 185, 129] }, // emerald
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 120 },
+          2: { cellWidth: 40, halign: "right" },
+          3: { cellWidth: 100 },
+          4: { cellWidth: 140 },
+          5: { cellWidth: 180 },
+          6: { cellWidth: 70 },
+          7: { cellWidth: 90 },
+          8: { cellWidth: 60, halign: "right" },
+          9: { cellWidth: 100 },
+          10: { cellWidth: 160 },
+          11: { cellWidth: 100 },
+        },
+      });
+
+      // Footer page numbers
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() - 80,
+          doc.internal.pageSize.getHeight() - 20
+        );
+      }
+
+      doc.save(
+        `appointments_report_${new Date().toISOString().slice(0, 10)}.pdf`
+      );
+    } catch (e) {
+      console.error(e);
+      alert("Failed to generate PDF. See console for details.");
+    }
   };
 
   if (loading) {
@@ -331,6 +464,15 @@ const CheckAppoinments = () => {
                 <option value="atm">ATM</option>
                 <option value="cdm">CDM</option>
               </select>
+
+              <button
+                onClick={generatePdf}
+                className="inline-flex items-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
+                title="Export current view as PDF"
+              >
+                <FileText className="w-4 h-4" />
+                Export PDF
+              </button>
 
               <button
                 onClick={fetchAll}
@@ -498,12 +640,7 @@ const CheckAppoinments = () => {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500 bg-white p-4 rounded-xl border">
-          <p>
-            Showing {rows.length} of {appointments.length} appointments
-          </p>
-          <p>Last updated: {new Date().toLocaleTimeString()}</p>
-        </div>
+     
       </div>
     </div>
   );

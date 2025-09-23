@@ -8,7 +8,6 @@ import { doctors } from "../assets/frontend_assets/assets";
 const URL = "http://localhost:5000/api/user/users";
 
 const Doctor = () => {
-  // -------------------- Users (doctor-only) --------------------
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ const Doctor = () => {
           createdAt: u.createdAt ?? null,
         }));
 
-        // 🔒 Accept/keep ONLY doctors
+
         const doctorsOnly = normalized.filter(
           (u) => u.role?.toLowerCase() === "doctor"
         );
@@ -52,19 +51,17 @@ const Doctor = () => {
     fetchHandler();
   }, []);
 
-  // Extra safety: even if users changes, keep doctor-only
   const filteredData = useMemo(
     () => users.filter((u) => u.role?.toLowerCase() === "doctor"),
     [users]
   );
 
-  // -------------------- Navigation Handlers --------------------
   const handleBook = (_id) => {
     if (!_id) {
       console.error("Doctor ID is required for booking");
       return;
     }
-    // ✅ FIX: this must match your Route: /doctor/:docId
+
     navigate(`/doctor/${_id}`);
   };
 
@@ -76,7 +73,6 @@ const Doctor = () => {
     navigate(`/doctor/${_id}`);
   };
 
-  // -------------------- Doctor filter (sidebar demo) --------------------
   const [activeSpec, setActiveSpec] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");

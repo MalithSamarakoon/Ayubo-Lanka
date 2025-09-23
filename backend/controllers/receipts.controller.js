@@ -27,7 +27,7 @@ export async function createReceipt(req, res) {
 
     const errors = {};
 
-    // linkage validation
+  
     if (!patientId || !isValidObjectId(patientId)) {
       errors.patientId = "Valid patientId (User _id) required";
     }

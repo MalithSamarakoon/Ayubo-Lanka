@@ -16,7 +16,6 @@ export const createPatient = async (req, res) => {
 
     const lastPatient = await Patient.findOne().sort({ id: -1 }).lean();
 
-    //generate id
     const nextId =
       lastPatient && Number.isFinite(lastPatient.id) // Check if lastPatient exists and has a valid id
         ? Number(lastPatient.id) + 1
@@ -40,10 +39,10 @@ export const createPatient = async (req, res) => {
 };
 
 
-//LIST OF PATIENTS
+
 export const getPatients = async (req, res) => {
   try {
-    const page = Math.max(1, Number(req.query.page) || 1); //getting page number from query, default is 1  (Math.max use to ensure page is at least 1)
+    const page = Math.max(1, Number(req.query.page) || 1); 
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));//pagination
 
     const skip = (page - 1) * limit;
@@ -88,7 +87,7 @@ export const updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
 
-  
+
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
@@ -106,7 +105,7 @@ export const updatePatient = async (req, res) => {
       return res.status(404).json({ message: "Patient not found." });
 
     // 3) Compare status transition
-    const beforeStatus = String(before.status || "pending").toLowerCase();
+      const beforeStatus = String(before.status || "pending").toLowerCase();
     const afterStatus = String(patient.status || "pending").toLowerCase();
 
     // Only when changing from NOT-approved to approved
