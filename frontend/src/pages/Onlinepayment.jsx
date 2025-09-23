@@ -1,4 +1,3 @@
-// frontend/src/pages/Onlinepayment.jsx
 import React, { useEffect, useState } from "react";
 import {
   useLocation,
@@ -22,7 +21,6 @@ export default function Onlinepayment() {
 
   const docId = urlParams.docId || state?.docId || "";
 
-  // read appointment identifiers from state OR querystring (survives refresh)
   const apptId =
     state?.appointmentId || searchParams.get("appointmentId") || "";
   const apptNo =
@@ -31,7 +29,6 @@ export default function Onlinepayment() {
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
-  // If opened directly without minimal state, try to recover via queries; else send back
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -40,7 +37,6 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
-    // need a doctor id to build /doctor/:docId/... route
     const targetDocId = urlParams.docId || state?.docId;
     if (!targetDocId) {
       alert("Missing doctor route. Returning to Home.");
@@ -48,7 +44,6 @@ export default function Onlinepayment() {
       return;
     }
 
-    // Pass appointment linkage via querystring (plus state as backup)
     const qs = new URLSearchParams();
     if (apptId) qs.set("appointmentId", String(apptId));
     if (apptNo) qs.set("appointmentNo", String(apptNo));
@@ -62,7 +57,6 @@ export default function Onlinepayment() {
           name: state?.name,
           phone: state?.phone,
           email: state?.email,
-          // linkage for UploadSlip validation
           appointmentId: apptId || null,
           appointmentNo: apptNo || null,
         },
@@ -74,13 +68,10 @@ export default function Onlinepayment() {
     try {
       setLoading(true);
 
-      // If user chose bank slip → go to UploadSlip route
       if (method === "slip") {
         goToUploadSlip();
         return;
       }
-
-      // Otherwise (wallet/bank) — simulate other gateway flow
       await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state?.bookingId,

@@ -1,4 +1,3 @@
-// frontend/src/pages/UploadSlip.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -17,7 +16,6 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-  // derive appointment identifiers from router state/params/query
   const stateApptId = location.state?.appointmentId; // Patient._id
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");

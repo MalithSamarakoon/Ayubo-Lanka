@@ -72,22 +72,31 @@ const PatientForm = () => {
         }
         break;
       }
-     
+
       case "phone":
         const phone = value.trim();
 
         if (!phone) {
           msg = "Phone is required.";
-        } else if (!/^[0-9+]+$/.test(phone)) {
+        }
+        else if (!/^\+?\d+$/.test(phone)) {
           msg = "Phone can only contain digits or + sign.";
-        } else if (!sriLankaPhone.test(phone)) {
+        }
+        // ✅ Must start with 0 or +94
+        else if (!(phone.startsWith("0") || phone.startsWith("+94"))) {
           msg = "Use 0XXXXXXXXX or +94XXXXXXXXX.";
-        } else if (phone.startsWith("0") && phone.length !== 10) {
+        }
+        else if (phone.startsWith("0") && !/^0\d{9}$/.test(phone)) {
           msg = "Local numbers must be exactly 10 digits.";
-        } else if (phone.startsWith("+94") && phone.length !== 12) {
-          msg = "International format must be exactly 12 digits.";
-        } else if (/^(\d)\1+$/.test(phone.replace("+94", ""))) {
+        }
+        else if (phone.startsWith("+94") && !/^\+94\d{9}$/.test(phone)) {
+          msg = "International format must be +94 followed by 9 digits.";
+        }
+        else if (/^(\d)\1+$/.test(phone.replace("+94", ""))) {
           msg = "Phone cannot be all the same digit.";
+        }
+        else if (/(.)\1{5,}/.test(phone.replace("+94", ""))) {
+          msg = "Phone cannot contain excessive repeated digits.";
         }
         break;
 

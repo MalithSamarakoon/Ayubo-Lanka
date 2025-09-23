@@ -1,4 +1,4 @@
-// BookingTimeSelector.jsx
+
 import { Clock } from "lucide-react";
 
 const BookingTimeSelector = ({ timeSlots, selectedTime, setSelectedTime }) => (

@@ -17,7 +17,7 @@ export const createPatient = async (req, res) => {
     const lastPatient = await Patient.findOne().sort({ id: -1 }).lean();
 
     const nextId =
-      lastPatient && Number.isFinite(lastPatient.id) // Check if lastPatient exists and has a valid id
+      lastPatient && Number.isFinite(lastPatient.id) 
         ? Number(lastPatient.id) + 1
         : 1000;
 
@@ -43,14 +43,13 @@ export const createPatient = async (req, res) => {
 export const getPatients = async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1); 
-    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));//pagination
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
 
     const skip = (page - 1) * limit;
-
-    //promise.all use to run both queries at the same time 
+ 
     const [items, total] = await Promise.all([
       Patient.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Patient.countDocuments(),//use to get all patients in the database
+      Patient.countDocuments(),
     ]);
 
     return res.json({ items, total, page, pages: Math.ceil(total / limit) });
@@ -112,10 +111,10 @@ export const updatePatient = async (req, res) => {
     if (beforeStatus !== "approved" && afterStatus === "approved") {
       const toEmail = patient.email;
       const userName = patient.name || "";
-      const bookingId = patient.id; // your numeric booking id
+      const bookingId = patient.id; 
 
       if (toEmail) {
-        // Fire-and-forget (don't block response if email fails)
+        
         sendAppointmentApprovedEmail(toEmail, userName, bookingId);
       }
     }
@@ -127,27 +126,23 @@ export const updatePatient = async (req, res) => {
   }
 };
 
-// DELETE (with optional cascade to receipts)
 export const deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
-    const cascade = req.query.cascade === "1" || req.query.cascade === "true";//cascade use to link delete patient with receipts
+    const cascade = req.query.cascade === "1" || req.query.cascade === "true";
 
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    // Find patient first to get the _id for related receipts
     const patient = await Patient.findOne(query);
     if (!patient) {
       return res.status(404).json({ message: "Patient not found." });
     }
 
     if (cascade) {
-      // Delete receipts linked by appointmentId (patient._id)
       await Receipt.deleteMany({ appointmentId: patient._id });
-      // Also delete receipts linked by patientId as an extra safety
       await Receipt.deleteMany({ patientId: patient._id });
     }
 
@@ -178,7 +173,7 @@ export const getPatientWithPayments = async (req, res) => {
 
     const payments = await Receipt.find({ appointmentId: patient._id })
       .sort({ createdAt: -1 })//newest first
-      .populate("patientId", "name email mobile role");//populate use to get patient details from patientId field in Receipt model
+      .populate("patientId", "name email mobile role");
 
     return res.json({ patient, payments });
   } catch (err) {

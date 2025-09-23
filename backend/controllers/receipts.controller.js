@@ -13,10 +13,9 @@ function isValidDateStr(d) {
 export async function createReceipt(req, res) {
   try {
     const {
-      patientId, // logged-in User _id (required)
-      appointmentId, // Patient _id (preferred)
-      appointmentNo, // numeric Patient.id (fallback)
-      // normal fields
+      patientId, 
+      appointmentId,
+      appointmentNo, 
       bank,
       paymentDate,
       amount,
@@ -27,7 +26,7 @@ export async function createReceipt(req, res) {
 
     const errors = {};
 
-  
+
     if (!patientId || !isValidObjectId(patientId)) {
       errors.patientId = "Valid patientId (User _id) required";
     }
@@ -48,7 +47,6 @@ export async function createReceipt(req, res) {
         errors.appointmentId || "Valid appointmentId required";
     }
 
-    // fields validation
     if (!bank) errors.bank = "Bank is required";
     if (!isValidDateStr(paymentDate))
       errors.paymentDate = "Valid date required";
@@ -65,7 +63,6 @@ export async function createReceipt(req, res) {
       return res.status(400).json({ message: "Validation failed", errors });
     }
 
-    // file validation
     if (!req.file) {
       return res.status(400).json({ message: "Receipt file is required" });
     }
@@ -82,7 +79,6 @@ export async function createReceipt(req, res) {
       return res.status(413).json({ message: "File too large (max 5MB)" });
     }
 
-    // public URL (ensure server.js serves /uploads)
     const filename = path.basename(req.file.path);
     const relPath = `uploads/receipts/${filename}`.replace(/\\/g, "/");
     const proto =
@@ -181,7 +177,7 @@ export async function listReceipts(req, res) {
 export async function reviewReceipt(req, res) {
   try {
     const { id } = req.params;
-    const { action, comment } = req.body; // APPROVED | REJECTED
+    const { action, comment } = req.body; 
 
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid id" });
