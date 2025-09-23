@@ -1,11 +1,8 @@
 import { Calendar } from "lucide-react";
-
-// BookingDateSelector.jsx
 const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
   <div className="mb-8">
     <h3 className="text-sm font-semibold text-gray-700 mb-4">Booking slots</h3>
 
-    {/* horizontal scroll on small screens, even spacing on large */}
     <div className="flex gap-3 overflow-x-auto pb-1">
       {bookingSlots.map((slot) => {
         const isSelected = selectedDay === slot.day;

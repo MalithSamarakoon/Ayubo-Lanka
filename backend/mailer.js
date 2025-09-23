@@ -67,7 +67,6 @@ export const sendPasswordResetEmail = async (
   }
 };
 
-
 export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId) => {
   try {
     await transporter.sendMail({
