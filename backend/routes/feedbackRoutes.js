@@ -43,6 +43,20 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// Approve
+router.patch("/:id/approve", async (req, res) => {
+  try {
+    const doc = await Feedback.findByIdAndUpdate(
+      req.params.id,
+      { approved: true },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ message: "Feedback not found" });
+    res.json({ message: "Feedback approved", feedback: doc });
+  } catch (e) {
+    res.status(500).json({ message: "Server error", error: e.message });
+  }
+});
 /**
  * READ by id (used by FeedbackReview page)
  */

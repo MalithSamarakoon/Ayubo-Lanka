@@ -41,7 +41,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
-
+import AdminSupportCenter from "./pages/AdminSupportCenter";
 // Review pages
 import TicketReview from "./pages/TicketReview";
 import SupportReview from "./pages/SupportReview";
@@ -171,7 +171,14 @@ function App() {
                 </RedirectAuthenticatedUser>
               }
             />
-
+<Route
+  path="/admin/support-center"
+  element={
+    <ProtectedRoute>
+      <AdminSupportCenter />
+    </ProtectedRoute>
+  }
+/>
             {/* Dashboards / protected */}
             <Route
               path="/dashboard"

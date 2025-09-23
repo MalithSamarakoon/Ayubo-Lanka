@@ -199,5 +199,17 @@ router.use((err, _req, res, next) => {
   }
   next(err);
 });
+// Delete a ticket
+router.delete('/:id', async (req, res) => {
+  try {
+    const ticket = await Ticket.findByIdAndDelete(req.params.id);
+    if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+    res.json({ message: 'Ticket deleted' });
+  } catch (error) {
+    console.error('Error deleting ticket:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 
 export default router;
