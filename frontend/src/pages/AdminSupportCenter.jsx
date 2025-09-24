@@ -57,7 +57,7 @@ export default function AdminSupportCenter() {
     })();
   }, [tab]);
 
-  // search
+ 
   const filterByQ = (rows) => {
     if (!q.trim()) return rows;
     const s = q.toLowerCase();
