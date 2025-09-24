@@ -337,6 +337,7 @@ function UserMgt() {
     []
   );
 
+  // pagination
   const table = useReactTable({
     data: filteredData,
     columns,
