@@ -125,7 +125,7 @@ const UpdateProduct = () => {
         {/* Back Button */}
         <button
           onClick={handleGoBack}
-          className="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
+          className="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-green-400 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-yellow-300 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Products
