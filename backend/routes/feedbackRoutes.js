@@ -42,7 +42,38 @@ router.get("/", async (_req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+router.post("/", async (req, res) => {
+  try {
+    const fb = await Feedback.create(req.body);
+    res.status(201).json({ message: "Feedback submitted", feedback: fb });
+  } catch (e) {
+    res.status(400).json({ message: e.message });
+  }
+});
 
+// list all (admin)
+router.get("/", async (_req, res) => {
+  const list = await Feedback.find().sort({ createdAt: -1 });
+  res.json(list);
+});
+
+// list approved (public support page)
+router.get("/approved", async (_req, res) => {
+  const list = await Feedback.find({ isApproved: true }).sort({ createdAt: -1 });
+  res.json(list);
+});
+
+// approve / unapprove
+router.patch("/:id/approve", async (req, res) => {
+  const { isApproved } = req.body; // boolean
+  const fb = await Feedback.findByIdAndUpdate(
+    req.params.id,
+    { isApproved: !!isApproved },
+    { new: true }
+  );
+  if (!fb) return res.status(404).json({ message: "Feedback not found" });
+  res.json({ message: "Updated", feedback: fb });
+});
 // Approve
 router.patch("/:id/approve", async (req, res) => {
   try {
@@ -70,7 +101,29 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+router.patch("/:id/approve", async (req, res) => {
+  try {
+    const doc = await Feedback.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isApproved: !!req.body.isApproved } },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ message: "Feedback not found" });
+    res.json({ message: "Feedback approval updated", feedback: doc });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 
+// Approved list for Support page
+router.get("/approved", async (_req, res) => {
+  try {
+    const rows = await Feedback.find({ isApproved: true }).sort({ createdAt: -1 }).limit(50);
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 /**
  * UPDATE by id
  * body: any subset of { name, email, rating, feedback, consent }

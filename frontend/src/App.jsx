@@ -111,6 +111,8 @@ function App() {
             />
             <Route path="/doctor/:docId/book/patientupdate" element={<PatientUpdate />} />
 
+<Route path="/admin/support-center" element={<ProtectedRoute><AdminSupportCenter /></ProtectedRoute>} />
+
             {/* Auth helpers */}
             <Route path="/verify-email" element={<EmailVerificationPage />} />
             <Route
@@ -121,6 +123,7 @@ function App() {
                 </RedirectAuthenticatedUser>
               }
             />
+            
             <Route
               path="/forgot-password"
               element={
@@ -155,6 +158,7 @@ function App() {
                 </RedirectAuthenticatedUser>
               }
             />
+            
             <Route
               path="/signup/doctor"
               element={

@@ -1,40 +1,64 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import SupportForm from '../Component/SupportForm';
-import FeedbackForm from '../Component/FeedbackForm';
-import TicketSystem from '../Component/TicketSystem';
+// frontend/src/pages/Support.jsx
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import SupportForm from "../Component/SupportForm";
+import FeedbackForm from "../Component/FeedbackForm";
+import TicketSystem from "../Component/TicketSystem";
+import api from "../lib/api";
 
 // ▶ pick where the toast shows:
 // 'top-left' | 'top-right' | 'top-center' |
 // 'bottom-left' | 'bottom-right' | 'bottom-center' |
 // 'middle-left' | 'middle-right' | 'center'
-const TOAST_POSITION = 'top-left'; // ← set to 'top-left' if you prefer
+const TOAST_POSITION = "top-left";
 
 const positionClasses = (pos) => {
   switch (pos) {
-    case 'top-left': return 'top-4 left-4';
-    case 'top-right': return 'top-4 right-4';
-    case 'top-center': return 'top-4 left-1/2 -translate-x-1/2';
-    case 'bottom-left': return 'bottom-6 left-4';
-    case 'bottom-right': return 'bottom-6 right-4';
-    case 'bottom-center': return 'bottom-6 left-1/2 -translate-x-1/2';
-    case 'middle-left': return 'top-1/2 -translate-y-1/2 left-4';
-    case 'middle-right': return 'top-1/2 -translate-y-1/2 right-4';
-    case 'center': return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
-    default: return 'top-4 left-1/2 -translate-x-1/2';
+    case "top-left":
+      return "top-4 left-4";
+    case "top-right":
+      return "top-4 right-4";
+    case "top-center":
+      return "top-4 left-1/2 -translate-x-1/2";
+    case "bottom-left":
+      return "bottom-6 left-4";
+    case "bottom-right":
+      return "bottom-6 right-4";
+    case "bottom-center":
+      return "bottom-6 left-1/2 -translate-x-1/2";
+    case "middle-left":
+      return "top-1/2 -translate-y-1/2 left-4";
+    case "middle-right":
+      return "top-1/2 -translate-y-1/2 right-4";
+    case "center":
+      return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+    default:
+      return "top-4 left-1/2 -translate-x-1/2";
   }
 };
 
 const Support = () => {
-  const [activeModal, setActiveModal] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // 'inquiry' | 'ticket' | 'feedback' | null
   const [openFAQ, setOpenFAQ] = useState(null);
-  const [toast, setToast] = useState(null); // { type, message }
+  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: string }
+  const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get("/api/feedback/approved");
+        setApprovedFeedbacks(data || []);
+      } catch (e) {
+        console.error("Failed to load approved feedbacks", e);
+      }
+    })();
+  }, []);
 
   const openModal = (m) => setActiveModal(m);
   const closeModal = () => setActiveModal(null);
   const toggleFAQ = (i) => setOpenFAQ(openFAQ === i ? null : i);
 
-  const showToast = (message, type = 'success') => {
+  const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
@@ -53,7 +77,7 @@ const Support = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
@@ -62,8 +86,19 @@ const Support = () => {
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10"
               aria-label="Close dialog"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
             {children}
@@ -79,16 +114,27 @@ const Support = () => {
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, y: TOAST_POSITION.includes('bottom') ? 10 : -10 }}
+            initial={{
+              opacity: 0,
+              y: TOAST_POSITION.includes("bottom") ? 10 : -10,
+            }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: TOAST_POSITION.includes('bottom') ? 10 : -10 }}
-            className={`fixed ${positionClasses(TOAST_POSITION)} z-[60] rounded-xl px-4 py-3 shadow-lg border
-              ${toast.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'}`}
+            exit={{
+              opacity: 0,
+              y: TOAST_POSITION.includes("bottom") ? 10 : -10,
+            }}
+            className={`fixed ${positionClasses(
+              TOAST_POSITION
+            )} z-[60] rounded-xl px-4 py-3 shadow-lg border ${
+              toast.type === "success"
+                ? "bg-green-50 border-green-200 text-green-800"
+                : "bg-red-50 border-red-200 text-red-800"
+            }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-xl">{toast.type === 'success' ? '✅' : '⚠️'}</span>
+              <span className="text-xl">
+                {toast.type === "success" ? "✅" : "⚠️"}
+              </span>
               <p className="font-medium">{toast.message}</p>
             </div>
           </motion.div>
@@ -118,8 +164,19 @@ const Support = () => {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-9 w-9 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
                 </svg>
               </div>
               <h1 className="text-4xl font-extrabold text-green-800 bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">
@@ -127,7 +184,8 @@ const Support = () => {
               </h1>
             </motion.div>
             <p className="text-lg text-green-600 max-w-2xl mx-auto mb-6">
-              We're here to assist you with inquiries, tickets, and feedback regarding our Ayurvedic products and treatments.
+              We're here to assist you with inquiries, tickets, and feedback
+              regarding our Ayurvedic products and treatments.
             </p>
             <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-400 mx-auto rounded-full"></div>
           </div>
@@ -136,9 +194,33 @@ const Support = () => {
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {[
-            { id: 'inquiry', title: 'Submit Inquiry', icon: '📩', description: 'Have questions about our products or treatments? Send us a message.', color: 'from-green-400 to-emerald-500', buttonText: 'Ask Question' },
-            { id: 'ticket', title: 'Raise Support Ticket', icon: '🎫', description: 'Need technical assistance or have an urgent issue? Create a support ticket.', color: 'from-blue-400 to-cyan-500', buttonText: 'Create Ticket' },
-            { id: 'feedback', title: 'Rate Experience', icon: '⭐', description: 'Share your experience and help us improve our services.', color: 'from-amber-400 to-orange-500', buttonText: 'Share Feedback' },
+            {
+              id: "inquiry",
+              title: "Submit Inquiry",
+              icon: "📩",
+              description:
+                "Have questions about our products or treatments? Send us a message.",
+              color: "from-green-400 to-emerald-500",
+              buttonText: "Ask Question",
+            },
+            {
+              id: "ticket",
+              title: "Raise Support Ticket",
+              icon: "🎫",
+              description:
+                "Need technical assistance or have an urgent issue? Create a support ticket.",
+              color: "from-blue-400 to-cyan-500",
+              buttonText: "Create Ticket",
+            },
+            {
+              id: "feedback",
+              title: "Rate Experience",
+              icon: "⭐",
+              description:
+                "Share your experience and help us improve our services.",
+              color: "from-amber-400 to-orange-500",
+              buttonText: "Share Feedback",
+            },
           ].map((item, index) => (
             <motion.div
               key={item.id}
@@ -149,9 +231,17 @@ const Support = () => {
             >
               <div className="absolute -inset-0.5 bg-gradient-to-r opacity-60 group-hover:opacity-100 transition duration-300 rounded-3xl blur"></div>
               <div className="relative bg-white rounded-3xl p-8 h-full text-center shadow-md hover:shadow-xl transition duration-300 group-hover:-translate-y-1 border border-green-100 flex flex-col">
-                <div className={`w-20 h-20 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl text-white`}>{item.icon}</div>
-                <h3 className="font-bold text-green-800 text-xl mb-4">{item.title}</h3>
-                <p className="text-green-600 text-sm mb-6 flex-grow">{item.description}</p>
+                <div
+                  className={`w-20 h-20 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl text-white`}
+                >
+                  {item.icon}
+                </div>
+                <h3 className="font-bold text-green-800 text-xl mb-4">
+                  {item.title}
+                </h3>
+                <p className="text-green-600 text-sm mb-6 flex-grow">
+                  {item.description}
+                </p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -165,25 +255,79 @@ const Support = () => {
           ))}
         </div>
 
+        {/* Approved feedbacks section (on page body) */}
+        <div className="mt-10">
+          <h3 className="text-xl font-semibold text-green-800 mb-3">
+            What our patients say
+          </h3>
+          {approvedFeedbacks.length === 0 ? (
+            <div className="text-gray-500">No feedbacks yet.</div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {approvedFeedbacks.map((f) => (
+                <div
+                  key={f._id}
+                  className="p-4 rounded-xl bg-green-50 border border-green-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <b>{f.name || "Anonymous"}</b>
+                    <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
+                      {"★".repeat(f.rating) + "☆".repeat(5 - f.rating)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-green-800">{f.feedback}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* FAQ */}
-        <motion.section initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="bg-white rounded-3xl shadow-lg p-10 mb-20">
-          <h2 className="text-2xl font-bold text-green-800 mb-8 text-center">Frequently Asked Questions</h2>
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="bg-white rounded-3xl shadow-lg p-10 mt-16 mb-20"
+        >
+          <h2 className="text-2xl font-bold text-green-800 mb-8 text-center">
+            Frequently Asked Questions
+          </h2>
           <div className="space-y-4">
             {[
-              { q: "How long does shipping take?", a: "Typically 3-5 business days within Sri Lanka. International shipping takes 7-14 business days depending on the destination." },
-              { q: "Can I schedule a consultation online?", a: "Yes, you can book appointments through our website. Our Ayurvedic doctors are available for both in-person and online consultations." },
-              { q: "Are your products authentic Ayurveda?", a: "All our products are certified authentic Ayurvedic formulations, made with traditional methods and natural ingredients." }
+              {
+                q: "How long does shipping take?",
+                a: "Typically 3-5 business days within Sri Lanka. International shipping takes 7-14 business days depending on the destination.",
+              },
+              {
+                q: "Can I schedule a consultation online?",
+                a: "Yes, you can book appointments through our website. Our Ayurvedic doctors are available for both in-person and online consultations.",
+              },
+              {
+                q: "Are your products authentic Ayurveda?",
+                a: "All our products are certified authentic Ayurvedic formulations, made with traditional methods and natural ingredients.",
+              },
             ].map((faq, i) => (
-              <div key={i} className="bg-green-50 rounded-xl p-4 cursor-pointer hover:bg-green-100 transition">
-                <button className="w-full flex justify-between items-center font-semibold text-green-800" onClick={() => toggleFAQ(i)}>
+              <div
+                key={i}
+                className="bg-green-50 rounded-xl p-4 cursor-pointer hover:bg-green-100 transition"
+              >
+                <button
+                  className="w-full flex justify-between items-center font-semibold text-green-800"
+                  onClick={() => toggleFAQ(i)}
+                >
                   {faq.q}
-                  <motion.span animate={{ rotate: openFAQ === i ? 180 : 0 }} transition={{ duration: 0.3 }}>▼</motion.span>
+                  <motion.span
+                    animate={{ rotate: openFAQ === i ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    ▼
+                  </motion.span>
                 </button>
                 <AnimatePresence>
                   {openFAQ === i && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3 }}
                       className="text-sm text-green-600 mt-2 pl-2 overflow-hidden"
@@ -200,36 +344,42 @@ const Support = () => {
 
       {/* Modal area */}
       <Modal onClose={closeModal}>
-        {activeModal === 'inquiry' && (
+        {activeModal === "inquiry" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">Submit Your Inquiry</h2>
+            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">
+              Submit Your Inquiry
+            </h2>
             <SupportForm
               onSuccess={(msg) => {
-                showToast(msg || 'Inquiry submitted successfully!');
+                showToast(msg || "Inquiry submitted successfully!");
                 closeModal();
               }}
             />
           </div>
         )}
 
-        {activeModal === 'ticket' && (
+        {activeModal === "ticket" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">Raise Support Ticket</h2>
+            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">
+              Raise Support Ticket
+            </h2>
             <TicketSystem
               onSuccess={(msg) => {
-                showToast(msg || 'Ticket created successfully!');
+                showToast(msg || "Ticket created successfully!");
                 closeModal();
               }}
             />
           </div>
         )}
 
-        {activeModal === 'feedback' && (
+        {activeModal === "feedback" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">Share Your Feedback</h2>
+            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">
+              Share Your Feedback
+            </h2>
             <FeedbackForm
               onSuccess={(msg) => {
-                showToast(msg || 'Thank you! Your feedback was submitted.');
+                showToast(msg || "Thank you! Your feedback was submitted.");
                 closeModal();
               }}
             />

@@ -17,7 +17,7 @@ import productRouter from './routes/product.route.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
-
+import adminExportRoutes from "./routes/adminExportRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -33,6 +33,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+app.use("/api/admin/export", adminExportRoutes);
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
