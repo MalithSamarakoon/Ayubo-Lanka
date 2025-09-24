@@ -97,49 +97,47 @@ const Navbar = () => {
           alt="Search"
         />
 
-        {/* Profile Dropdown */}
-        <div className="group relative">
-          <img
-            className="w-5 cursor-pointer"
-            src={assets.profile_icon}
-            alt="Profile"
-          />
+{/* Profile Dropdown */}
+<div className="group relative">
+  <img
+    className="w-5 cursor-pointer"
+    src={assets.profile_icon}
+    alt="Profile"
+    onClick={() => {
 
-          <div className="hidden group-hover:block absolute right-0 top-full mt-3 z-40">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow">
-              {isAuthenticated ? (
-                <>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/dashboard")}
-                  >
-                    My Profile
-                  </p>
+      const authed = (!!user) || String(isAuthenticated).toLowerCase() === "true";
+      if (!authed) navigate("/login");
+    }}
+  />
 
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/orders")}
-                  >
-                    Orders
-                  </p>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </p>
-                </>
-              ) : (
-                <p
-                  className="cursor-pointer hover:text-black"
-                  onClick={() => navigate("/login")}
-                >
-                  Login
-                </p>
-              )}
-            </div>
-          </div>
-        </div> 
+  
+  {((!!user) || String(isAuthenticated).toLowerCase() === "true") && (
+    <div className="hidden group-hover:block absolute right-0 top-full pt-3 z-40">
+
+      <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow">
+        <p
+          className="cursor-pointer hover:text-black"
+          onClick={() => navigate("/dashboard")}
+        >
+          My Profile
+        </p>
+        <p
+          className="cursor-pointer hover:text-black"
+          onClick={() => navigate("/orders")}
+        >
+          Orders
+        </p>
+        <p
+          className="cursor-pointer hover:text-black"
+          onClick={handleLogout}
+        >
+          Logout
+        </p>
+      </div>
+    </div>
+  )}
+</div>
+
 
         <Link to="/Cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
@@ -157,55 +155,37 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Mobile Menu */}
-      <div
-        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
-          visible ? "w-full" : "w-0"
-        }`}
-      >
-        <div className="flex flex-col text-gray-600">
-          <div
-            onClick={() => setVisible(false)}
-            className="flex items-center gap-4 p-3"
-          >
-            <img
-              className="h-4 rotate-180"
-              src={assets.dropdown_icon}
-              alt="Back"
-            />
-            <p>Back</p>
-          </div>
+{/* Mobile Menu */}
+<div
+  className={`fixed inset-y-0 right-0 bg-white z-50 transition-all duration-300 overflow-hidden ${
+    visible
+      ? "w-full sm:w-80 pointer-events-auto"
+      : "w-0 pointer-events-none"
+  }`}
+>
+  <div className="flex flex-col text-gray-600 h-full">
+    <div
+      onClick={() => setVisible(false)}
+      className="flex items-center gap-4 p-3"
+    >
+      <img className="h-4 rotate-180" src={assets.dropdown_icon} alt="Back" />
+      <p>Back</p>
+    </div>
 
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/"
-          >
-            HOME
-          </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Collection"
-          >
-            COLLECTION
-          </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/About"
-          >
-            ABOUT
-          </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Contact"
-          >
-            CONTACT
-          </NavLink>
-        </div>
-      </div>
+    <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/">
+      HOME
+    </NavLink>
+    <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Collection">
+      COLLECTION
+    </NavLink>
+    <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/About">
+      ABOUT
+    </NavLink>
+    <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Contact">
+      CONTACT
+    </NavLink>
+  </div>
+</div>
     </div>
   );
 };
