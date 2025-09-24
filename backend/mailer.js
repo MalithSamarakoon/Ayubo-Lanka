@@ -154,4 +154,101 @@ export const sendUserApprovedEmail = async (toEmail, userName) => {
   } catch (error) {
     console.error("Error sending user approval email:", error);
   }
+
+};
+// ------------------ Ticket / Inquiry Emails ------------------
+
+const wrap = (inner) => `
+  <div style="font-family:Arial, sans-serif; line-height:1.6; color:#1f2937">
+    <div style="max-width:640px; margin:0 auto; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden">
+      <div style="background:#10b981; color:white; padding:16px 20px">
+        <strong>AYUBO LANKA</strong>
+      </div>
+      <div style="padding:20px">${inner}</div>
+      <div style="background:#f9fafb; padding:14px 20px; font-size:12px; color:#6b7280">
+        This is an automated message from AYUBO LANKA Support.
+      </div>
+    </div>
+  </div>
+`;
+
+export const sendTicketApprovedEmail = async (toEmail, name, ticket) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: `We've received your ticket ${ticket?.ticketNumber || ""}`,
+      html: wrap(`
+        <h2>Ticket Received ✅</h2>
+        <p>Hello ${name || "Customer"},</p>
+        <p>We’ve received your ticket and set it <strong>In Progress</strong>. Our team will get back to you shortly.</p>
+        <p><strong>Ticket #:</strong> ${ticket?.ticketNumber || "-"}<br/>
+           <strong>Subject:</strong> ${ticket?.subject || "-"}<br/>
+           <strong>Status:</strong> ${ticket?.status || "-"}</p>
+        <p>Thank you for your patience.</p>
+      `),
+    });
+  } catch (err) {
+    console.error("Error sending ticket approved email:", err);
+  }
+};
+
+export const sendTicketRejectedEmail = async (toEmail, name, ticket) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: `Update on your ticket ${ticket?.ticketNumber || ""}`,
+      html: wrap(`
+        <h2>Ticket Update ❌</h2>
+        <p>Hello ${name || "Customer"},</p>
+        <p>We’re sorry — your ticket was <strong>rejected / closed</strong>.</p>
+        <p><strong>Ticket #:</strong> ${ticket?.ticketNumber || "-"}<br/>
+           <strong>Subject:</strong> ${ticket?.subject || "-"}</p>
+        <p>If you think this is a mistake, please reply to this email with more details.</p>
+      `),
+    });
+  } catch (err) {
+    console.error("Error sending ticket rejected email:", err);
+  }
+};
+
+export const sendInquiryApprovedEmail = async (toEmail, name, inquiry) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "We’ve received your inquiry",
+      html: wrap(`
+        <h2>Inquiry Received ✅</h2>
+        <p>Hello ${name || "Customer"},</p>
+        <p>We’ve received your inquiry and are <strong>reviewing it</strong>. We’ll reply shortly.</p>
+        <p><strong>Type:</strong> ${inquiry?.inquiryType || "-"}<br/>
+           <strong>Subject:</strong> ${inquiry?.subject || "-"}</p>
+        <p>Thanks for reaching out to AYUBO LANKA.</p>
+      `),
+    });
+  } catch (err) {
+    console.error("Error sending inquiry approved email:", err);
+  }
+};
+
+export const sendInquiryRejectedEmail = async (toEmail, name, inquiry) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Update on your inquiry",
+      html: wrap(`
+        <h2>Inquiry Update ❌</h2>
+        <p>Hello ${name || "Customer"},</p>
+        <p>We’re sorry — your inquiry was <strong>rejected / closed</strong>.</p>
+        <p><strong>Type:</strong> ${inquiry?.inquiryType || "-"}<br/>
+           <strong>Subject:</strong> ${inquiry?.subject || "-"}</p>
+        <p>Feel free to submit a new inquiry if needed.</p>
+      `),
+    });
+  } catch (err) {
+    console.error("Error sending inquiry rejected email:", err);
+  }
 };
