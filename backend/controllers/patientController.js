@@ -103,11 +103,9 @@ export const updatePatient = async (req, res) => {
     if (!patient)
       return res.status(404).json({ message: "Patient not found." });
 
-    // 3) Compare status transition
       const beforeStatus = String(before.status || "pending").toLowerCase();
     const afterStatus = String(patient.status || "pending").toLowerCase();
 
-    // Only when changing from NOT-approved to approved
     if (beforeStatus !== "approved" && afterStatus === "approved") {
       const toEmail = patient.email;
       const userName = patient.name || "";

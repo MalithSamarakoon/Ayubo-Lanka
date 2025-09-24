@@ -12,7 +12,7 @@ body {
   background: #fff;
 }
 
-/* active nav underline */
+
 a.active span:last-child {
   opacity: 1 !important;
 }

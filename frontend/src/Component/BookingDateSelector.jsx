@@ -16,7 +16,7 @@ const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
               ${
                 isSelected
                   ? "bg-emerald-500 text-white border-emerald-500 shadow"
-                  : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
+                  : "bg-red text-gray-700 border-gray-300 hover:border-gray-400"
               }`}
           >
             <span
