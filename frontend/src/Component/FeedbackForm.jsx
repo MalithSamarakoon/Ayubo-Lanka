@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
 const initial = {
@@ -9,7 +10,9 @@ const initial = {
   consent: false,
 };
 
-export default function FeedbackForm({ onSuccess }) {
+export default function FeedbackForm() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState(initial);
   const [hoverRating, setHoverRating] = useState(0);
   const [errors, setErrors] = useState({});
@@ -24,7 +27,7 @@ export default function FeedbackForm({ onSuccess }) {
   }, [submitStatus]);
 
   const v = {
-    name: () => "", // optional
+    name: () => "",
     email: (v) => (v && !/^\S+@\S+\.\S+$/.test(v) ? "Enter a valid email" : ""),
     rating: (n) => (!n || n < 1 || n > 5 ? "Please select a rating" : ""),
     feedback: (t) =>
@@ -48,8 +51,7 @@ export default function FeedbackForm({ onSuccess }) {
     setFormData((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleRatingChange = (rating) =>
-    setFormData((p) => ({ ...p, rating }));
+  const handleRatingChange = (rating) => setFormData((p) => ({ ...p, rating }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,13 +60,8 @@ export default function FeedbackForm({ onSuccess }) {
     setIsSubmitting(true);
     try {
       const { data } = await api.post("/api/feedback", formData);
-      setSubmitStatus({
-        type: "success",
-        message: data.message || "Thank you for your valuable feedback!",
-      });
-      setFormData(initial);
-      setErrors({});
-      onSuccess?.("Thank you! Your feedback was submitted successfully.");
+      // 🚀 go to review page immediately
+      navigate(`/feedback/review/${data.feedback._id}`);
     } catch (error) {
       setSubmitStatus({
         type: "error",
@@ -153,7 +150,9 @@ export default function FeedbackForm({ onSuccess }) {
               </p>
             )}
           </div>
-          {errors.rating && <p className="text-red-600 text-xs mt-2 text-center">{errors.rating}</p>}
+          {errors.rating && (
+            <p className="text-red-600 text-xs mt-2 text-center">{errors.rating}</p>
+          )}
         </div>
 
         {/* feedback text */}

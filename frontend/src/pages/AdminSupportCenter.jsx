@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../lib/api";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const fmt = (d) => (d ? new Date(d).toLocaleString() : "—");
 const BASE = (api.defaults.baseURL || "").replace(/\/$/, "");
@@ -114,7 +114,7 @@ export default function AdminSupportCenter() {
   const approveFeedback = async (id, next) => {
     setFeedbacks((prev) => prev.map((f) => (f._id === id ? { ...f, approved: next } : f)));
     try {
-      await api.patch(`/api/feedback/${id}/approve`, { approved: next });
+      await api.patch(`/api/feedback/${id}/approve`, { isapproved: next });
       // Support page shows approved items from /api/feedback/approved
     } catch {
       setFeedbacks((prev) => prev.map((f) => (f._id === id ? { ...f, approved: !next } : f)));
@@ -132,37 +132,76 @@ export default function AdminSupportCenter() {
   };
 
   // ==== PDF ====
-  const downloadPDF = () => {
+
+const downloadPDF = React.useCallback(() => {
+  try {
+    if (typeof window === "undefined") return; // guard for SSR
+
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const title =
       tab === "inquiries" ? "Support Inquiries" :
       tab === "tickets"   ? "Support Tickets"   :
                             "Customer Feedbacks";
+
     doc.setFontSize(16);
     doc.text(title, 40, 40);
 
-    if (tab === "inquiries") {
-      const body = filtered.map((x, i) => [
-        i + 1, x.name || "—", x.email || "—", x.inquiryType || "—",
-        x.subject || "—", (x.files?.length ?? 0), x.isApproved ? "Yes" : "No", fmt(x.createdAt)
-      ]);
-      doc.autoTable({ startY: 60, head: [["#", "Name", "Email", "Type", "Subject", "Files", "Approved", "Created"]], body });
-    } else if (tab === "tickets") {
-      const body = filtered.map((x, i) => [
-        i + 1, x.ticketNumber || "—", x.name || "—", x.email || "—",
-        x.department || "—", x.status || "—", (x.attachments?.length ?? 0), fmt(x.createdAt)
-      ]);
-      doc.autoTable({ startY: 60, head: [["#", "Ticket #", "Name", "Email", "Dept.", "Status", "Files", "Created"]], body });
-    } else {
-      const body = filtered.map((x, i) => [
-        i + 1, x.name || "Anonymous", x.email || "—", x.rating ?? "—",
-        x.approved ? "Yes" : "No", (x.feedback || "").slice(0, 60), fmt(x.createdAt)
-      ]);
-      doc.autoTable({ startY: 60, head: [["#", "Name", "Email", "Rating", "Approved", "Feedback (preview)", "Created"]], body });
-    }
-    doc.save(`${title.replace(/\s+/g, "_")}.pdf`);
-  };
+    let head = [];
+    let body = [];
 
+    if (tab === "inquiries") {
+      head = ["#", "Name", "Email", "Type", "Subject", "Files", "Approved", "Created"];
+      body = filtered.map((x, i) => [
+        i + 1,
+        x.name || "—",
+        x.email || "—",
+        x.inquiryType || "—",
+        x.subject || "—",
+        (x.files?.length ?? 0),
+        x.isApproved ? "Yes" : "No",
+        x.createdAt ? new Date(x.createdAt).toLocaleString() : "—",
+      ]);
+    } else if (tab === "tickets") {
+      head = ["#", "Ticket #", "Name", "Email", "Dept.", "Status", "Files", "Created"];
+      body = filtered.map((x, i) => [
+        i + 1,
+        x.ticketNumber || "—",
+        x.name || "—",
+        x.email || "—",
+        x.department || "—",
+        x.status || "—",
+        (x.attachments?.length ?? 0),
+        x.createdAt ? new Date(x.createdAt).toLocaleString() : "—",
+      ]);
+    } else {
+      head = ["#", "Name", "Email", "Rating", "Approved", "Feedback (preview)", "Created"];
+      body = filtered.map((x, i) => [
+        i + 1,
+        x.name || "Anonymous",
+        x.email || "—",
+        x.rating ?? "—",
+        x.approved || x.isApproved ? "Yes" : "No",
+        (x.feedback || "").slice(0, 60),
+        x.createdAt ? new Date(x.createdAt).toLocaleString() : "—",
+      ]);
+    }
+
+    autoTable(doc, {
+      startY: 60,
+      head: [head],
+      body,
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // emerald
+      alternateRowStyles: { fillColor: [245, 255, 247] },        // light green
+      margin: { left: 40, right: 40 },
+    });
+
+    doc.save(`${title.replace(/\s+/g, "_")}.pdf`);
+  } catch (err) {
+    console.error("PDF error:", err);
+    alert("Could not generate PDF. Check console and ensure jspdf & jspdf-autotable are installed.");
+  }
+}, [tab, filtered]);
   const tableHead = "bg-green-600 text-white text-sm font-semibold sticky top-0 z-10";
   const th = "px-4 py-3 text-left";
   const td = "px-4 py-3 border-t";

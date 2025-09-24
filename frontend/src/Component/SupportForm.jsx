@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
 const MAX_FILES = 5;
@@ -14,14 +15,14 @@ const initial = {
   message: "",
 };
 
-export default function SupportForm({ onSuccess }) {
+export default function SupportForm() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState(initial);
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
 
-  
   const v = {
     name: (v) => (!v.trim() ? "Name is required" : v.trim().length < 2 ? "Name is too short" : ""),
     email: (v) =>
@@ -30,12 +31,10 @@ export default function SupportForm({ onSuccess }) {
         : !/^\S+@\S+\.\S+$/.test(v)
         ? "Enter a valid email"
         : "",
-    phone: (v) =>
-      v && !/^[0-9+\-\s()]{7,20}$/.test(v) ? "Enter a valid phone" : "",
+    phone: (v) => (v && !/^[0-9+\-\s()]{7,20}$/.test(v) ? "Enter a valid phone" : ""),
     inquiryType: (v) => (!v ? "Select an inquiry type" : ""),
     subject: (v) => (!v.trim() ? "Subject is required" : ""),
-    message: (v) =>
-      !v.trim() ? "Message is required" : v.trim().length < 5 ? "Message is too short" : "",
+    message: (v) => (!v.trim() ? "Message is required" : v.trim().length < 5 ? "Message is too short" : ""),
     files: (arr) => {
       if (arr.length > MAX_FILES) return `Max ${MAX_FILES} files`;
       for (const f of arr) {
@@ -47,8 +46,7 @@ export default function SupportForm({ onSuccess }) {
   };
 
   const validateField = (name, value) => {
-    const err =
-      name === "files" ? v.files(value) : v[name] ? v[name](value) : "";
+    const err = name === "files" ? v.files(value) : v[name] ? v[name](value) : "";
     setErrors((p) => ({ ...p, [name]: err }));
     return err;
   };
@@ -67,12 +65,11 @@ export default function SupportForm({ onSuccess }) {
     return Object.values(e).every((x) => !x);
   };
 
-  // ---------- handlers ----------
+  // handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
-
   const handleBlur = (e) => validateField(e.target.name, formData[e.target.name]);
 
   const handleFileChange = (e) => {
@@ -92,26 +89,22 @@ export default function SupportForm({ onSuccess }) {
     if (!validateAll()) return;
 
     setIsSubmitting(true);
-    setSubmitStatus(null);
     try {
       const fd = new FormData();
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
       files.forEach((f) => fd.append("files", f));
 
-      await api.post("/api/support/inquiry", fd, {
+      const { data } = await api.post("/api/support/inquiry", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setSubmitStatus({ type: "success", message: "Inquiry submitted successfully!" });
-      setFormData(initial);
-      setFiles([]);
-      setErrors({});
-      onSuccess?.("Inquiry submitted successfully! We will contact you shortly.");
+      // 🚀 go to review page immediately
+      navigate(`/support/review/${data.inquiry._id}`);
     } catch (error) {
-      setSubmitStatus({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to submit inquiry.",
-      });
+      setErrors((p) => ({
+        ...p,
+        form: error?.response?.data?.message || "Failed to submit inquiry.",
+      }));
     } finally {
       setIsSubmitting(false);
     }
@@ -121,16 +114,8 @@ export default function SupportForm({ onSuccess }) {
     <div>
       <h2 className="text-2xl font-semibold text-green-800 mb-6">Submit Your Inquiry</h2>
 
-      {submitStatus && (
-        <div
-          className={`p-4 rounded-md mb-6 ${
-            submitStatus.type === "success"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {submitStatus.message}
-        </div>
+      {errors.form && (
+        <div className="p-4 rounded-md mb-6 bg-red-100 text-red-800">{errors.form}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -237,8 +222,7 @@ export default function SupportForm({ onSuccess }) {
               <label htmlFor="support-file-upload" className="cursor-pointer text-green-700 font-medium">
                 Upload files
               </label>
-              <input id="support-file-upload" type="file" multiple className="sr-only"
-                onChange={handleFileChange} />
+              <input id="support-file-upload" type="file" multiple className="sr-only" onChange={handleFileChange} />
               <p className="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
             </div>
           </div>

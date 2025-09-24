@@ -1,5 +1,5 @@
 // frontend/src/pages/Support.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SupportForm from "../Component/SupportForm";
 import FeedbackForm from "../Component/FeedbackForm";
@@ -24,24 +24,35 @@ const positionClasses = (pos) => {
 };
 
 export default function Support() {
-  // modals: 'inquiry' | 'ticket' | 'feedback' | null
+  // 'inquiry' | 'ticket' | 'feedback' | null
   const [activeModal, setActiveModal] = useState(null);
   const [openFAQ, setOpenFAQ] = useState(null);
-  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: string }
+  const [toast, setToast] = useState(null); // { type, message }
   const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
 
-  // load approved feedbacks for display on the page
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const { data } = await api.get("/api/feedback/approved");
-        setApprovedFeedbacks(data || []);
-      } catch (e) {
-        console.error("Failed to load approved feedbacks", e);
-      }
-    };
-    load();
+  // ---- load approved feedbacks (shared helper) ----
+  const loadApproved = useCallback(async () => {
+    try {
+      const { data } = await api.get("/api/feedback/approved");
+      setApprovedFeedbacks(data || []);
+    } catch (e) {
+      console.error("Failed to load approved feedbacks", e);
+    }
   }, []);
+
+  // initial load + refresh on focus + optional interval refresh
+  useEffect(() => {
+    loadApproved();
+
+    const onFocus = () => loadApproved();
+    window.addEventListener("focus", onFocus);
+
+    const id = setInterval(loadApproved, 60000); // optional minute refresh
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearInterval(id);
+    };
+  }, [loadApproved]);
 
   const openModal = (m) => setActiveModal(m);
   const closeModal = () => setActiveModal(null);
@@ -133,7 +144,7 @@ export default function Support() {
             >
               <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h1 className="text-4xl font-extrabold text-green-800 bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">
@@ -209,17 +220,20 @@ export default function Support() {
             <div className="text-gray-500">No feedbacks yet.</div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
-              {approvedFeedbacks.map((f) => (
-                <div key={f._id} className="p-4 rounded-xl bg-green-50 border border-green-100">
-                  <div className="flex items-center gap-2">
-                    <b>{f.name || "Anonymous"}</b>
-                    <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
-                      {"★".repeat(f.rating) + "☆".repeat(5 - f.rating)}
-                    </span>
+              {approvedFeedbacks.map((f) => {
+                const rating = Math.max(0, Math.min(5, Number(f.rating) || 0));
+                return (
+                  <div key={f._id} className="p-4 rounded-xl bg-green-50 border border-green-100">
+                    <div className="flex items-center gap-2">
+                      <b>{f.name || "Anonymous"}</b>
+                      <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
+                        {"★".repeat(rating) + "☆".repeat(5 - rating)}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-green-800">{f.feedback}</p>
                   </div>
-                  <p className="mt-2 text-green-800">{f.feedback}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -292,6 +306,9 @@ export default function Support() {
             <FeedbackForm
               onSuccess={(msg) => {
                 showToast(msg || "Thank you! Your feedback was submitted.");
+                // After new feedback is approved by admin later, page will auto-refresh on focus/interval.
+                // But we also refresh now in case your backend auto-approves some items.
+                loadApproved();
                 closeModal();
               }}
             />

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
 const MAX_FILES = 5;
@@ -19,14 +20,13 @@ const initial = {
   description: "",
 };
 
-export default function TicketSystem({ onSuccess }) {
+export default function TicketSystem() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState(initial);
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const [ticketNumber, setTicketNumber] = useState(null);
-
 
   const v = {
     name: (v) => (!v.trim() ? "Name is required" : ""),
@@ -58,7 +58,8 @@ export default function TicketSystem({ onSuccess }) {
     const err = name === "files" ? v.files(value) : v[name](value);
     setErrors((p) => ({ ...p, [name]: err }));
     return err;
-    };
+  };
+
   const validateAll = () => {
     const e = {
       name: v.name(formData.name),
@@ -77,7 +78,8 @@ export default function TicketSystem({ onSuccess }) {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
-  const handleBlur = (e) => validateField(e.target.name, formData[e.target.name]);
+  const handleBlur = (e) =>
+    validateField(e.target.name, formData[e.target.name]);
 
   const handleFileChange = (e) => {
     const next = Array.from(e.target.files || []);
@@ -95,7 +97,6 @@ export default function TicketSystem({ onSuccess }) {
     if (!validateAll()) return;
 
     setIsSubmitting(true);
-    setSubmitStatus(null);
     try {
       const fd = new FormData();
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
@@ -105,17 +106,14 @@ export default function TicketSystem({ onSuccess }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setTicketNumber(data?.ticketNumber);
-      setSubmitStatus({ type: "success", message: "Ticket created successfully!" });
-      setFormData(initial);
-      setFiles([]);
-      setErrors({});
-      onSuccess?.("Ticket created successfully!");
+      // 🚀 go to review page immediately
+      navigate(`/tickets/review/${data.ticket._id}`);
     } catch (error) {
-      setSubmitStatus({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to create ticket.",
-      });
+      setErrors((p) => ({
+        ...p,
+        form:
+          error?.response?.data?.message || "Failed to create ticket. Try again.",
+      }));
     } finally {
       setIsSubmitting(false);
     }
@@ -124,29 +122,17 @@ export default function TicketSystem({ onSuccess }) {
   return (
     <div>
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold text-green-800 mb-2">Raise a Support Ticket</h2>
-        <p className="text-green-600">Get dedicated help from our support team with a trackable ticket</p>
+        <h2 className="text-2xl font-semibold text-green-800 mb-2">
+          Raise a Support Ticket
+        </h2>
+        <p className="text-green-600">
+          Get dedicated help from our support team with a trackable ticket
+        </p>
       </div>
 
-      {submitStatus && (
-        <div
-          className={`p-4 rounded-2xl mb-6 ${
-            submitStatus.type === "success"
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : "bg-red-100 text-red-800 border border-red-200"
-          }`}
-        >
-          <div className="flex items-center">
-            <span className="mr-2">{submitStatus.type === "success" ? "✅" : "⚠️"}</span>
-            <div>
-              <p className="font-medium">{submitStatus.message}</p>
-              {ticketNumber && (
-                <p className="text-sm mt-1">
-                  Your ticket number: <span className="font-bold">{ticketNumber}</span>
-                </p>
-              )}
-            </div>
-          </div>
+      {errors.form && (
+        <div className="p-4 rounded-2xl mb-6 bg-red-100 text-red-800 border border-red-200">
+          {errors.form}
         </div>
       )}
 
@@ -154,7 +140,9 @@ export default function TicketSystem({ onSuccess }) {
         {/* name + email */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-green-700 mb-1">Full Name *</label>
+            <label className="block text-sm font-medium text-green-700 mb-1">
+              Full Name *
+            </label>
             <input
               name="name"
               value={formData.name}
@@ -162,10 +150,14 @@ export default function TicketSystem({ onSuccess }) {
               onBlur={handleBlur}
               className="w-full px-4 py-3 border border-green-200 rounded-2xl"
             />
-            {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-red-600 text-xs mt-1">{errors.name}</p>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-700 mb-1">Email Address *</label>
+            <label className="block text-sm font-medium text-green-700 mb-1">
+              Email Address *
+            </label>
             <input
               type="email"
               name="email"
@@ -174,13 +166,17 @@ export default function TicketSystem({ onSuccess }) {
               onBlur={handleBlur}
               className="w-full px-4 py-3 border border-green-200 rounded-2xl"
             />
-            {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-600 text-xs mt-1">{errors.email}</p>
+            )}
           </div>
         </div>
 
         {/* department */}
         <div>
-          <label className="block text-sm font-medium text-green-700 mb-1">Department *</label>
+          <label className="block text-sm font-medium text-green-700 mb-1">
+            Department *
+          </label>
           <select
             name="department"
             value={formData.department}
@@ -194,12 +190,16 @@ export default function TicketSystem({ onSuccess }) {
             <option value="billing">Billing & Payments</option>
             <option value="technical">Technical Issues</option>
           </select>
-          {errors.department && <p className="text-red-600 text-xs mt-1">{errors.department}</p>}
+          {errors.department && (
+            <p className="text-red-600 text-xs mt-1">{errors.department}</p>
+          )}
         </div>
 
         {/* subject */}
         <div>
-          <label className="block text-sm font-medium text-green-700 mb-1">Subject *</label>
+          <label className="block text-sm font-medium text-green-700 mb-1">
+            Subject *
+          </label>
           <input
             name="subject"
             value={formData.subject}
@@ -207,12 +207,16 @@ export default function TicketSystem({ onSuccess }) {
             onBlur={handleBlur}
             className="w-full px-4 py-3 border border-green-200 rounded-2xl"
           />
-          {errors.subject && <p className="text-red-600 text-xs mt-1">{errors.subject}</p>}
+          {errors.subject && (
+            <p className="text-red-600 text-xs mt-1">{errors.subject}</p>
+          )}
         </div>
 
         {/* description */}
         <div>
-          <label className="block text-sm font-medium text-green-700 mb-1">Description *</label>
+          <label className="block text-sm font-medium text-green-700 mb-1">
+            Description *
+          </label>
           <textarea
             name="description"
             value={formData.description}
@@ -221,7 +225,9 @@ export default function TicketSystem({ onSuccess }) {
             rows="5"
             className="w-full px-4 py-3 border border-green-200 rounded-2xl"
           />
-          {errors.description && <p className="text-red-600 text-xs mt-1">{errors.description}</p>}
+          {errors.description && (
+            <p className="text-red-600 text-xs mt-1">{errors.description}</p>
+          )}
         </div>
 
         {/* attachments */}
@@ -231,21 +237,41 @@ export default function TicketSystem({ onSuccess }) {
           </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-green-200 rounded-2xl">
             <div className="space-y-1 text-center">
-              <label htmlFor="ticket-file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-green-600">
+              <label
+                htmlFor="ticket-file-upload"
+                className="relative cursor-pointer bg-white rounded-md font-medium text-green-600"
+              >
                 <span>Upload files</span>
               </label>
-              <input id="ticket-file-upload" type="file" multiple className="sr-only" onChange={handleFileChange} />
+              <input
+                id="ticket-file-upload"
+                type="file"
+                multiple
+                className="sr-only"
+                onChange={handleFileChange}
+              />
               <p className="text-xs text-green-500">Max 10MB each</p>
             </div>
           </div>
-          {errors.files && <p className="text-red-600 text-xs mt-1">{errors.files}</p>}
+          {errors.files && (
+            <p className="text-red-600 text-xs mt-1">{errors.files}</p>
+          )}
 
           {files.length > 0 && (
             <ul className="mt-4 space-y-2">
               {files.map((file, index) => (
-                <li key={index} className="flex items-center justify-between bg-green-50 p-3 rounded-xl">
-                  <span className="text-sm text-green-600 truncate">{file.name}</span>
-                  <button type="button" onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">
+                <li
+                  key={index}
+                  className="flex items-center justify-between bg-green-50 p-3 rounded-xl"
+                >
+                  <span className="text-sm text-green-600 truncate">
+                    {file.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     ✕
                   </button>
                 </li>

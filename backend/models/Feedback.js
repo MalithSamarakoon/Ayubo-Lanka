@@ -8,9 +8,12 @@ const feedbackSchema = new mongoose.Schema(
     rating: { type: Number, min: 1, max: 5, required: true },
     feedback: { type: String, required: true },
     consent: { type: Boolean, default: false },
-    isApproved: { type: Boolean, default: false }, // ← NEW
+    // keep both flags for backwards compatibility
+    isApproved: { type: Boolean, default: false },
+    approved: { type: Boolean, default: false }, // legacy
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Feedback", feedbackSchema);
+export default mongoose.models.Feedback ||
+  mongoose.model("Feedback", feedbackSchema);
