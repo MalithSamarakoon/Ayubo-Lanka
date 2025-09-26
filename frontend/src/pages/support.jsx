@@ -40,19 +40,7 @@ export default function Support() {
     }
   }, []);
 
-  // initial load + refresh on focus + optional interval refresh
-  useEffect(() => {
-    loadApproved();
-
-    const onFocus = () => loadApproved();
-    window.addEventListener("focus", onFocus);
-
-    const id = setInterval(loadApproved, 60000); // optional minute refresh
-    return () => {
-      window.removeEventListener("focus", onFocus);
-      clearInterval(id);
-    };
-  }, [loadApproved]);
+ 
 
   const openModal = (m) => setActiveModal(m);
   const closeModal = () => setActiveModal(null);

@@ -1,14 +1,10 @@
-// backend/routes/supportRoutes.js
 import express from "express";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import Support from "../models/Support.js";
-import {
-  sendInquiryApprovedEmail,
-  sendInquiryRejectedEmail,
-} from "../mailer.js";
+import { sendInquiryStatusEmail } from "../mailer.js";
 
 const router = express.Router();
 
@@ -19,6 +15,16 @@ const __dirname = path.dirname(__filename);
 const uploadRoot = path.join(__dirname, "..", "uploads", "support");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
+// ---- upload config ----
+const ALLOWED = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadRoot),
   filename: (_req, file, cb) => {
@@ -26,7 +32,19 @@ const storage = multer.diskStorage({
     cb(null, "file-" + unique + path.extname(file.originalname || ""));
   },
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+const fileFilter = (_req, file, cb) => {
+  if (!ALLOWED.has(file.mimetype)) {
+    return cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE", `Unsupported file type: ${file.mimetype}`));
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024, files: 5 }, // 10MB/file, max 5
+});
 
 const unlinkSafe = async (abs) => { try { await fs.promises.unlink(abs); } catch {} };
 const parseKeep = (v) => {
@@ -34,6 +52,11 @@ const parseKeep = (v) => {
   try { const a = JSON.parse(v); return Array.isArray(a) ? a.filter(Boolean) : []; }
   catch { return String(v).split(",").map(s => s.trim()).filter(Boolean); }
 };
+const toAttachments = (files) =>
+  (files || []).slice(0, 5).map(f => ({
+    filename: f.originalName || f.filename,
+    path: path.join(uploadRoot, f.filename),
+  }));
 
 // CREATE
 router.post("/inquiry", upload.array("files", 5), async (req, res) => {
@@ -114,39 +137,48 @@ router.put("/inquiry/:id", upload.array("files", 5), async (req, res) => {
   }
 });
 
-// APPROVE (send email)
+// APPROVE / REJECT (email with attachments + pretty HTML)
 router.patch("/inquiry/:id/approve", async (req, res) => {
   try {
-    const next = "approved" in req.body ? !!req.body.approved : !!req.body.isApproved;
+    const next = !!req.body.isApproved;
     const inquiry = await Support.findByIdAndUpdate(
       req.params.id,
-      { isApproved: next },
-      { new: true }
-    );
-    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
-
-    if (inquiry.email && next) {
-      await sendInquiryApprovedEmail(inquiry.email, inquiry.name, inquiry);
-    }
-    res.json({ message: "Inquiry approval updated", inquiry });
-  } catch (e) {
-    console.error("Approve inquiry error:", e);
-    res.status(500).json({ message: "Server error", error: e.message });
-  }
-});
-
-// REJECT (optional) — sets status closed + email
-router.patch("/inquiry/:id/reject", async (req, res) => {
-  try {
-    const inquiry = await Support.findByIdAndUpdate(
-      req.params.id,
-      { status: "resolved", isApproved: false }, // or use a dedicated "closed" status if you prefer
+      { $set: { isApproved: next } },
       { new: true }
     );
     if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
 
     if (inquiry.email) {
-      await sendInquiryRejectedEmail(inquiry.email, inquiry.name, inquiry);
+      const attachments = toAttachments(inquiry.files);
+      const links = (inquiry.files || []).map(f => `${process.env.APP_BASE_URL || ""}${f.path}`);
+      await sendInquiryStatusEmail(inquiry.email, inquiry.name, inquiry.toObject(), next ? "approved" : "rejected", {
+        attachments,
+        links,
+      });
+    }
+
+    res.json({ message: "Inquiry approval updated", inquiry });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+router.patch("/inquiry/:id/reject", async (req, res) => {
+  try {
+    const inquiry = await Support.findByIdAndUpdate(
+      req.params.id,
+      { isApproved: false, status: "resolved" },
+      { new: true }
+    );
+    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
+
+    if (inquiry.email) {
+      const attachments = toAttachments(inquiry.files);
+      const links = (inquiry.files || []).map(f => `${process.env.APP_BASE_URL || ""}${f.path}`);
+      await sendInquiryStatusEmail(inquiry.email, inquiry.name, inquiry.toObject(), "rejected", {
+        attachments,
+        links,
+      });
     }
     res.json({ message: "Inquiry rejected", inquiry });
   } catch (e) {
@@ -164,6 +196,19 @@ router.delete("/inquiry/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
+});
+
+// ---- Multer error handler to prevent crashes ----
+router.use((err, _req, res, _next) => {
+  if (err instanceof multer.MulterError) {
+    const msg =
+      err.code === "LIMIT_FILE_SIZE"   ? "File too large (max 10MB)" :
+      err.code === "LIMIT_FILE_COUNT"  ? "Too many files (max 5)" :
+      err.code === "LIMIT_UNEXPECTED_FILE" ? "Unsupported file type" :
+      "Upload error";
+    return res.status(400).json({ message: msg, error: err.message });
+  }
+  return res.status(500).json({ message: "Server error", error: err?.message || String(err) });
 });
 
 export default router;

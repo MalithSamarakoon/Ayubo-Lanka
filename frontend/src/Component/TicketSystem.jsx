@@ -19,6 +19,23 @@ const initial = {
   subject: "",
   description: "",
 };
+<input
+  id="ticket-file-upload"
+  type="file"
+  multiple
+  className="sr-only"
+  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  onChange={(e) => {
+    try {
+      const next = Array.from(e.target.files || []);
+      setFiles(next);
+      validateField("files", next);
+    } catch (err) {
+      console.error("ticket file select error:", err);
+    }
+  }}
+/>
+
 
 export default function TicketSystem() {
   const navigate = useNavigate();

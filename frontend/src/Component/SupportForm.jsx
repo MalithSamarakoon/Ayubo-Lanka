@@ -14,6 +14,23 @@ const initial = {
   subject: "",
   message: "",
 };
+<input
+  id="support-file-upload"
+  type="file"
+  multiple
+  className="sr-only"
+  accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+  onChange={(e) => {
+    try {
+      const next = Array.from(e.target.files || []);
+      setFiles(next);
+      validateField("files", next);
+    } catch (err) {
+      console.error("support file select error:", err);
+    }
+  }}
+/>
+
 
 export default function SupportForm() {
   const navigate = useNavigate();

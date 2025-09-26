@@ -55,6 +55,14 @@ app.use('/api/patients', patientRouter);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/tickets', ticketRoutes);
+//----global error handler-----
+app.use((err, req, res, next) => {
+  console.error("GLOBAL ERROR:", err);
+  if (err.type === "entity.too.large") {
+    return res.status(413).json({ message: "Payload too large" });
+  }
+  res.status(500).json({ message: "Server error", error: err?.message || String(err) });
+});
 
 // --- 404 Helper ---
 app.use((req, res) => {
