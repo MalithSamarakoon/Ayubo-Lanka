@@ -16,24 +16,24 @@ const BookingSummary = ({
       </h3>
       <div className="space-y-3 text-gray-700">
         <div className="flex justify-between items-center py-2">
-          <span className="text-green-700 font-medium">Doctor:</span>
+          <span className="text-black-700 font-medium">Doctor:</span>
           <span className="font-semibold text-gray-800">
             Dr. {docInfo.name}
           </span>
         </div>
         <div className="flex justify-between items-center py-2">
-          <span className="text-green-700 font-medium">Date:</span>
+          <span className="text-black-700 font-medium">Date:</span>
           <span className="font-semibold text-gray-800">
             {selectedSlot?.fullDate}
           </span>
         </div>
         <div className="flex justify-between items-center py-2">
-          <span className="text-green-700 font-medium">Time:</span>
+          <span className="text-black-700 font-medium">Time:</span>
           <span className="font-semibold text-gray-800">{selectedTime}</span>
         </div>
         <div className="flex justify-between items-center pt-3 border-t-2 border-gradient-to-r from-green-200 to-emerald-200">
-          <span className="font-bold text-emerald-700">Consultation Fee:</span>
-          <span className="font-bold text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <span className="font-bold text-black-700">Consultation Fee:</span>
+          <span className="font-bold  text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             Rs. {docInfo.fees}.00
           </span>
         </div>

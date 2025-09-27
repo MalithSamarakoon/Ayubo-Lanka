@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   User,
@@ -11,111 +11,186 @@ import {
   X,
   CreditCard,
   AlertTriangle,
+  Loader,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const PatientDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { docId } = useParams();
 
-  const patient = location.state; // incoming patient data from PatientForm
+  const [patient, setPatient] = useState(location.state);
+  const [loading, setLoading] = useState(!location.state);
+  const [error, setError] = useState(null);
 
-  // If backend didn't provide bookingId, generate one
   const bookingId =
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
+  const appointmentId = patient?._id || null;
+  const appointmentNo = patient?.id ?? null;
 
-  if (!patient) {
+  // Fetch patient data if not in location.state or if we need updated data
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!location.state && patient?._id) {
+        try {
+          setLoading(true);
+          const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+          const res = await fetch(`${base}/api/patients/${patient._id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPatient(data);
+          } else {
+            setError("Failed to fetch patient data");
+          }
+        } catch (err) {
+          setError("Error fetching patient data");
+          console.error("Fetch patient error:", err);
+        } finally {
+          setLoading(false);
+        }
+      } else if (location.state) {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [location.state, patient?._id]);
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50 flex items-center justify-center p-4">
-        <div className="bg-white shadow-2xl rounded-2xl border border-red-200 p-8 max-w-md w-full text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <AlertTriangle className="w-10 h-10 text-red-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            No Patient Data Found
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Please insert patient details first to continue with your Ayurveda
-            consultation.
-          </p>
-          <div className="w-16 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center">
+          <Loader className="w-8 h-8 animate-spin text-emerald-600 mb-4" />
+          <p className="text-gray-600">Loading patient details...</p>
         </div>
       </div>
     );
   }
 
+  if (error || !patient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white shadow-2xl rounded-2xl border border-red-200 p-8 max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <AlertTriangle className="w-10 h-10 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            {error || "No Patient Data Found"}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {error || "Please insert patient details first to continue."}
+          </p>
+          <button
+            onClick={() => navigate(`/doctor/${docId}/book/patientform`)}
+            className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+          >
+            Create New Patient
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   const handleUpdate = () => {
-    navigate(`/doctor/${docId}/book/patientupdate`, { state: patient });
+    navigate(`/doctor/${docId}/book/patientupdate`, {
+      state: patient,
+      onUpdate: (updatedPatient) => setPatient(updatedPatient),
+    });
   };
 
   const handleCancel = async () => {
     try {
-      await fetch(`http://localhost:3000/api/patients/${patient.id}`, {
+      const pid = patient.id || patient._id;
+      if (!pid) throw new Error("No patient id found");
+      const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+      const res = await fetch(`${base}/api/patients/${pid}`, {
         method: "DELETE",
       });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Failed to cancel");
       alert("Appointment cancelled successfully");
       navigate(`/doctor/${docId}`);
-    } catch {
-      alert("Failed to cancel appointment");
+    } catch (e) {
+      alert(e.message || "Failed to cancel appointment");
     }
   };
 
   const handlePay = () => {
-    navigate(`/doctor/${docId}/book/payment`, {
-      state: { ...patient, bookingId },
+    if (!patient._id) {
+      alert(
+        "Patient ID is missing. Please try updating the patient details again."
+      );
+      return;
+    }
+
+    navigate(`/onlinepayment`, {
+      state: {
+        docId,
+        bookingId,
+        name: patient.name,
+        phone: patient.phone,
+        email: patient.email,
+        amount: patient.amount,
+        appointmentId: patient._id, 
+        appointmentNo: patient.id,
+        patientData: patient,
+      },
+      replace: true,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-25 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Ayurveda Medical Center Header */}
-        <div className="bg-white shadow-xl rounded-2xl border border-green-100 mb-8 overflow-hidden">
-          <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center shadow-lg">
-                  <FileText className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white">
-                    Patient Appointment Details
-                  </h1>
-                  <p className="text-green-100 text-sm font-medium">
-                    Ayurveda Medical Center - Natural Healing
-                  </p>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/30 py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+        className="max-w-4xl w-full mx-auto bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
+      >
+        {/* Header */}
+        <div className="px-6 md:px-8 py-6 bg-gradient-to-r from-green-400 to-emerald-500">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                <FileText className="w-7 h-7 text-white" />
               </div>
-              <div className="text-right">
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
-                  <p className="text-xs text-green-100 uppercase tracking-wider font-semibold">
-                    Booking ID
-                  </p>
-                  <p className="text-yellow-300 font-mono font-bold text-lg">
-                    {bookingId}
-                  </p>
-                </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  Patient Appointment Details
+                </h1>
+                <p className="text-white/90 text-sm font-medium">
+                  Ayurveda Medical Center
+                </p>
               </div>
             </div>
+
+           
           </div>
         </div>
 
-        {/* Patient Information Card */}
-        <div className="bg-white shadow-xl rounded-2xl border border-green-100 mb-8 overflow-hidden">
-          <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-emerald-50 to-green-50">
+        {/* Content */}
+        <div className="bg-white">
+          {/* Patient info heading */}
+          <div className="px-6 md:px-8 py-5 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
             <h2 className="text-xl font-bold text-gray-800 flex items-center">
               <User className="w-6 h-6 text-emerald-600 mr-3" />
               Patient Information
             </h2>
           </div>
 
-          <div className="p-8">
-            {/* Basic Info Grid */}
+          {/* Patient info grid */}
+          <div className="px-6 md:px-8 py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
                   <User className="w-5 h-5 text-emerald-600" />
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
                     Full Name
                   </span>
                 </div>
@@ -124,10 +199,10 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-teal-100 p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-gradient-to-br from-green-50 to-teal-100 p-5 rounded-xl border border-green-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
                   <Calendar className="w-5 h-5 text-green-600" />
-                  <span className="text-xs font-bold text-green-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-green-700 uppercase tracking-wider">
                     Age
                   </span>
                 </div>
@@ -136,10 +211,10 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-teal-50 to-emerald-100 p-5 rounded-xl border border-teal-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-gradient-to-br from-teal-50 to-emerald-100 p-5 rounded-xl border border-teal-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
                   <Phone className="w-5 h-5 text-teal-600" />
-                  <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wider">
                     Phone
                   </span>
                 </div>
@@ -148,10 +223,10 @@ const PatientDetails = () => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-gradient-to-br from-emerald-50 to-green-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
                   <Mail className="w-5 h-5 text-emerald-600" />
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
                     Email
                   </span>
                 </div>
@@ -161,9 +236,9 @@ const PatientDetails = () => {
               </div>
             </div>
 
-            {/* Address Section */}
+            {/* Address */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-6 rounded-xl mb-8 shadow-sm">
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-6 h-6 text-green-600" />
                 <span className="text-sm font-bold text-green-800 uppercase tracking-wider">
                   Address
@@ -174,9 +249,9 @@ const PatientDetails = () => {
               </p>
             </div>
 
-            {/* Medical Information */}
+            {/* Medical Info */}
             <div className="bg-gradient-to-r from-teal-50 to-green-50 border border-teal-200 p-6 rounded-xl shadow-sm">
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <FileText className="w-6 h-6 text-teal-600" />
                 <span className="text-sm font-bold text-teal-800 uppercase tracking-wider">
                   Medical Information for Ayurveda Treatment
@@ -187,46 +262,48 @@ const PatientDetails = () => {
               </p>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden">
-          <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-emerald-50 to-green-50">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full mr-3"></div>
-              Available Actions
-            </h3>
-          </div>
+          {/* Actions */}
+          <div className="px-6 md:px-8 pb-8">
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl overflow-hidden">
+              <div className="px-6 md:px-8 py-5 border-b border-emerald-100">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full mr-3"></span>
+                  Available Actions
+                </h3>
+              </div>
 
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button
-                onClick={handleUpdate}
-                className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Edit className="w-5 h-5 mr-3" />
-                Update Details
-              </button>
+              <div className="p-6 md:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <button
+                    onClick={handleUpdate}
+                    className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    <Edit className="w-5 h-5 mr-3" />
+                    Update Details
+                  </button>
 
-              <button
-                onClick={handleCancel}
-                className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <X className="w-5 h-5 mr-3" />
-                Cancel Appointment
-              </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    <X className="w-5 h-5 mr-3" />
+                    Cancel Appointment
+                  </button>
 
-              <button
-                onClick={handlePay}
-                className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <CreditCard className="w-5 h-5 mr-3" />
-                Proceed to Payment
-              </button>
+                  <button
+                    onClick={handlePay}
+                    className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    <CreditCard className="w-5 h-5 mr-3" />
+                    Proceed to Payment
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

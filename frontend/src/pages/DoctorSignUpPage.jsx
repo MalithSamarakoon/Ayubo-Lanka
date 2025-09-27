@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, Lock, Mail, Phone, User, FileText } from "lucide-react";
+import {
+  Loader,
+  Lock,
+  Mail,
+  Phone,
+  User,
+  FileText,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
@@ -52,14 +61,12 @@ const DoctorSignUpPage = () => {
 
     setValidationError("");
 
-    // Prefix "Dr." to name (avoid double prefixing)
     const cleanedName = name.trim();
     const prefixedName = /^dr\.?\s*/i.test(cleanedName)
       ? cleanedName.replace(/^dr\.?\s*/i, "Dr. ")
       : `Dr. ${cleanedName}`;
 
     try {
-      // Only pass essential fields for signup
       await signup({
         role: "DOCTOR",
         name: prefixedName,
@@ -94,6 +101,7 @@ const DoctorSignUpPage = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <Input
             icon={FileText}
@@ -101,9 +109,9 @@ const DoctorSignUpPage = () => {
             placeholder="Doctor License Number"
             value={doctorLicenseNumber}
             onChange={(e) => setDoctorLicenseNumber(e.target.value)}
+            required
           />
 
-          {/* Specialization: Patient-friendly dropdown styled like other inputs */}
           <div className="mb-4 relative">
             <FileText
               className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
@@ -126,7 +134,6 @@ const DoctorSignUpPage = () => {
               <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
             </select>
           </div>
-          {/* End specialization dropdown */}
 
           <Input
             icon={Mail}
@@ -134,6 +141,7 @@ const DoctorSignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input
             icon={Phone}
@@ -141,6 +149,7 @@ const DoctorSignUpPage = () => {
             placeholder="Mobile Number (10 digits)"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
+            required
           />
           <Input
             icon={Lock}
@@ -148,20 +157,27 @@ const DoctorSignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
+            required
           />
+
           <Input
             icon={Lock}
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
+            required
           />
 
-          {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2">
-              {validationError || error}
-            </p>
-          )}
+          <center>
+            {(validationError || error) && (
+              <p className="text-red-500 font-semibold mt-2">
+                {validationError || error}
+              </p>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 
@@ -180,14 +196,16 @@ const DoctorSignUpPage = () => {
           </motion.button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
-        <p className="text-sm text-gray-600">
-          Already registered?{" "}
-          <Link to={"/login"} className="text-green-500 hover:underline">
-            Login
-          </Link>
-        </p>
-      </div>
+      <center>
+        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
+          <p className="text-sm text-gray-600">
+            Already registered?{" "}
+            <Link to={"/login"} className="text-green-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </center>
     </motion.div>
   );
 };

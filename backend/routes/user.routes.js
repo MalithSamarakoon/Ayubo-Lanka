@@ -6,9 +6,14 @@ import {
   updateUser,
   deleteUser,
   updateDoctorProfile,
+<<<<<<< HEAD
+=======
+  getRoleStats, 
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 } from "../controllers/user.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
+<<<<<<< HEAD
 // Try to import verifyAdmin, but provide a fallback if it doesn't exist
 let verifyAdmin;
 try {
@@ -43,3 +48,16 @@ userRouter.patch("/approve/:id", verifyAdmin, approveUser); // Only admin can ap
 userRouter.patch("/doctor/profile", updateDoctorProfile);
 
 export default userRouter;
+=======
+const userRouter = express.Router();
+
+userRouter.get("/users", getAllUsers);
+userRouter.get("/role-stats", getRoleStats);
+userRouter.get("/:id", getUserById);
+userRouter.patch("/:id", updateUser);
+userRouter.delete("/:id", deleteUser);
+userRouter.patch("/approve/:id", approveUser);
+userRouter.patch("/doctor/profile", updateDoctorProfile);
+
+export default userRouter;
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779

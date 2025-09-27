@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 import {
   useReactTable,
@@ -11,7 +13,8 @@ import {
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import UpdateUserModal from "../Component/UpdateUserModal";
+import UpdateUserModal from "./UpdateUserModal";
+import { ArrowLeft } from "lucide-react";
 
 const URL = "http://localhost:5000/api/user/users";
 
@@ -22,8 +25,10 @@ function UserMgt() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [editingId, setEditingId] = useState(null); // <- add
-  const [isModalOpen, setIsModalOpen] = useState(false); // <- add
+  const [editingId, setEditingId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [roleFilter, setRoleFilter] = useState("all");
 
   // Fetch users
   useEffect(() => {
@@ -48,22 +53,22 @@ function UserMgt() {
     fetchHandler();
   }, []);
 
-  const downloadUserReport = () => {
-    // Landscape A4 in points (pt)
+  const downloadUserReport = (roleFilter = null) => {
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "pt",
       format: "A4",
     });
 
-    // ------- Header (brand/title/date) -------
-    const marginX = 48; // left/right padding
+    const marginX = 48;
     const marginTop = 60;
     const lineY = marginTop + 22;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("User Management Report", marginX, marginTop);
+    let title = "User Management Report";
+    if (roleFilter) title = `${roleFilter} Report`;
+    doc.text(title, marginX, marginTop);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -71,13 +76,10 @@ function UserMgt() {
     const dateStr = now.toLocaleString();
     doc.text(`Generated: ${dateStr}`, marginX, marginTop + 16);
 
-    // divider line under header
     doc.setDrawColor(180);
     doc.setLineWidth(0.8);
     doc.line(marginX, lineY, doc.internal.pageSize.getWidth() - marginX, lineY);
 
-    // ------- Table -------
-    // Define the columns you want in the PDF:
     const head = [
       [
         "#",
@@ -93,9 +95,15 @@ function UserMgt() {
       ],
     ];
 
-    // Use your filteredData so search applies
-    const body = filteredData.map((u, idx) => [
-      idx + 1, // index
+    // filter data by role
+    const dataToExport = roleFilter
+      ? filteredData.filter(
+          (u) => (u.role || "").toLowerCase() === roleFilter.toLowerCase()
+        )
+      : filteredData;
+
+    const body = dataToExport.map((u, idx) => [
+      idx + 1,
       u.name || "-",
       u.email || "-",
       u.role || "-",
@@ -119,13 +127,12 @@ function UserMgt() {
         overflow: "linebreak",
       },
       headStyles: {
-        fillColor: [16, 185, 129], // emerald-ish
+        fillColor: [16, 185, 129],
         textColor: 255,
         halign: "left",
       },
       alternateRowStyles: { fillColor: [245, 245, 245] },
       didDrawPage: (data) => {
-        // Footer (page number)
         const pageCount = doc.getNumberOfPages();
         const pageSize = doc.internal.pageSize;
         const pageWidth = pageSize.getWidth();
@@ -146,16 +153,15 @@ function UserMgt() {
       },
     });
 
-    // ------- Save -------
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
     const dd = String(now.getDate()).padStart(2, "0");
-    doc.save(`User_Report_${yyyy}-${mm}-${dd}.pdf`);
+
+    const rolePart = roleFilter ? `_${roleFilter}` : "_All";
+    doc.save(`User_Report${rolePart}_${yyyy}-${mm}-${dd}.pdf`);
   };
 
-  // ---------------- Handlers ---------------- //
-
-  // Approve or Reject
+  // approval
   const handleApprovalChange = async (userId, approved) => {
     setUsers((prev) =>
       prev.map((u) => (u._id === userId ? { ...u, isApproved: approved } : u))
@@ -163,25 +169,37 @@ function UserMgt() {
 
     try {
       await axios.patch(`http://localhost:5000/api/user/approve/${userId}`);
+      toast.success("User approval updated");
     } catch (err) {
       console.error("Error updating approval:", err);
+      toast.error("Failed to update approval. Please try again.");
     }
   };
 
-  // Delete user
   const handleDelete = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete this account?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:5000/api/user/${userId}`);
+          Swal.fire("Deleted!", "Account deleted successfully.", "success");
 
-    setUsers((prev) => prev.filter((u) => u._id !== userId));
-
-    try {
-      await axios.delete(`http://localhost:5000/api/user/${userId}`);
-    } catch (err) {
-      console.error("Error deleting user:", err);
-    }
+          setUsers((prev) => prev.filter((u) => u._id !== userId));
+        } catch (err) {
+          console.error("Error deleting user:", err);
+          Swal.fire("Error!", "Failed to delete account. Try again.", "error");
+        }
+      }
+    });
   };
 
-  // Update user
   const handleUpdate = (user) => {
     setEditingId(user._id);
     setIsModalOpen(true);
@@ -193,11 +211,19 @@ function UserMgt() {
     );
   };
 
-  // ---------------- Search ---------------- //
+  //filteredData and roles
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) return users;
+    const base =
+      roleFilter === "all"
+        ? users
+        : users.filter(
+            (u) => (u.role || "").toString().toLowerCase() === roleFilter
+          );
+
+    if (!searchTerm.trim()) return base;
     const q = searchTerm.toLowerCase();
-    return users.filter((u) => {
+
+    return base.filter((u) => {
       const role = (u.role || "").toString().toLowerCase();
       const name = (u.name || "").toLowerCase();
       const email = (u.email || "").toLowerCase();
@@ -217,9 +243,8 @@ function UserMgt() {
         cat.includes(q)
       );
     });
-  }, [users, searchTerm]);
+  }, [users, searchTerm, roleFilter]);
 
-  // ---------------- Columns ---------------- //
   const columns = useMemo(
     () => [
       {
@@ -312,7 +337,6 @@ function UserMgt() {
     []
   );
 
-  // ---------------- Table ---------------- //
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -327,18 +351,44 @@ function UserMgt() {
   return (
     <div className="min-h-screen w-full bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-extrabold mb-6 text-center bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
-          User Management
-        </h1>
+        <div className="mb-6 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/admin-dashboard")}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+            aria-label="Back to Dashboard"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md flex-1">
+            User Management
+          </h1>
+        </div>
 
-        <div className="mb-6 flex justify-center">
+        {/* Search + Role Filter side by side */}
+        <div className="mb-6 flex flex-col md:flex-row items-stretch md:items-center gap-3">
           <input
             type="text"
             placeholder="Search users by any field..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-2xl px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-500 transition"
+            className="w-full md:flex-1 px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-500 transition"
           />
+
+          {/*Role filter dropdown */}
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+            }}
+            className="w-full md:w-60 px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 transition"
+          >
+            <option value="all">All Roles</option>
+            <option value="user">User</option>
+            <option value="doctor">Doctor</option>
+            <option value="supplier">Supplier</option>
+          </select>
         </div>
 
         <div className="overflow-x-auto rounded-2xl shadow-2xl border border-gray-200 bg-white/70 backdrop-blur-md">
@@ -408,7 +458,6 @@ function UserMgt() {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-sm text-gray-600">
             Page{" "}
@@ -461,12 +510,29 @@ function UserMgt() {
             </select>
           </div>
         </div>
-        <button
-          onClick={downloadUserReport}
-          className="mt-6 w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
-        >
-          Download User Report
-        </button>
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => downloadUserReport("user")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-xl shadow-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition"
+          >
+            Download User Report
+          </button>
+
+          <button
+            onClick={() => downloadUserReport("doctor")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+          >
+            Download Doctor Report
+          </button>
+
+          <button
+            onClick={() => downloadUserReport("supplier")}
+            className="flex-1 py-3 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition"
+          >
+            Download Supplier Report
+          </button>
+        </div>
 
         <UpdateUserModal
           id={editingId}

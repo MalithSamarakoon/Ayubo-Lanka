@@ -46,8 +46,12 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+<<<<<<< HEAD
 
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
+=======
+        <NavLink to="/Collection" className="flex flex-col items-center gap-1">
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           {({ isActive }) => (
             <>
               <p>COLLECTION</p>
@@ -108,6 +112,7 @@ const Navbar = () => {
         <div className="group relative">
           <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
+<<<<<<< HEAD
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
               {user ? (
                 <>
@@ -131,6 +136,35 @@ const Navbar = () => {
                   </p>
                 </>
               )}
+=======
+            <div className="flex flex-col gap-2 w-46 py-3 px-5 bg-slate-100 text-gray-500 rounded">
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={() => navigate("/dashboard")}
+              >
+                My Profile
+              </p>
+
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={() => navigate("/my_appoinments")}
+              >
+                My Appointments
+              </p>
+
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={() => navigate("/orders")}
+              >
+                Orders
+              </p>
+              <p
+                className="cursor-pointer hover:text-black"
+                onClick={handleLogout}
+              >
+                Logout
+              </p>
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
             </div>
           </div>
         </div>

@@ -8,12 +8,10 @@ export const generateTokenAndSetCookie = (res, user) => {
     email: user.email,
   };
 
-  // Sign the token
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: "15d",
   });
 
-  // Define cookie options
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

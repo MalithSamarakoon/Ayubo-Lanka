@@ -3,8 +3,10 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Input from "../components/Input";
-import { User, Mail, Phone, DollarSign } from "lucide-react"; // icons
+import { User, Mail, Phone, DollarSign, ArrowLeft } from "lucide-react";
 import Loader from "../components/LoadingSpinner";
+import { toast } from "react-hot-toast";
+
 
 function UpdateUser() {
   const { id } = useParams();
@@ -28,8 +30,8 @@ function UpdateUser() {
         const res = await axios.get(`http://localhost:5000/api/user/${id}`);
         if (res.data.user) {
           const userData = res.data.user;
-           console.log("User Data:", userData);
-          setUserRole(userData.role); // Set user role
+          console.log("User Data:", userData);
+          setUserRole(userData.role);
           setInputs({
             name: userData.name || "",
             email: userData.email || "",
@@ -47,21 +49,39 @@ function UpdateUser() {
     fetchHandler();
   }, [id]);
 
-  console.log("User Role:", userRole); // Debugging line
-
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!/^\d{10}$/.test(inputs.mobile)) {
+      toast.error("Mobile number must be exactly 10 digits");
+      return;
+    }
+    if (userRole === "DOCTOR") {
+      if (Number(inputs.consultationFee) <= 0) {
+        toast.error("Consultation fee must be a positive number");
+        return;
+      }
+      if (Number(inputs.experience) <= 0) {
+        toast.error("Experience must be a positive number");
+        return;
+      }
+    }
     setIsLoading(true);
     console.log("Submitting data:", inputs);
     try {
-      await axios.patch(`http://localhost:5000/api/user/${id}`, {...inputs, role: userRole});
+      await axios.patch(`http://localhost:5000/api/user/${id}`, {
+        ...inputs,
+        role: userRole,
+      });
+      toast.success("User updated successfully");
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Update failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +95,14 @@ function UpdateUser() {
       transition={{ duration: 0.5 }}
       className="max-w-md w-full mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl border border-gray-200"
     >
+      <button
+        type="button"
+        onClick={() => navigate("/dashboard")}
+        className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-green-600"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
       <div className="flex flex-col items-center text-center mb-6">
         <motion.div
           initial={{ scale: 0.8 }}
@@ -87,7 +115,9 @@ function UpdateUser() {
         <h1 className="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 text-transparent bg-clip-text">
           Update Profile
         </h1>
-        <p className="text-gray-500 mt-1">Edit your personal information below</p>
+        <p className="text-gray-500 mt-1">
+          Edit your personal information below
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,7 +146,6 @@ function UpdateUser() {
           onChange={handleChange}
         />
 
-        {/* Show doctor-specific fields only for doctors */}
         {userRole === "DOCTOR" && (
           <>
             <Input
@@ -128,14 +157,13 @@ function UpdateUser() {
               onChange={handleChange}
             />
 
-
             <input
-            type="number"
-            name="experience"
-            placeholder="Experience (in years)"
-            value={inputs.experience}
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg border border-gray-300 mt-1 placeholder-gray-400 text-gray-700"
+              type="number"
+              name="experience"
+              placeholder="Experience (in years)"
+              value={inputs.experience}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg border border-gray-300 mt-1 placeholder-gray-400 text-gray-700"
             />
 
             <textarea

@@ -12,7 +12,13 @@ body {
   background: #fff;
 }
 
+<<<<<<< HEAD
 
 a.active span:last-child {
   opacity: 1 !important;
+=======
+/* active nav underline */
+a.active span:last-child {
+  opacity: 1 !important;
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 }

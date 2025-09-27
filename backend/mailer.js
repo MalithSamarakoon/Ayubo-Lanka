@@ -3,7 +3,6 @@ import "dotenv/config";
 import { VERIFICATION_EMAIL } from "./verification.js";
 import { RESET_PASSWORD_EMAIL } from "./resetPassword.js";
 
-// Create Nodemailer transporter using Gmail
 export const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -12,7 +11,6 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-// ------------------ Verification Email ------------------
 export const sendVerificationEmail = async (
   toEmail,
   userName,
@@ -25,15 +23,12 @@ export const sendVerificationEmail = async (
       subject: "Verify Your Email Address",
       html: VERIFICATION_EMAIL(userName, verificationCode),
     });
-
-    console.log(`Verification email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending verification email:", error);
     throw new Error(`Error sending verification email: ${error.message}`);
   }
 };
 
-// ------------------ Welcome Email ------------------
 export const sendWelcomeEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
@@ -47,13 +42,11 @@ export const sendWelcomeEmail = async (toEmail, userName) => {
         <p>Best regards,<br/>AYUBO LANKA Team</p>
       `,
     });
-    console.log(`Welcome email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending welcome email:", error);
   }
 };
 
-// ------------------ Password Reset Emails ------------------
 export const sendPasswordResetEmail = async (
   toEmail,
   resetURL,
@@ -74,6 +67,34 @@ export const sendPasswordResetEmail = async (
   }
 };
 
+export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Appointment Has Been Approved – AYUBO LANKA",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height:1.6">
+          <h2>Appointment Approved</h2>
+          <p>Hello ${userName || "Customer"},</p>
+          <p>Your appointment has been <strong>approved</strong>.</p>
+          <p><strong>Booking ID:</strong> ${bookingId ? "#" + bookingId : "N/A"}</p>
+          <p>We look forward to seeing you.</p>
+          <p style="margin-top:16px">
+            Best regards,<br/>
+            AYUBO LANKA Team
+          </p>
+        </div>
+      `,
+    });
+    console.log(`Appointment approval email sent to ${toEmail}`);
+  } catch (error) {
+    console.error("Error sending appointment approval email:", error);
+   
+  }
+};
+
+
 export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
@@ -93,7 +114,6 @@ export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   }
 };
 
-// ------------------ Admin Notification for Approval ------------------
 export const sendAdminApprovalRequestEmail = async (userName, userRole) => {
   try {
     await transporter.sendMail({
@@ -115,7 +135,6 @@ export const sendAdminApprovalRequestEmail = async (userName, userRole) => {
   }
 };
 
-// ------------------ User Approval Email ------------------
 export const sendUserApprovedEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({

@@ -27,6 +27,10 @@ import UserMgt from "./pages/UserMgt";
 import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
 import UpdateUser from "./pages/UpdateUser";
+import UploadSlip from "./pages/UploadSlip";
+import CheckAppoinments from "./pages/CheckAppoinments";
+import MyAppoinment from "./pages/MyAppoinment";
+import Footer from "./Component/Fotter";
 import Collection from "./pages/Collection";
 import ProductDetail from "./pages/ProductDetail";
 import OrderForm from "./pages/OrderForm";
@@ -37,22 +41,25 @@ import OrderDisplay from "./pages/OrderDisplay";
 import { useAuthStore } from "./store/authStore";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
 
-// Protected route: only authenticated and verified users can access
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
-
   return children;
 };
 
+<<<<<<< HEAD
 // Redirect authenticated users away from auth pages → to /home
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated && user?.isVerified) return <Navigate to="/home" replace />;
 
+=======
+const RedirectAuthenticatedUser = ({ children }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  if (isAuthenticated && user?.isVerified) return <Navigate to="/" replace />;
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
   return children;
 };
 
@@ -66,6 +73,7 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
       <Navbar />
 
@@ -169,6 +177,24 @@ function App() {
           />
 
           {/* Role Selection & Signups */}
+=======
+    <div className="min-h-screen  w-full bg-white relative">
+      <Navbar />
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+
+          {/* Dashboards */}
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-management" element={<UserMgt />} />
+          <Route path="/dashboard/:id" element={<UpdateUser />} />
+          <Route path="/product-dashboard" element={<ProductDashboard />} />
+          <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
+          <Route path="/my_appoinments" element={<MyAppoinment />} />
+
+          {/* Role selection & sign-ups */}
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           <Route
             path="/signup"
             element={
@@ -221,8 +247,9 @@ function App() {
             }
           />
 
-          {/* Approval Pending */}
+          {/* Misc */}
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
+<<<<<<< HEAD
 
           {/* Public / main pages */}
           <Route
@@ -233,10 +260,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+=======
+          <Route path="/home" element={<Home />} />
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/doctor" element={<Doctor />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
+<<<<<<< HEAD
           <Route path="/doctor/:docId/book/patientform" element={<PatientForm />} />
           <Route path="/doctor/:docId/book/patientdetails" element={<PatientDetails />} />
           <Route path="/doctor/:docId/book/patientupdate" element={<PatientUpdate />} />
@@ -254,13 +285,40 @@ function App() {
             }
           />
 
+=======
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={<PatientForm />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={<PatientDetails />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails/slip"
+            element={<UploadSlip />}
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={<PatientUpdate />}
+          />
+
+          <Route path="/update-product/:id" element={<UpdateProduct />} />
+          <Route path="/onlinepayment" element={<Onlinepayment />} />
+
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
+<<<<<<< HEAD
 
       {/* Toasts */}
       <Toaster position="top-right" />
+=======
+      <Toaster />
+      <Footer />
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
     </div>
   );
 }

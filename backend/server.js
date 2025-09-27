@@ -4,12 +4,22 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+<<<<<<< HEAD
 import path from "path";
 
+=======
+import connectDB from "./lib/db.js";
+import path from "path";
+
+import receiptsRouter from "./routes/receipts.routes.js";
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.routes.js";
 import productRouter from "./routes/product.route.js";
+<<<<<<< HEAD
 import orderRouter from "./routes/orders.routes.js"; 
+=======
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,7 +40,13 @@ app.use(cookieParser());
 
 
 
+<<<<<<< HEAD
 // --- Routes ---
+=======
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+app.use("/api/receipts", receiptsRouter);
+>>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
