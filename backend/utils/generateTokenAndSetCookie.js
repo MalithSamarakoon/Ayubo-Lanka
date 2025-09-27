@@ -20,7 +20,4 @@ export const generateTokenAndSetCookie = (res, user) => {
   };
 
   res.cookie("token", token, cookieOptions);
-  
-  // Return the token for potential use
-  return token;
 };

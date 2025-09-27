@@ -10,23 +10,26 @@ import { sendAdminApprovalRequestEmail } from "../mailer.js";
 
 export const signup = async (req, res) => {
   const {
+  
     email,
     password,
     confirmPassword,
     name,
     mobile,
     role,
-
+    // doctor fields
     doctorLicenseNumber,
     specialization,
     experience,
     consultationFee,
     description,
     availability,
-
+    // supplier fields
     companyAddress,
     productCategory,
   } = req.body;
+
+  console.log(req.body);
 
   try {
     if (!email || !password || !confirmPassword || !name || !mobile || !role) {
@@ -52,35 +55,43 @@ export const signup = async (req, res) => {
     // Check role-specific fields
     if (role === "DOCTOR") {
       if (!doctorLicenseNumber || !specialization) {
-        return res.status(400).json({
-          success: false,
-          message: "DOCTOR license number and specialization are required",
-        });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "DOCTOR license number and specialization are required",
+          });
       }
     }
 
     if (role === "SUPPLIER") {
       if (!companyAddress || !productCategory) {
-        return res.status(400).json({
-          success: false,
-          message: "All supplier fields are required",
-        });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "All supplier fields are required",
+          });
       }
     }
 
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with this email",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User already exists with this email",
+        });
     }
     const userWithMobile = await User.findOne({ mobile });
     if (userWithMobile) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with this mobile number",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User already exists with this mobile number",
+        });
     }
 
     // Hash password
@@ -181,13 +192,9 @@ export const verifyEmail = async (req, res) => {
     .status(200)
     .json({ success: true, message: "Email verified successfully" });
 };
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
-<<<<<<< HEAD
-  console.log("Login attempt:", req.body);
-  
-=======
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -214,45 +221,16 @@ export const login = async (req, res) => {
       });
     }
 
-<<<<<<< HEAD
-    // Generate token and set cookie
-=======
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
     const { password: _password, ...userTokenData } = user.toObject();
     generateTokenAndSetCookie(res, userTokenData);
 
     user.lastLogin = new Date();
     await user.save();
 
-    // Return user data without password
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      mobile: user.mobile,
-      isApproved: user.isApproved,
-      isVerified: user.isVerified,
-      lastLogin: user.lastLogin,
-      // Include doctor-specific fields if applicable
-      ...(user.role === "DOCTOR" && {
-        specialization: user.specialization,
-        experience: user.experience,
-        consultationFee: user.consultationFee,
-        description: user.description,
-        availability: user.availability,
-        doctorLicenseNumber: user.doctorLicenseNumber
-      }),
-      ...(user.role === "SUPPLIER" && {
-        companyAddress: user.companyAddress,
-        productCategory: user.productCategory
-      })
-    };
-
     res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: userResponse,
+      user: { ...user._doc, password: undefined },
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -361,39 +339,9 @@ export const checkAuth = async (req, res) => {
         .json({ success: false, message: "Account pending approval" });
     }
 
-    // Return complete user data
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      mobile: user.mobile,
-      isApproved: user.isApproved,
-      isVerified: user.isVerified,
-      lastLogin: user.lastLogin,
-      // Include doctor-specific fields if applicable
-      ...(user.role === "DOCTOR" && {
-        specialization: user.specialization,
-        experience: user.experience,
-        consultationFee: user.consultationFee,
-        description: user.description,
-        availability: user.availability,
-        doctorLicenseNumber: user.doctorLicenseNumber
-      }),
-      ...(user.role === "SUPPLIER" && {
-        companyAddress: user.companyAddress,
-        productCategory: user.productCategory
-      })
-    };
-
-    res.status(200).json({ success: true, user: userResponse });
+    res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("CheckAuth Error:", error);
-    res.status(400).json({ success: false, message: error.message });
-  }
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
-<<<<<<< HEAD
-
-
-=======
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779

@@ -1,3 +1,4 @@
+// src/App.jsx
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
@@ -38,9 +39,10 @@ import OrdersList from "./pages/OrdersList";
 import Cart from "./pages/Cart";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
-import { useAuthStore } from "./store/authStore";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
+import { useAuthStore } from "./store/authStore";
 
+// ------- Guards -------
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -48,18 +50,10 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-<<<<<<< HEAD
 // Redirect authenticated users away from auth pages → to /home
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-
   if (isAuthenticated && user?.isVerified) return <Navigate to="/home" replace />;
-
-=======
-const RedirectAuthenticatedUser = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.isVerified) return <Navigate to="/" replace />;
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
   return children;
 };
 
@@ -73,11 +67,10 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen w-full bg-white relative">
       <Navbar />
 
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
         <Routes>
           {/* Auth entry */}
           <Route
@@ -86,6 +79,29 @@ function App() {
               <RedirectAuthenticatedUser>
                 <LoginPage />
               </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+
+          {/* Public / main browse pages (login not strictly required) */}
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/doctor" element={<Doctor />} />
+
+          {/* Home (protected landing after login) */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
             }
           />
 
@@ -158,8 +174,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-           <Route
+          <Route
             path="/orderdisplay/:id"
             element={
               <ProtectedRoute>
@@ -167,7 +182,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-            <Route
+          <Route
             path="/orderupdateuser/:id"
             element={
               <ProtectedRoute>
@@ -175,26 +190,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Order success can be public (e.g., payment gateway return) */}
+          <Route path="/order-success" element={<OrderSuccess />} />
 
           {/* Role Selection & Signups */}
-=======
-    <div className="min-h-screen  w-full bg-white relative">
-      <Navbar />
-      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
-        <Routes>
-          <Route path="/" element={<Home />} />
-
-          {/* Dashboards */}
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/user-management" element={<UserMgt />} />
-          <Route path="/dashboard/:id" element={<UpdateUser />} />
-          <Route path="/product-dashboard" element={<ProductDashboard />} />
-          <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
-          <Route path="/my_appoinments" element={<MyAppoinment />} />
-
-          {/* Role selection & sign-ups */}
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           <Route
             path="/signup"
             element={
@@ -246,79 +245,87 @@ function App() {
               </RedirectAuthenticatedUser>
             }
           />
-
-          {/* Misc */}
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
-<<<<<<< HEAD
 
-          {/* Public / main pages */}
+          {/* Doctor booking (protect forms) */}
           <Route
-            path="/home"
+            path="/doctor/:docId"
             element={
               <ProtectedRoute>
-                <Home />
+                <Appointment />
               </ProtectedRoute>
             }
           />
-=======
-          <Route path="/home" element={<Home />} />
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/doctor" element={<Doctor />} />
-          <Route path="/doctor/:docId" element={<Appointment />} />
-<<<<<<< HEAD
-          <Route path="/doctor/:docId/book/patientform" element={<PatientForm />} />
-          <Route path="/doctor/:docId/book/patientdetails" element={<PatientDetails />} />
-          <Route path="/doctor/:docId/book/patientupdate" element={<PatientUpdate />} />
-          <Route path="/onlinepayment" element={<Onlinepayment />} />
-
-          {/* Cart */}
-          <Route path="/cart" element={<Cart />} />
-
-          {/* Order Success */}
-          <Route
-            path="/order-success"
-            element={
-              // If you want it protected, wrap with <ProtectedRoute>…</ProtectedRoute>
-              <OrderSuccess />
-            }
-          />
-
-=======
           <Route
             path="/doctor/:docId/book/patientform"
-            element={<PatientForm />}
+            element={
+              <ProtectedRoute>
+                <PatientForm />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/doctor/:docId/book/patientdetails"
-            element={<PatientDetails />}
+            element={
+              <ProtectedRoute>
+                <PatientDetails />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/doctor/:docId/book/patientdetails/slip"
-            element={<UploadSlip />}
+            element={
+              <ProtectedRoute>
+                <UploadSlip />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/doctor/:docId/book/patientupdate"
-            element={<PatientUpdate />}
+            element={
+              <ProtectedRoute>
+                <PatientUpdate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onlinepayment"
+            element={
+              <ProtectedRoute>
+                <Onlinepayment />
+              </ProtectedRoute>
+            }
           />
 
-          <Route path="/update-product/:id" element={<UpdateProduct />} />
-          <Route path="/onlinepayment" element={<Onlinepayment />} />
+          {/* Appointments overview */}
+          <Route
+            path="/CheckAppoinments"
+            element={
+              <ProtectedRoute>
+                <CheckAppoinments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my_appoinments"
+            element={
+              <ProtectedRoute>
+                <MyAppoinment />
+              </ProtectedRoute>
+            }
+          />
 
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
+          {/* Cart (usually public) */}
+          <Route path="/cart" element={<Cart />} />
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-<<<<<<< HEAD
 
-      {/* Toasts */}
+      {/* Toasts + Footer */}
       <Toaster position="top-right" />
-=======
-      <Toaster />
       <Footer />
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
     </div>
   );
 }

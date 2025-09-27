@@ -1,3 +1,4 @@
+// src/Component/Navbar.jsx
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/frontend_assets/assets";
@@ -46,12 +47,8 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-<<<<<<< HEAD
 
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
-=======
-        <NavLink to="/Collection" className="flex flex-col items-center gap-1">
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           {({ isActive }) => (
             <>
               <p>COLLECTION</p>
@@ -64,7 +61,7 @@ const Navbar = () => {
           )}
         </NavLink>
 
-        <NavLink to="/Doctor" className="flex flex-col items-center gap-1">
+        <NavLink to="/doctor" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>DOCTOR</p>
@@ -77,7 +74,7 @@ const Navbar = () => {
           )}
         </NavLink>
 
-        <NavLink to="/About" className="flex flex-col items-center gap-1">
+        <NavLink to="/about" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>ABOUT</p>
@@ -90,7 +87,7 @@ const Navbar = () => {
           )}
         </NavLink>
 
-        <NavLink to="/Contact" className="flex flex-col items-center gap-1">
+        <NavLink to="/contact" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>CONTACT</p>
@@ -112,64 +109,55 @@ const Navbar = () => {
         <div className="group relative">
           <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-<<<<<<< HEAD
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
+            <div className="flex flex-col gap-2 w-40 py-3 px-5 bg-slate-100 text-gray-500 rounded">
               {user ? (
                 <>
-                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/dashboard")}>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/dashboard")}
+                  >
                     My Profile
                   </p>
-                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/orders")}>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/my_appoinments")}
+                  >
+                    My Appointments
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/orders")}
+                  >
                     Orders
                   </p>
-                  <p className="cursor-pointer hover:text-black" onClick={handleLogout}>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={handleLogout}
+                  >
                     Logout
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/login")}>
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/login")}
+                  >
                     Login
                   </p>
-                  <p className="cursor-pointer hover:text-black" onClick={() => navigate("/register")}>
-                    Register
+                  <p
+                    className="cursor-pointer hover:text-black"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Sign up
                   </p>
                 </>
               )}
-=======
-            <div className="flex flex-col gap-2 w-46 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/dashboard")}
-              >
-                My Profile
-              </p>
-
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/my_appoinments")}
-              >
-                My Appointments
-              </p>
-
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={() => navigate("/orders")}
-              >
-                Orders
-              </p>
-              <p
-                className="cursor-pointer hover:text-black"
-                onClick={handleLogout}
-              >
-                Logout
-              </p>
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
             </div>
           </div>
         </div>
 
-        {/* Cart (LOWERCASE PATH) */}
+        {/* Cart */}
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
           {cartCount > 0 && (
@@ -188,7 +176,7 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Mobile Menu (pointer-events fix) */}
+      {/* Mobile Menu */}
       <div
         className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
           visible ? "w-full pointer-events-auto" : "w-0 pointer-events-none"
@@ -200,16 +188,16 @@ const Navbar = () => {
             <p>Back</p>
           </div>
 
-          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/">
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/home">
             HOME
           </NavLink>
-          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Collection">
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/collection">
             COLLECTION
           </NavLink>
-          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/About">
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/about">
             ABOUT
           </NavLink>
-          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/Contact">
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/contact">
             CONTACT
           </NavLink>
         </div>

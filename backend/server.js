@@ -1,93 +1,35 @@
-// backend/server.js
-import "dotenv/config";
 import express from "express";
-import mongoose from "mongoose";
+import "dotenv/config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-<<<<<<< HEAD
-import path from "path";
-
-=======
 import connectDB from "./lib/db.js";
 import path from "path";
 
 import receiptsRouter from "./routes/receipts.routes.js";
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.routes.js";
+import patientRouter from "./routes/patientRoutes.js";
 import productRouter from "./routes/product.route.js";
-<<<<<<< HEAD
-import orderRouter from "./routes/orders.routes.js"; 
-=======
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- Middleware ---
-app.use(
-  cors({
-    origin: [
-      process.env.CLIENT_URL || "http://localhost:5173",
-      "http://localhost:5174",
-    ],
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+connectDB();
 
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
+// Middleware
+app.use(express.json({ limit: "10mb" }));
 
-<<<<<<< HEAD
-// --- Routes ---
-=======
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/api/receipts", receiptsRouter);
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
 app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/patients", patientRouter);
 
-// ✅ Mount orders route (this removed your 404 "Route not found" on /api/orders)
-app.use("/uploads", express.static(path.resolve("uploads")));
-app.use("/api/orders", orderRouter);
-
-// Health check
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
-
-// Fallback 404 for unknown API routes
-app.use("/api", (_req, res) =>
-  res.status(404).json({ success: false, message: "Route not found" })
-);
-
-// Global error handler (keeps unhandled errors from crashing server)
-app.use((err, _req, res, _next) => {
-  console.error("Unhandled error:", err);
-  res.status(500).json({ success: false, message: "Server error" });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-async function start() {
-  try {
-    const uri = process.env.MONGO_URI;
-    if (!uri) {
-      console.error("❌ Missing MONGO_URI in .env");
-      process.exit(1);
-    }
-
-    mongoose.set("strictQuery", true);
-    await mongoose.connect(uri);
-    console.log("✅ Mongo connected:", mongoose.connection.db.databaseName);
-
-    app.listen(PORT, () => console.log(`🚀 Server http://localhost:${PORT}`));
-  } catch (e) {
-    console.error("❌ DB connect failed:", e?.message || e);
-    process.exit(1);
-  }
-}
-
-start();
-
-export default app;
+export default app;

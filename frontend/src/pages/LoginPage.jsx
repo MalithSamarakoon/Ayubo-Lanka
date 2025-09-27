@@ -12,7 +12,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [localErr, setLocalErr] = useState("");
 
-<<<<<<< HEAD
   const navigate = useNavigate();
   const { login, isLoading, error: storeErr } = useAuthStore();
 
@@ -29,25 +28,25 @@ const LoginPage = () => {
     }
 
     try {
-      // login() should POST to your backend and return the user on success
       const user = await login(em, pw);
-
       if (!user) {
-        // store will have set a message; still show a fallback
         setLocalErr("Login failed.");
         return;
       }
 
-      // optional verification gate
+      // Optional verification gate
       if (user.isVerified === false) {
+        toast("Please verify your email first");
         navigate("/verify-email");
         return;
       }
 
       const role = String(user.role || "").toUpperCase();
       if (role === "SUPER_ADMIN" || role === "ADMIN") {
+        toast.success("Admin logged in successfully");
         navigate("/admin-dashboard");
       } else {
+        toast.success("User logged in successfully");
         navigate("/home");
       }
     } catch (err) {
@@ -58,24 +57,6 @@ const LoginPage = () => {
         "Error logging in";
       setLocalErr(msg);
       console.error("LOGIN ERROR:", err?.response?.status, err?.response?.data);
-=======
-  const { login, isLoading, error, setError } = useAuthStore();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const user = await login(email, password);
-
-    if (user) {
-      if (user.role === "SUPER_ADMIN") {
-        toast.success("Admin logged in successfully");
-        navigate("/admin-dashboard");
-        setError(null);
-      } else {
-        toast.success("User logged in successfully");
-        navigate("/home");
-        setError(null);
-      }
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
     }
   };
 
@@ -100,11 +81,8 @@ const LoginPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-<<<<<<< HEAD
             autoComplete="email"
-=======
             required
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           />
 
           <Input
@@ -113,12 +91,8 @@ const LoginPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-<<<<<<< HEAD
             autoComplete="current-password"
-=======
-            togglePassword
             required
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
           />
 
           <div className="flex items-center mb-6">
@@ -127,15 +101,9 @@ const LoginPage = () => {
             </Link>
           </div>
 
-<<<<<<< HEAD
-          {errorMsg && <p className="text-red-500 font-semibold mb-3">{errorMsg}</p>}
-=======
-          <center>
-            {error && (
-              <p className="text-red-500 font-semibold mb-2">{error}</p>
-            )}
-          </center>
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
+          {errorMsg && (
+            <p className="text-red-500 font-semibold mb-3 text-center">{errorMsg}</p>
+          )}
 
           <motion.button
             whileHover={{ scale: isLoading ? 1 : 1.02 }}
@@ -150,32 +118,15 @@ const LoginPage = () => {
           </motion.button>
         </form>
       </div>
-<<<<<<< HEAD
 
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-400 text-center">
           Don't have an account?{" "}
           <Link to="/signup" className="text-green-400 hover:underline">
             Sign up
           </Link>
         </p>
       </div>
-=======
-      <center>
-        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
-          <p className="text-sm text-gray-400">
-            Don't have an account?{" "}
-            <Link
-              to="/signup"
-              className="text-green-400 hover:underline"
-              onClick={() => setError(null)}
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </center>
->>>>>>> aec98d3a22f08de5b714e08766dae3575d78d779
     </motion.div>
   );
 };
