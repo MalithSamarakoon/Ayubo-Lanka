@@ -9,12 +9,12 @@ export default function OrdersList() {
   const [flash, setFlash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // modal state
-  const [editing, setEditing] = useState(null); // the full order object when editing
+  
+  const [editing, setEditing] = useState(null); 
   const [nextStatus, setNextStatus] = useState("PENDING");
   const location = useLocation();
 
-  // -------- helpers to support both flat and nested shapes --------
+  
   const getShipping = (o) => o?.shipping || o || {};
   const getName = (o) => getShipping(o).name || "";
   const getTel = (o) => getShipping(o).telephone || "";
@@ -28,7 +28,7 @@ export default function OrdersList() {
   useEffect(() => {
     if (location.state?.flash) {
       setFlash(location.state.flash);
-      history.replaceState({}, ""); // clear flash on refresh
+      history.replaceState({}, ""); 
       const t = setTimeout(() => setFlash(""), 3000);
       return () => clearTimeout(t);
     }
@@ -51,7 +51,7 @@ export default function OrdersList() {
     load();
   }, []);
 
-  // -------- actions --------
+  
   const openEdit = (order) => {
     setEditing(order);
     setNextStatus(getStatus(order));

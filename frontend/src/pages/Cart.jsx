@@ -158,7 +158,7 @@ export default function Cart() {
                   onClick={() => handleRemove(it.id)}
                   className="px-5 py-3 rounded-xl bg-black text-white hover:opacity-90 shrink-0"
                 >
-                  <span className="text-red-400">Remove</span>
+                  <span className="text-white">Remove</span>
                 </button>
               </div>
             );
@@ -184,14 +184,14 @@ export default function Cart() {
           <div className="mt-6 space-y-3">
             <button
               onClick={proceedToCheckout}
-              className="w-full px-5 py-3 rounded-xl bg-black text-white hover:opacity-90"
+              className="w-full px-5 py-3 rounded-xl bg-green-300 text-black hover:opacity-90"
             >
               Proceed to Checkout
             </button>
 
             <button
               onClick={handleClear}
-              className="w-full px-5 py-3 rounded-xl bg-black text-white/60 hover:text-white"
+              className="w-full px-5 py-3 rounded-xl bg-green-300 text-black/60 hover:text-white"
             >
               Clear Cart
             </button>
