@@ -6,7 +6,7 @@ import { api } from "../lib/api";
 
 const fmt = (n) => `Rs. ${Number(n || 0).toLocaleString()}`;
 const tenDigits = /^\d{10}$/;
-const lettersOnly = /^[A-Za-z\s]+$/;      
+const lettersOnly = /^[A-Za-z\s]+$/;
 const lettersCount = (s = "") => (s.match(/[A-Za-z]/g) || []).length;
 
 export default function OrderForm() {
@@ -37,7 +37,6 @@ export default function OrderForm() {
   const [placing, setPlacing] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-
   const [touched, setTouched] = useState({
     name: false,
     telephone: false,
@@ -54,13 +53,11 @@ export default function OrderForm() {
   const onChange = (e) =>
     setShipping((s) => ({ ...s, [e.target.name]: e.target.value }));
 
-  // keep only digits for telephone, cap at 10
   const onChangeTelephone = (e) => {
     const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
     setShipping((s) => ({ ...s, telephone: digitsOnly }));
   };
 
-  // ---------- Validation ----------
   const errors = (() => {
     const e = {};
 
@@ -96,8 +93,8 @@ export default function OrderForm() {
       setSubmitted(true);
 
       if (!items?.length) throw new Error("Your cart is empty.");
-      const errorList = Object.values(errors).filter(Boolean);
-      if (errorList.length) throw new Error(errorList[0]);
+      const firstError = Object.values(errors).filter(Boolean)[0];
+      if (firstError) throw new Error(firstError);
 
       setPlacing(true);
 
@@ -117,7 +114,8 @@ export default function OrderForm() {
         fd.append("shipping", JSON.stringify(shipping));
         fd.append("payment", JSON.stringify({ method: "BANK_SLIP" }));
         fd.append("total", String(subtotal));
-        res = await api.post("/orders", fd, {
+
+        res = await api.post("/api/orders/with-slip", fd, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
@@ -127,7 +125,7 @@ export default function OrderForm() {
           payment: { method: "COD" },
           total: subtotal,
         };
-        res = await api.post("/orders", payload);
+        res = await api.post("/api/orders", payload);
       }
 
       if (!res.data?.success) throw new Error(res.data?.message || "Order failed");
@@ -191,7 +189,7 @@ export default function OrderForm() {
       <div className="mb-8 p-4 border rounded-xl bg-white">
         <h2 className="text-lg font-semibold mb-3 text-center">Shipping details</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Full name */}
+          {/* Name */}
           <div>
             <input
               name="name"

@@ -9,18 +9,16 @@ export default function OrdersList() {
   const [flash, setFlash] = useState("");
   const [loading, setLoading] = useState(false);
 
-  
-  const [editing, setEditing] = useState(null); 
+  const [editing, setEditing] = useState(null);
   const [nextStatus, setNextStatus] = useState("PENDING");
   const location = useLocation();
 
-  
-  const getShipping = (o) => o?.shipping || o || {};
+  const getShipping = (o) => o?.shipping || {};
   const getName = (o) => getShipping(o).name || "";
   const getTel = (o) => getShipping(o).telephone || "";
   const getCity = (o) => getShipping(o).city || "";
   const getDistrict = (o) => getShipping(o).district || "";
-  const getSlipUrl = (o) => o?.payment?.slipUrl || o?.slipUrl || null;
+  const getSlipUrl = (o) => o?.payment?.slipUrl || null;
   const getStatus = (o) => o?.status || "PENDING";
   const getCreatedAt = (o) =>
     o?.createdAt ? new Date(o.createdAt).toLocaleString() : "";
@@ -28,7 +26,7 @@ export default function OrdersList() {
   useEffect(() => {
     if (location.state?.flash) {
       setFlash(location.state.flash);
-      history.replaceState({}, ""); 
+      history.replaceState({}, "");
       const t = setTimeout(() => setFlash(""), 3000);
       return () => clearTimeout(t);
     }
@@ -37,11 +35,16 @@ export default function OrdersList() {
   const load = async () => {
     try {
       setLoading(true);
-      const r = await api.get("/orders", { params: { q } });
-      setOrders(r.data?.data || []);
+      const r = await api.get("/api/orders", { params: { q } });
+      const list = r?.data?.orders ?? r?.data?.data ?? [];
+      setOrders(Array.isArray(list) ? list : []);
     } catch (err) {
       console.error("Error loading orders:", err);
-      toast.error("Failed to load orders");
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Failed to load orders";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -51,26 +54,20 @@ export default function OrdersList() {
     load();
   }, []);
 
-  
   const openEdit = (order) => {
     setEditing(order);
     setNextStatus(getStatus(order));
   };
+  const closeEdit = () => setEditing(null);
 
-  const closeEdit = () => {
-    setEditing(null);
-  };
-
+  // ✅ use PATCH /:id/status instead of PUT body {status}
   const saveEdit = async () => {
     if (!editing?._id) return;
     try {
-      await api.patch(`/orders/${editing._id}/status`, { status: nextStatus });
+      await api.patch(`/api/orders/${editing._id}/status`, { status: nextStatus });
       toast.success("Status updated");
-      // optimistic update
       setOrders((prev) =>
-        prev.map((o) =>
-          o._id === editing._id ? { ...o, status: nextStatus } : o
-        )
+        prev.map((o) => (o._id === editing._id ? { ...o, status: nextStatus } : o))
       );
       closeEdit();
     } catch (err) {
@@ -83,11 +80,12 @@ export default function OrdersList() {
     }
   };
 
+  // ✅ DELETE route matches backend
   const remove = async (id) => {
     if (!id) return;
     if (!window.confirm("Delete this order?")) return;
     try {
-      await api.delete(`/orders/${id}`);
+      await api.delete(`/api/orders/${id}`);
       toast.success("Order deleted");
       setOrders((prev) => prev.filter((o) => o._id !== id));
     } catch (err) {
@@ -111,7 +109,9 @@ export default function OrdersList() {
       )}
 
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Orders {loading ? "…" : `(${filteredCount})`}</h1>
+        <h1 className="text-2xl font-bold">
+          Orders {loading ? "…" : `(${filteredCount})`}
+        </h1>
         <div className="flex gap-2">
           <input
             value={q}
@@ -200,10 +200,7 @@ export default function OrdersList() {
               ))
             ) : (
               <tr>
-                <td
-                  className="p-4 border text-center text-gray-500"
-                  colSpan={8}
-                >
+                <td className="p-4 border text-center text-gray-500" colSpan={8}>
                   No orders found
                 </td>
               </tr>
@@ -212,7 +209,7 @@ export default function OrdersList() {
         </table>
       </div>
 
-      {/* -------- Update Modal -------- */}
+      {/* Update Modal */}
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
@@ -233,9 +230,7 @@ export default function OrdersList() {
               </div>
             </div>
 
-            <label className="block text-sm font-medium mb-1">
-              New Status
-            </label>
+            <label className="block text-sm font-medium mb-1">New Status</label>
             <select
               value={nextStatus}
               onChange={(e) => setNextStatus(e.target.value)}
@@ -247,16 +242,10 @@ export default function OrdersList() {
             </select>
 
             <div className="flex justify-end gap-2">
-              <button
-                onClick={closeEdit}
-                className="px-4 py-2 rounded border border-gray-300"
-              >
+              <button onClick={closeEdit} className="px-4 py-2 rounded border border-gray-300">
                 Cancel
               </button>
-              <button
-                onClick={saveEdit}
-                className="px-4 py-2 rounded bg-gray-900 text-white"
-              >
+              <button onClick={saveEdit} className="px-4 py-2 rounded bg-gray-900 text-white">
                 Save
               </button>
             </div>
