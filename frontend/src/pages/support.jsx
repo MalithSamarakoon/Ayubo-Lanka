@@ -40,7 +40,12 @@ export default function Support() {
     }
   }, []);
 
- 
+ useEffect(() => {
+    loadApproved();                       // initial load
+    const onFocus = () => loadApproved(); // refresh when tab becomes active
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [loadApproved]);
 
   const openModal = (m) => setActiveModal(m);
   const closeModal = () => setActiveModal(null);
