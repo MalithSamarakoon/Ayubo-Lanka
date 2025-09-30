@@ -95,6 +95,7 @@ const SupplierSignUpPage = () => {
             placeholder="Company Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <Input
             icon={MapPin}
@@ -102,6 +103,7 @@ const SupplierSignUpPage = () => {
             placeholder="Company Address"
             value={companyAddress}
             onChange={(e) => setcompanyAddress(e.target.value)}
+            required
           />
           <Input
             icon={Mail}
@@ -109,6 +111,7 @@ const SupplierSignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input
             icon={Phone}
@@ -116,6 +119,7 @@ const SupplierSignUpPage = () => {
             placeholder="Mobile Number (10 digits)"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
+            required
           />
           <Input
             icon={Package}
@@ -123,6 +127,7 @@ const SupplierSignUpPage = () => {
             placeholder="Product Category"
             value={productCategory}
             onChange={(e) => setProductCategory(e.target.value)}
+            required
           />
           <Input
             icon={Lock}
@@ -131,6 +136,7 @@ const SupplierSignUpPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             togglePassword
+            required
           />
           <Input
             icon={Lock}
@@ -139,13 +145,16 @@ const SupplierSignUpPage = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             togglePassword
+            required
           />
 
-          {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2">
-              {validationError || error}
-            </p>
-          )}
+          <center>
+            {(validationError || error) && (
+              <p className="text-red-500 font-semibold mt-2">
+                {validationError || error}
+              </p>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 
@@ -164,14 +173,16 @@ const SupplierSignUpPage = () => {
           </motion.button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
-        <p className="text-sm text-gray-600">
-          Already registered?{" "}
-          <Link to={"/login"} className="text-green-500 hover:underline">
-            Login
-          </Link>
-        </p>
-      </div>
+      <center>
+        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
+          <p className="text-sm text-gray-600">
+            Already registered?{" "}
+            <Link to={"/login"} className="text-green-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </center>
     </motion.div>
   );
 };

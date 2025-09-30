@@ -100,7 +100,6 @@ const PatientDetails = () => {
   const handleUpdate = () => {
     navigate(`/doctor/${docId}/book/patientupdate`, {
       state: patient,
-      // Add this to ensure we can refetch after update
       onUpdate: (updatedPatient) => setPatient(updatedPatient),
     });
   };
@@ -123,7 +122,6 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
-    // Ensure we have all required data for payment
     if (!patient._id) {
       alert(
         "Patient ID is missing. Please try updating the patient details again."
@@ -139,9 +137,8 @@ const PatientDetails = () => {
         phone: patient.phone,
         email: patient.email,
         amount: patient.amount,
-        appointmentId: patient._id, // Use the actual _id from patient
+        appointmentId: patient._id, 
         appointmentNo: patient.id,
-        // Pass the entire patient object to ensure data consistency
         patientData: patient,
       },
       replace: true,
@@ -173,14 +170,7 @@ const PatientDetails = () => {
               </div>
             </div>
 
-            <div className="bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30 text-right">
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-white/80">
-                Booking ID
-              </p>
-              <p className="text-white font-mono font-bold text-lg">
-                {bookingId}
-              </p>
-            </div>
+           
           </div>
         </div>
 

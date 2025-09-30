@@ -44,6 +44,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- Health ---
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+app.use("/api/receipts", receiptsRouter);
+app.use("/api/products", productRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+app.use("/api/patients", patientRouter);
 
 // --- Routes ---
 app.use('/api/receipts', receiptsRouter);

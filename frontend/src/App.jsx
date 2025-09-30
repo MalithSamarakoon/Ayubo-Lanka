@@ -84,16 +84,12 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen w-full bg-white relative">
+    <div className="min-h-screen  w-full bg-white relative">
       <Navbar />
-      <ErrorBoundary
-        FallbackComponent={AppErrorFallback}
-        onReset={() => window.location.reload()}
-      >
-        <div className="flex flex-col items-center justify-center min-h-screen px-4">
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Home />} />
+
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
+        <Routes>
+    <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/product/:id" element={<ProductDetail />} />
@@ -230,7 +226,6 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
-      </ErrorBoundary>
       <Toaster />
       <Footer />
     </div>

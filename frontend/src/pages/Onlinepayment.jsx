@@ -1,4 +1,3 @@
-// frontend/src/pages/Onlinepayment.jsx
 import React, { useEffect, useState } from "react";
 import {
   useLocation,
@@ -20,10 +19,8 @@ export default function Onlinepayment() {
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
 
-  // doctor id for nested routes like /doctor/:docId/...
   const docId = urlParams.docId || state?.docId || "";
 
-  // read appointment identifiers from state OR querystring (survives refresh)
   const apptId =
     state?.appointmentId || searchParams.get("appointmentId") || "";
   const apptNo =
@@ -32,7 +29,6 @@ export default function Onlinepayment() {
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
-  // If opened directly without minimal state, try to recover via queries; else send back
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -41,7 +37,6 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
-    // need a doctor id to build /doctor/:docId/... route
     const targetDocId = urlParams.docId || state?.docId;
     if (!targetDocId) {
       alert("Missing doctor route. Returning to Home.");
@@ -49,7 +44,6 @@ export default function Onlinepayment() {
       return;
     }
 
-    // Pass appointment linkage via querystring (plus state as backup)
     const qs = new URLSearchParams();
     if (apptId) qs.set("appointmentId", String(apptId));
     if (apptNo) qs.set("appointmentNo", String(apptNo));
@@ -63,7 +57,6 @@ export default function Onlinepayment() {
           name: state?.name,
           phone: state?.phone,
           email: state?.email,
-          // linkage for UploadSlip validation
           appointmentId: apptId || null,
           appointmentNo: apptNo || null,
         },
@@ -75,13 +68,10 @@ export default function Onlinepayment() {
     try {
       setLoading(true);
 
-      // If user chose bank slip → go to UploadSlip route
       if (method === "slip") {
         goToUploadSlip();
         return;
       }
-
-      // Otherwise (wallet/bank) — simulate other gateway flow
       await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state?.bookingId,
@@ -115,19 +105,14 @@ export default function Onlinepayment() {
           whileHover={{ scale: 1.01 }}
           className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden"
         >
-          {/* Header */}
+       
           <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600">
             <h1 className="text-2xl font-bold text-white">Online Payment</h1>
-            <p className="text-green-100 text-sm mt-1">
-              Booking ID:{" "}
-              <span className="font-mono font-semibold text-yellow-200">
-                {state?.bookingId}
-              </span>
-            </p>
+            
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Methods */}
+         
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">
                 Select a payment method

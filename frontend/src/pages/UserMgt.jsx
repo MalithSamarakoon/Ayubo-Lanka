@@ -13,7 +13,8 @@ import {
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import UpdateUserModal from "../Component/UpdateUserModal";
+import UpdateUserModal from "./UpdateUserModal";
+import { ArrowLeft } from "lucide-react";
 
 const URL = "http://localhost:5000/api/user/users";
 
@@ -26,6 +27,8 @@ function UserMgt() {
 
   const [editingId, setEditingId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [roleFilter, setRoleFilter] = useState("all");
 
   // Fetch users
   useEffect(() => {
@@ -64,7 +67,7 @@ function UserMgt() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     let title = "User Management Report";
-    if (roleFilter) title = `${roleFilter} Report`; 
+    if (roleFilter) title = `${roleFilter} Report`;
     doc.text(title, marginX, marginTop);
 
     doc.setFont("helvetica", "normal");
@@ -92,7 +95,7 @@ function UserMgt() {
       ],
     ];
 
-    //filter data by role
+    // filter data by role
     const dataToExport = roleFilter
       ? filteredData.filter(
           (u) => (u.role || "").toLowerCase() === roleFilter.toLowerCase()
@@ -158,7 +161,7 @@ function UserMgt() {
     doc.save(`User_Report${rolePart}_${yyyy}-${mm}-${dd}.pdf`);
   };
 
-  //approval
+  // approval
   const handleApprovalChange = async (userId, approved) => {
     setUsers((prev) =>
       prev.map((u) => (u._id === userId ? { ...u, isApproved: approved } : u))
@@ -186,9 +189,9 @@ function UserMgt() {
       if (result.isConfirmed) {
         try {
           await axios.delete(`http://localhost:5000/api/user/${userId}`);
-
           Swal.fire("Deleted!", "Account deleted successfully.", "success");
 
+          setUsers((prev) => prev.filter((u) => u._id !== userId));
         } catch (err) {
           console.error("Error deleting user:", err);
           Swal.fire("Error!", "Failed to delete account. Try again.", "error");
@@ -208,10 +211,19 @@ function UserMgt() {
     );
   };
 
+  //filteredData and roles
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) return users;
+    const base =
+      roleFilter === "all"
+        ? users
+        : users.filter(
+            (u) => (u.role || "").toString().toLowerCase() === roleFilter
+          );
+
+    if (!searchTerm.trim()) return base;
     const q = searchTerm.toLowerCase();
-    return users.filter((u) => {
+
+    return base.filter((u) => {
       const role = (u.role || "").toString().toLowerCase();
       const name = (u.name || "").toLowerCase();
       const email = (u.email || "").toLowerCase();
@@ -231,7 +243,7 @@ function UserMgt() {
         cat.includes(q)
       );
     });
-  }, [users, searchTerm]);
+  }, [users, searchTerm, roleFilter]);
 
   const columns = useMemo(
     () => [
@@ -325,6 +337,7 @@ function UserMgt() {
     []
   );
 
+  // pagination
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -339,18 +352,44 @@ function UserMgt() {
   return (
     <div className="min-h-screen w-full bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-extrabold mb-6 text-center bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
-          User Management
-        </h1>
+        <div className="mb-6 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/admin-dashboard")}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+            aria-label="Back to Dashboard"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md flex-1">
+            User Management
+          </h1>
+        </div>
 
-        <div className="mb-6 flex justify-center">
+        {/* Search + Role Filter side by side */}
+        <div className="mb-6 flex flex-col md:flex-row items-stretch md:items-center gap-3">
           <input
             type="text"
             placeholder="Search users by any field..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-2xl px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-500 transition"
+            className="w-full md:flex-1 px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 placeholder-gray-500 transition"
           />
+
+          {/*Role filter dropdown */}
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+            }}
+            className="w-full md:w-60 px-4 py-3 rounded-2xl shadow-lg border border-gray-200 bg-white/80 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 transition"
+          >
+            <option value="all">All Roles</option>
+            <option value="user">User</option>
+            <option value="doctor">Doctor</option>
+            <option value="supplier">Supplier</option>
+          </select>
         </div>
 
         <div className="overflow-x-auto rounded-2xl shadow-2xl border border-gray-200 bg-white/70 backdrop-blur-md">
@@ -472,6 +511,7 @@ function UserMgt() {
             </select>
           </div>
         </div>
+
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => downloadUserReport("user")}

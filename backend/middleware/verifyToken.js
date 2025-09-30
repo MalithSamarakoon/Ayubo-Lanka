@@ -1,4 +1,3 @@
-// backend/middleware/verifyToken.js
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
@@ -8,7 +7,6 @@ export const verifyToken = (req, res, next) => {
       .status(401)
       .json({ success: false, message: "unauthorized - no token provided" });
   try {
-    // 1) Try Authorization header
     const auth = req.headers?.authorization;
     let token = null;
 
@@ -16,7 +14,6 @@ export const verifyToken = (req, res, next) => {
       token = auth.split(" ")[1];
     }
 
-    // 2) Fallback to cookie
     if (!token) {
       token = req.cookies?.token ?? null;
     }
@@ -29,7 +26,6 @@ export const verifyToken = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // attach claims
     req.user = decoded;
     req.userId = decoded.userId || decoded.id || decoded._id || null;
 
@@ -43,6 +39,6 @@ export const verifyToken = (req, res, next) => {
         : "Authentication failed";
     return res.status(401).json({ success: false, message });
   }
-}
+};
 
 export default verifyToken;
