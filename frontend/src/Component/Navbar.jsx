@@ -9,13 +9,8 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-
-  useEffect(() => {
-    setCartCount(getCartCount());            // init
-    const off = onCartChange(setCartCount);  // subscribe
-    return off;
-  }, []);
+  const { user, logout, isLoading, error } = useAuthStore();
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
 
   const handleLogout = () => {
     logout();
@@ -107,64 +102,48 @@ const Navbar = () => {
 
         {/* Profile */}
         <div className="group relative">
-          <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
-          <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-            <div className="flex flex-col gap-2 w-40 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              {user ? (
-                <>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/dashboard")}
-                  >
-                    My Profile
-                  </p>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/my_appoinments")}
-                  >
-                    My Appointments
-                  </p>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/orders")}
-                  >
-                    Orders
-                  </p>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/login")}
-                  >
-                    Login
-                  </p>
-                  <p
-                    className="cursor-pointer hover:text-black"
-                    onClick={() => navigate("/signup")}
-                  >
-                    Sign up
-                  </p>
-                </>
-              )}
+          <img
+            className="w-5 cursor-pointer"
+            src={assets.profile_icon}
+            alt="Profile"
+            onClick={() => {
+              const authed =
+                !!user || String(isAuthenticated).toLowerCase() === "true";
+              if (!authed) navigate("/login");
+            }}
+          />
+
+          {(!!user || String(isAuthenticated).toLowerCase() === "true") && (
+            <div className="hidden group-hover:block absolute right-0 top-full pt-3 z-40">
+              <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow">
+                <p
+                  className="cursor-pointer hover:text-black"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  My Profile
+                </p>
+                <p
+                  className="cursor-pointer hover:text-black"
+                  onClick={() => navigate("/orders")}
+                >
+                  Orders
+                </p>
+                <p
+                  className="cursor-pointer hover:text-black"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Cart */}
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
-          {cartCount > 0 && (
-            <span className="absolute right-[-6px] bottom-[-6px] min-w-4 h-4 px-1 flex items-center justify-center text-[10px] leading-4 bg-black text-white rounded-full">
-              {cartCount > 99 ? "99+" : cartCount}
-            </span>
-          )}
+
+          <p className="hidden absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]"></p>
         </Link>
 
         {/* Mobile menu toggle */}
@@ -178,13 +157,22 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
-          visible ? "w-full pointer-events-auto" : "w-0 pointer-events-none"
+        className={`fixed inset-y-0 right-0 bg-white z-50 transition-all duration-300 overflow-hidden ${
+          visible
+            ? "w-full sm:w-80 pointer-events-auto"
+            : "w-0 pointer-events-none"
         }`}
       >
-        <div className="flex flex-col text-gray-600">
-          <div onClick={() => setVisible(false)} className="flex items-center gap-4 p-3">
-            <img className="h-4 rotate-180" src={assets.dropdown_icon} alt="Back" />
+        <div className="flex flex-col text-gray-600 h-full">
+          <div
+            onClick={() => setVisible(false)}
+            className="flex items-center gap-4 p-3"
+          >
+            <img
+              className="h-4 rotate-180"
+              src={assets.dropdown_icon}
+              alt="Back"
+            />
             <p>Back</p>
           </div>
 
