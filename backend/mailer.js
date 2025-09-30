@@ -90,8 +90,7 @@ export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId)
     console.log(`Appointment approval email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending appointment approval email:", error);
-    // don't throw, we don't want to fail the API call if email fails
-  }
+   }
 };
 
 

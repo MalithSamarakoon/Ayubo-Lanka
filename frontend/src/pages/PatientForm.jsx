@@ -78,24 +78,19 @@ const PatientForm = () => {
 
         if (!phone) {
           msg = "Phone is required.";
-        }
-        else if (!/^\+?\d+$/.test(phone)) {
+        } else if (!/^\+?\d+$/.test(phone)) {
           msg = "Phone can only contain digits or + sign.";
         }
         // ✅ Must start with 0 or +94
         else if (!(phone.startsWith("0") || phone.startsWith("+94"))) {
           msg = "Use 0XXXXXXXXX or +94XXXXXXXXX.";
-        }
-        else if (phone.startsWith("0") && !/^0\d{9}$/.test(phone)) {
+        } else if (phone.startsWith("0") && !/^0\d{9}$/.test(phone)) {
           msg = "Local numbers must be exactly 10 digits.";
-        }
-        else if (phone.startsWith("+94") && !/^\+94\d{9}$/.test(phone)) {
+        } else if (phone.startsWith("+94") && !/^\+94\d{9}$/.test(phone)) {
           msg = "International format must be +94 followed by 9 digits.";
-        }
-        else if (/^(\d)\1+$/.test(phone.replace("+94", ""))) {
+        } else if (/^(\d)\1+$/.test(phone.replace("+94", ""))) {
           msg = "Phone cannot be all the same digit.";
-        }
-        else if (/(.)\1{5,}/.test(phone.replace("+94", ""))) {
+        } else if (/(.)\1{5,}/.test(phone.replace("+94", ""))) {
           msg = "Phone cannot contain excessive repeated digits.";
         }
         break;
@@ -230,7 +225,6 @@ const PatientForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-12" noValidate>
-           
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                 <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
@@ -240,7 +234,6 @@ const PatientForm = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
                 <div ref={refs.name}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name <span className="text-rose-500">*</span>
@@ -283,7 +276,6 @@ const PatientForm = () => {
                   )}
                 </div>
 
-             
                 <div ref={refs.age}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Age <span className="text-rose-500">*</span>
@@ -536,9 +528,7 @@ const PatientForm = () => {
           </form>
         </div>
       </motion.div>
-      <div className="mt-10 max-w-3xl mx-auto">
-        <Footer />
-      </div>
+      <div className="mt-10 max-w-3xl mx-auto"></div>
     </div>
   );
 };

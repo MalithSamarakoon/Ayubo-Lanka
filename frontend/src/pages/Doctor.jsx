@@ -596,7 +596,7 @@ const Doctor = () => {
                     <div className="p-6">
                       <div className="text-center mb-4">
                         <h3 className="text-xl font-bold text-gray-900 mb-1">
-                          Dr. {doctor.name}
+                     {doctor.name}
                         </h3>
                         <p className="text-green-600 font-medium text-sm bg-green-50 px-3 py-1 rounded-full inline-block">
                           {doctor.specialization || "General Practice"}
