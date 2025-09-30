@@ -170,11 +170,12 @@ const DoctorSignUpPage = () => {
             togglePassword
             required
           />
+          
 
           <center>
             {(validationError || error) && (
               <p className="text-red-500 font-semibold mt-2">
-                {validationError || error}
+                 {validationError || error}
               </p>
             )}
           </center>
