@@ -1,8 +1,10 @@
+// backend/routes/receipts.routes.js
 import express from "express";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import fs from "fs";
+
 import {
   createReceipt,
   getReceipt,
@@ -10,28 +12,29 @@ import {
   reviewReceipt,
 } from "../controllers/receipts.controller.js";
 
-const uploadRoot = path.join(process.cwd(), "uploads", "receipts");
+// ensure upload dir exists: ./uploads/receipts
+const uploadRoot = path.resolve("uploads", "receipts");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadRoot),
-  filename: (req, file, cb) => {
+  destination: (_req, _file, cb) => cb(null, uploadRoot),
+  filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase();
-    const name =
-      Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    const name = `${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
     cb(null, name + ext);
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
     const ok = ["image/jpeg", "image/png", "application/pdf"].includes(
       file.mimetype
     );
-    if (!ok) return cb(new Error("Invalid file type (JPG/PNG/PDF only)"));
-    cb(null, true);
+    cb(ok ? null : new Error("Invalid file type (JPG/PNG/PDF only)"), ok);
   },
 });
 
@@ -42,14 +45,15 @@ const createLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-const receiptsRouter = express.Router();
+const router = express.Router();
 
-receiptsRouter.post("/", createLimiter, upload.single("file"), createReceipt);
-receiptsRouter.get("/", listReceipts);
-receiptsRouter.get("/:id", getReceipt);
-receiptsRouter.patch("/:id/review", reviewReceipt);
+router.post("/", createLimiter, upload.single("file"), createReceipt);
+router.get("/", listReceipts);
+router.get("/:id", getReceipt);
+router.patch("/:id/review", reviewReceipt);
 
-receiptsRouter.use((err, req, res, next) => {
+// multer + validation error handler for this router
+router.use((err, _req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res.status(413).json({ message: "File too large (max 5MB)" });
@@ -62,4 +66,4 @@ receiptsRouter.use((err, req, res, next) => {
   next(err);
 });
 
-export default receiptsRouter;
+export default router;

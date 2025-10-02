@@ -10,23 +10,26 @@ import { sendAdminApprovalRequestEmail } from "../mailer.js";
 
 export const signup = async (req, res) => {
   const {
+  
     email,
     password,
     confirmPassword,
     name,
     mobile,
     role,
-
+    // doctor fields
     doctorLicenseNumber,
     specialization,
     experience,
     consultationFee,
     description,
     availability,
-
+    // supplier fields
     companyAddress,
     productCategory,
   } = req.body;
+
+  console.log(req.body);
 
   try {
     if (!email || !password || !confirmPassword || !name || !mobile || !role) {
@@ -52,35 +55,43 @@ export const signup = async (req, res) => {
     // Check role-specific fields
     if (role === "DOCTOR") {
       if (!doctorLicenseNumber || !specialization) {
-        return res.status(400).json({
-          success: false,
-          message: "DOCTOR license number and specialization are required",
-        });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "DOCTOR license number and specialization are required",
+          });
       }
     }
 
     if (role === "SUPPLIER") {
       if (!companyAddress || !productCategory) {
-        return res.status(400).json({
-          success: false,
-          message: "All supplier fields are required",
-        });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "All supplier fields are required",
+          });
       }
     }
 
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with this email",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User already exists with this email",
+        });
     }
     const userWithMobile = await User.findOne({ mobile });
     if (userWithMobile) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with this mobile number",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User already exists with this mobile number",
+        });
     }
 
     // Hash password
@@ -331,6 +342,6 @@ export const checkAuth = async (req, res) => {
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("CheckAuth Error:", error);
-    res.status(400).json({ success: false, message: error.message });
-  }
+    res.status(400).json({ success: false, message: error.message });
+  }
 };

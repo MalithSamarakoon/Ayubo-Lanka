@@ -19,4 +19,4 @@ userRouter.delete("/:id", deleteUser);
 userRouter.patch("/approve/:id", approveUser);
 userRouter.patch("/doctor/profile", updateDoctorProfile);
 
-export default userRouter;
+export default userRouter;

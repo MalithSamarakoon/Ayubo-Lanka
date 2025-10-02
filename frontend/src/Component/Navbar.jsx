@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { assets } from "../assets/frontend_assets/assets";
+// src/Component/Navbar.jsx
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { assets } from "../assets/frontend_assets/assets";
 import { useAuthStore } from "../store/authStore";
+import { getCartCount, onCartChange } from "../utils/cartCounter";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
   const { user, logout, isLoading, error } = useAuthStore();
   const isAuthenticated = localStorage.getItem("isAuthenticated");
@@ -25,7 +28,7 @@ const Navbar = () => {
         />
       </Link>
 
-      {/* Navigation Links */}
+      {/* Links */}
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/home" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
@@ -39,7 +42,8 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-        <NavLink to="/Collection" className="flex flex-col items-center gap-1">
+
+        <NavLink to="/collection" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>COLLECTION</p>
@@ -51,7 +55,8 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-        <NavLink to="/Doctor" className="flex flex-col items-center gap-1">
+
+        <NavLink to="/doctor" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>DOCTOR</p>
@@ -63,7 +68,8 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-        <NavLink to="/About" className="flex flex-col items-center gap-1">
+
+        <NavLink to="/about" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>ABOUT</p>
@@ -75,7 +81,8 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
-        <NavLink to="/Contact" className="flex flex-col items-center gap-1">
+
+        <NavLink to="/contact" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
               <p>CONTACT</p>
@@ -91,13 +98,9 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex items-center gap-6">
-        <img
-          src={assets.search_icon}
-          className="w-5 cursor-pointer"
-          alt="Search"
-        />
+        <img src={assets.search_icon} className="w-5 cursor-pointer" alt="Search" />
 
-        {/* Profile Dropdown */}
+        {/* Profile */}
         <div className="group relative">
           <img
             className="w-5 cursor-pointer"
@@ -136,12 +139,14 @@ const Navbar = () => {
           )}
         </div>
 
-        <Link to="/Cart" className="relative">
+        {/* Cart */}
+        <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="Cart" />
 
           <p className="hidden absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]"></p>
         </Link>
 
+        {/* Mobile menu toggle */}
         <img
           onClick={() => setVisible(true)}
           src={assets.menu_icon}
@@ -171,32 +176,16 @@ const Navbar = () => {
             <p>Back</p>
           </div>
 
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/home">
             HOME
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Collection"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/collection">
             COLLECTION
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/About"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/about">
             ABOUT
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/Contact"
-          >
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/contact">
             CONTACT
           </NavLink>
         </div>
