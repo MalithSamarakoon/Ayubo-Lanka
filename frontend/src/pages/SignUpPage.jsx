@@ -81,6 +81,7 @@ const SignUpPage = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
 
           <Input
@@ -89,6 +90,7 @@ const SignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <Input
@@ -97,6 +99,7 @@ const SignUpPage = () => {
             placeholder="Mobile Number (10 digits)"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
+            required
           />
 
           <Input
@@ -106,6 +109,7 @@ const SignUpPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             togglePassword
+            required
           />
 
           <Input
@@ -115,13 +119,16 @@ const SignUpPage = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             togglePassword
+            required
           />
 
-          {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2.5 drop-shadow-sm">
-              {validationError || error}
-            </p>
-          )}
+          <center>
+            {(validationError || error) && (
+              <p className="text-red-500 font-semibold mt-2.5 drop-shadow-sm">
+                {validationError || error}
+              </p>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 

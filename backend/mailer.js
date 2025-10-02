@@ -75,7 +75,7 @@ export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId)
       subject: "Your Appointment Has Been Approved – AYUBO LANKA",
       html: `
         <div style="font-family: Arial, sans-serif; line-height:1.6">
-          <h2>Appointment Approved ✅</h2>
+          <h2>Appointment Approved</h2>
           <p>Hello ${userName || "Customer"},</p>
           <p>Your appointment has been <strong>approved</strong>.</p>
           <p><strong>Booking ID:</strong> ${bookingId ? "#" + bookingId : "N/A"}</p>
@@ -90,7 +90,12 @@ export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId)
     console.log(`Appointment approval email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending appointment approval email:", error);
+<<<<<<< HEAD
    }
+=======
+   
+  }
+>>>>>>> b1c71d320466af28ecb5e695cdabf0476fbb3061
 };
 
 

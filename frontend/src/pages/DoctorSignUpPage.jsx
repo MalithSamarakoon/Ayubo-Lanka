@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, Lock, Mail, Phone, User, FileText,Eye, EyeOff } from "lucide-react";
+import {
+  Loader,
+  Lock,
+  Mail,
+  Phone,
+  User,
+  FileText,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-
 
 const DoctorSignUpPage = () => {
   const [name, setName] = useState("");
@@ -16,8 +24,6 @@ const DoctorSignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState("");
-
-
 
   const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
@@ -95,6 +101,7 @@ const DoctorSignUpPage = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <Input
             icon={FileText}
@@ -102,6 +109,7 @@ const DoctorSignUpPage = () => {
             placeholder="Doctor License Number"
             value={doctorLicenseNumber}
             onChange={(e) => setDoctorLicenseNumber(e.target.value)}
+            required
           />
 
           <div className="mb-4 relative">
@@ -133,6 +141,7 @@ const DoctorSignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input
             icon={Phone}
@@ -140,6 +149,7 @@ const DoctorSignUpPage = () => {
             placeholder="Mobile Number (10 digits)"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
+            required
           />
           <Input
             icon={Lock}
@@ -148,9 +158,9 @@ const DoctorSignUpPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             togglePassword
-            
+            required
           />
-           
+
           <Input
             icon={Lock}
             type="password"
@@ -158,13 +168,17 @@ const DoctorSignUpPage = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             togglePassword
+            required
           />
+          
 
-          {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2">
-              {validationError || error}
-            </p>
-          )}
+          <center>
+            {(validationError || error) && (
+              <p className="text-red-500 font-semibold mt-2">
+                 {validationError || error}
+              </p>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 
@@ -183,14 +197,16 @@ const DoctorSignUpPage = () => {
           </motion.button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
-        <p className="text-sm text-gray-600">
-          Already registered?{" "}
-          <Link to={"/login"} className="text-green-500 hover:underline">
-            Login
-          </Link>
-        </p>
-      </div>
+      <center>
+        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
+          <p className="text-sm text-gray-600">
+            Already registered?{" "}
+            <Link to={"/login"} className="text-green-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </center>
     </motion.div>
   );
 };

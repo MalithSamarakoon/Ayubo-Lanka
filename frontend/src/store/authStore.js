@@ -1,9 +1,8 @@
 import { create } from "zustand";
 import axios from "axios";
 
-// CHANGE: use Vite base URL, fallback to 5000
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000"; // CHANGE
-const API_URL = `${API_BASE}/api/auth`; // CHANGE
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_URL = `${API_BASE}/api/auth`;
 
 axios.defaults.withCredentials = true;
 
@@ -46,7 +45,7 @@ export const useAuthStore = create((set) => ({
     } catch (err) {
       set({
         isLoading: false,
-        error: err.response?.data?.message || "Signup failed", // CHANGE
+        error: err.response?.data?.message || "Signup failed", 
       });
       throw err;
     }
@@ -61,7 +60,7 @@ export const useAuthStore = create((set) => ({
       });
 
       set({
-        user: response.data.user, // must include _id for receipt linkage
+        user: response.data.user, 
         isAuthenticated: true,
         error: null,
         isLoading: false,
@@ -72,7 +71,7 @@ export const useAuthStore = create((set) => ({
       return response.data.user;
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error logging in", // CHANGE
+        error: error.response?.data?.message || "Error logging in", 
         isLoading: false,
       });
       throw error;
@@ -109,7 +108,7 @@ export const useAuthStore = create((set) => ({
       return response.data;
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error verifying email", // CHANGE
+        error: error.response?.data?.message || "Error verifying email", 
         isLoading: false,
       });
       throw error;
@@ -166,4 +165,7 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
+
+  setError: (error) => set({ error})
+    
 }));
