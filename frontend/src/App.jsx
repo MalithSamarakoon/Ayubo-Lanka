@@ -24,7 +24,7 @@ import ApprovalPendingPage from "./pages/ApprovalPendingPage";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
 import Doctor from "./pages/Doctor";
-import Support from "./pages/Support";
+import Support from "./pages/support";
 import About from "./pages/About";
 import Appointment from "./pages/Appoinment";
 import PatientForm from "./pages/PatientForm";
