@@ -1,64 +1,16 @@
 // frontend/src/pages/Support.jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SupportForm from "../Component/SupportForm";
 import FeedbackForm from "../Component/FeedbackForm";
 import TicketSystem from "../Component/TicketSystem";
 import api from "../lib/api";
 
-const TOAST_POSITION = "top-left";
-
-const positionClasses = (pos) => {
-  switch (pos) {
-    case "top-left": return "top-4 left-4";
-    case "top-right": return "top-4 right-4";
-    case "top-center": return "top-4 left-1/2 -translate-x-1/2";
-    case "bottom-left": return "bottom-6 left-4";
-    case "bottom-right": return "bottom-6 right-4";
-    case "bottom-center": return "bottom-6 left-1/2 -translate-x-1/2";
-    case "middle-left": return "top-1/2 -translate-y-1/2 left-4";
-    case "middle-right": return "top-1/2 -translate-y-1/2 right-4";
-    case "center": return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
-    default: return "top-4 left-1/2 -translate-x-1/2";
-  }
-};
-
-export default function Support() {
-  // 'inquiry' | 'ticket' | 'feedback' | null
-  const [activeModal, setActiveModal] = useState(null);
-  const [openFAQ, setOpenFAQ] = useState(null);
-  const [toast, setToast] = useState(null); // { type, message }
-  const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
-
-  // ---- load approved feedbacks (shared helper) ----
-  const loadApproved = useCallback(async () => {
-    try {
-      const { data } = await api.get("/api/feedback/approved");
-      setApprovedFeedbacks(data || []);
-    } catch (e) {
-      console.error("Failed to load approved feedbacks", e);
-    }
-  }, []);
-
- useEffect(() => {
-    loadApproved();                       // initial load
-    const onFocus = () => loadApproved(); // refresh when tab becomes active
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [loadApproved]);
-
-  const openModal = (m) => setActiveModal(m);
-  const closeModal = () => setActiveModal(null);
-  const toggleFAQ = (i) => setOpenFAQ(openFAQ === i ? null : i);
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
-
-  const Modal = ({ children, onClose }) => (
+/** ---- Modal moved OUTSIDE the Support component so it doesn't remount on every parent render ---- */
+const ModalShell = memo(function ModalShell({ open, onClose, children }) {
+  return (
     <AnimatePresence>
-      {activeModal && (
+      {open && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -89,6 +41,58 @@ export default function Support() {
       )}
     </AnimatePresence>
   );
+});
+
+const TOAST_POSITION = "top-left";
+
+const positionClasses = (pos) => {
+  switch (pos) {
+    case "top-left": return "top-4 left-4";
+    case "top-right": return "top-4 right-4";
+    case "top-center": return "top-4 left-1/2 -translate-x-1/2";
+    case "bottom-left": return "bottom-6 left-4";
+    case "bottom-right": return "bottom-6 right-4";
+    case "bottom-center": return "bottom-6 left-1/2 -translate-x-1/2";
+    case "middle-left": return "top-1/2 -translate-y-1/2 left-4";
+    case "middle-right": return "top-1/2 -translate-y-1/2 right-4";
+    case "center": return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+    default: return "top-4 left-1/2 -translate-x-1/2";
+  }
+};
+
+export default function Support() {
+  // 'inquiry' | 'ticket' | 'feedback' | null
+  const [activeModal, setActiveModal] = useState(null);
+  const [openFAQ, setOpenFAQ] = useState(null);
+  const [toast, setToast] = useState(null); // { type, message }
+  const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
+
+  // ---- load approved feedbacks ----
+  const loadApproved = useCallback(async () => {
+    try {
+      const { data } = await api.get("/api/feedback/approved");
+      setApprovedFeedbacks(data || []);
+    } catch (e) {
+      console.error("Failed to load approved feedbacks", e);
+    }
+  }, []);
+
+  // Keep this! With ModalShell extracted, it won't reset your forms anymore.
+  useEffect(() => {
+    loadApproved();                       // initial load
+    const onFocus = () => loadApproved(); // refresh when tab becomes active (closing file picker triggers focus too)
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [loadApproved]);
+
+  const openModal = (m) => setActiveModal(m);
+  const closeModal = () => setActiveModal(null);
+  const toggleFAQ = (i) => setOpenFAQ(openFAQ === i ? null : i);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-12">
@@ -197,7 +201,7 @@ export default function Support() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`py-3 px-6 font-medium rounded-xl text-white bg-gradient-to-r ${item.color} hover:shadow-md transition-all`}
-                  onClick={() => openModal(item.id)}
+                  onClick={() => setActiveModal(item.id)}
                 >
                   {item.buttonText}
                 </motion.button>
@@ -246,7 +250,7 @@ export default function Support() {
               { q: "Are your products authentic Ayurveda?", a: "All our products are certified authentic Ayurvedic formulations, made with traditional methods and natural ingredients." },
             ].map((faq, i) => (
               <div key={i} className="bg-green-50 rounded-xl p-4 cursor-pointer hover:bg-green-100 transition">
-                <button className="w-full flex justify-between items-center font-semibold text-green-800" onClick={() => toggleFAQ(i)}>
+                <button className="w-full flex justify-between items-center font-semibold text-green-800" onClick={() => setOpenFAQ(openFAQ === i ? null : i)}>
                   {faq.q}
                   <motion.span animate={{ rotate: openFAQ === i ? 180 : 0 }} transition={{ duration: 0.3 }}>▼</motion.span>
                 </button>
@@ -269,15 +273,15 @@ export default function Support() {
         </motion.section>
       </div>
 
-      {/* Modal area */}
-      <Modal onClose={closeModal}>
+      {/* Modal area — now uses stable ModalShell */}
+      <ModalShell open={Boolean(activeModal)} onClose={() => setActiveModal(null)}>
         {activeModal === "inquiry" && (
           <div className="p-6">
             <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">Submit Your Inquiry</h2>
             <SupportForm
               onSuccess={(msg) => {
                 showToast(msg || "Inquiry submitted successfully!");
-                closeModal();
+                setActiveModal(null);
               }}
             />
           </div>
@@ -288,7 +292,7 @@ export default function Support() {
             <TicketSystem
               onSuccess={(msg) => {
                 showToast(msg || "Ticket created successfully!");
-                closeModal();
+                setActiveModal(null);
               }}
             />
           </div>
@@ -299,15 +303,13 @@ export default function Support() {
             <FeedbackForm
               onSuccess={(msg) => {
                 showToast(msg || "Thank you! Your feedback was submitted.");
-                // After new feedback is approved by admin later, page will auto-refresh on focus/interval.
-                // But we also refresh now in case your backend auto-approves some items.
-                loadApproved();
-                closeModal();
+                loadApproved(); // in case backend auto-approves
+                setActiveModal(null);
               }}
             />
           </div>
         )}
-      </Modal>
+      </ModalShell>
     </div>
   );
 }
