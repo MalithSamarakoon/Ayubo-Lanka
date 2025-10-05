@@ -116,9 +116,10 @@ export default function OrderForm() {
         fd.append("payment", JSON.stringify({ method: "BANK_SLIP" }));
         fd.append("total", String(subtotal));
 
-       res = await axios.post("http://localhost:5000/api/orders/with-slip", fd, {
+       res = await axios.post("http://localhost:5000/api/orders", fd, {
   headers: { "Content-Type": "multipart/form-data" },
 });
+
 
       } else {
         const payload = {
