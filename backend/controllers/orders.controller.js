@@ -16,7 +16,7 @@ export const createOrder = async (req, res) => {
         ...(payment || {}),
         method: "BANK_SLIP",
         slipFileName: req.file.filename,
-        slipUrl: `${req.protocol}://${req.get("host")}/uploads/slips/${req.file.filename}`,
+        slipUrl: `${req.protocol}://${req.get("host")}/uploads/receipts/${req.file.filename}`,
       };
     }
 

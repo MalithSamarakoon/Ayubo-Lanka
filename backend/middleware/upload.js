@@ -2,7 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const dir = path.resolve("uploads/slips");
+const dir = path.resolve("uploads/receipts");
 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
 const storage = multer.diskStorage({
