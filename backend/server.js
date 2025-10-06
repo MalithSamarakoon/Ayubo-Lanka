@@ -7,6 +7,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import connectDB from './lib/db.js';
+import { fileURLToPath } from "url";
+import receiptsRouter from "./routes/receipts.routes.js";
+import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.routes.js";
+import patientRouter from "./routes/patientRoutes.js";
+import productRouter from "./routes/product.route.js";
+import orderRouter from "./routes/orders.route.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import receiptsRouter from './routes/receipts.routes.js';
 import authRouter from './routes/auth.route.js';
@@ -38,8 +48,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
 // --- Static /uploads ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- Health ---
@@ -51,6 +59,7 @@ app.use("/api/products", productRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/patients", patientRouter);
+app.use("/api/orders", orderRouter);
 
 // --- Routes ---
 app.use('/api/receipts', receiptsRouter);
