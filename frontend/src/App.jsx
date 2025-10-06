@@ -2,18 +2,20 @@
 import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { ErrorBoundary } from "react-error-boundary";
 
+
+// ---------- Components ----------
 import Navbar from "./Component/Navbar";
 import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
 
+// ---------- Store ----------
 import { useAuthStore } from "./store/authStore";
 
+// ---------- Auth Pages ----------
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
-import UserDashboard from "./pages/UserDashboard";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RoleSelection from "./pages/RoleSelection";
@@ -21,44 +23,45 @@ import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
 
+// ---------- Main & Public Pages ----------
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
+import ProductDetail from "./pages/ProductDetail";
 import Doctor from "./pages/Doctor";
-import Support from "./pages/support";
+import Support from "./pages/Support";
 import About from "./pages/About";
-import Appointment from "./pages/Appoinment";
+import Cart from "./pages/Cart";
+
+// ---------- Orders & Payments ----------
+import OrderForm from "./pages/OrderForm";
+import OrdersList from "./pages/OrdersList";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderDisplay from "./pages/OrderDisplay";
+import OrdersupdateUser from "./pages/OrdersupdateUser";
+import Onlinepayment from "./pages/Onlinepayment";
+
+// ---------- Dashboards & Management ----------
+import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserMgt from "./pages/UserMgt";
+import UpdateUser from "./pages/UpdateUser";
+import ProductDashboard from "./pages/ProductDashboard";
+import UpdateProduct from "./pages/UpdateProduct";
+
+// ---------- Doctor Appointments ----------
+import Appointment from "./pages/Appoinment";
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
 import UploadSlip from "./pages/UploadSlip";
-import Onlinepayment from "./pages/Onlinepayment";
-import ProductDetail from "./pages/ProductDetail";
-import ProductDashboard from "./pages/ProductDashboard";
-import UpdateProduct from "./pages/UpdateProduct";
-
-import UserMgt from "./pages/UserMgt";
-import AdminDashboard from "./pages/AdminDashboard";
-import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
+
+// ---------- Support & Reviews ----------
 import AdminSupportCenter from "./pages/AdminSupportCenter";
-// Review pages
 import TicketReview from "./pages/TicketReview";
 import SupportReview from "./pages/SupportReview";
 import FeedbackReview from "./pages/FeedbackReview";
-
-// ---------- helpers ----------
-import Footer from "./Component/Fotter";
-import Collection from "./pages/Collection";
-import ProductDetail from "./pages/ProductDetail";
-import OrderForm from "./pages/OrderForm";
-import OrdersList from "./pages/OrdersList";
-import Cart from "./pages/Cart";
-import OrderSuccess from "./pages/OrderSuccess";
-import OrderDisplay from "./pages/OrderDisplay";
-import OrdersupdateUser from "./pages/OrdersupdateUser";
-import { useAuthStore } from "./store/authStore";
 
 // ---------- Auth Guards ----------
 const ProtectedRoute = ({ children }) => {
@@ -74,19 +77,18 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
+// ---------- Error Fallback ----------
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div style={{ padding: 16 }}>
       <h2>Something went wrong</h2>
-      <pre style={{ whiteSpace: "pre-wrap" }}>
-        {error?.stack || String(error)}
-      </pre>
+      <pre style={{ whiteSpace: "pre-wrap" }}>{error?.stack || String(error)}</pre>
       <button onClick={resetErrorBoundary}>Try again</button>
     </div>
   );
 }
 
-// ---------- app ----------
+// ---------- Main App ----------
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
 
@@ -99,7 +101,6 @@ function App() {
   return (
     <div className="min-h-screen w-full bg-white relative">
       <Navbar />
-
       <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
         <Routes>
           {/* Auth entry */}
@@ -124,6 +125,7 @@ function App() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/doctor" element={<Doctor />} />
+          <Route path="/cart" element={<Cart />} />
 
           {/* Home (protected after login) */}
           <Route
@@ -187,7 +189,7 @@ function App() {
             }
           />
 
-          {/* -------- Orders & Payments -------- */}
+          {/* Orders & Payments */}
           <Route
             path="/order-form"
             element={
@@ -228,7 +230,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Payment success page (public) */}
           <Route path="/order-success" element={<OrderSuccess />} />
 
           {/* Role Selection & Signups */}
@@ -345,14 +346,20 @@ function App() {
             }
           />
 
-          <Route path="/admin/support-center" element={<ProtectedRoute><AdminSupportCenter /></ProtectedRoute>} />
-
-            <Route path="/tickets/review/:id" element={<TicketReview />} />
-            <Route path="/support/review/:id" element={<SupportReview />} />
-            <Route path="/feedback/review/:id" element={<FeedbackReview />} />
-
-          {/* Cart (usually public) */}
-          <Route path="/cart" element={<Cart />} />
+          {/* Admin support & reviews */}
+          <Route
+            path="/admin/support-center"
+            element={
+              <ProtectedRoute>
+                <AdminSupportCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/tickets/review/:id" element={<TicketReview />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/support/review/:id" element={<SupportReview />} />
+          <Route path="/feedback/review/:id" element={<FeedbackReview />} />
+          <Route path="/about" element={<About />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
