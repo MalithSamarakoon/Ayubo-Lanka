@@ -1,6 +1,6 @@
 import React from "react";
 import { Clock } from "lucide-react";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link } from "react-router-dom";
 
 const ApprovalPendingPage = () => {
   return (
@@ -11,11 +11,10 @@ const ApprovalPendingPage = () => {
           Approval Pending
         </h1>
         <p className="text-gray-700">
-          Your account is under review by the admin.  
-          You’ll be notified once it gets approved.
+          Your account is under review by the admin. You’ll be notified once it
+          gets approved.
         </p>
-        
-        {/* Back to Login Button */}
+
         <Link to="/login">
           <button className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-2xl hover:from-green-600 hover:to-emerald-700 transition duration-200">
             Back to Login
@@ -27,4 +26,3 @@ const ApprovalPendingPage = () => {
 };
 
 export default ApprovalPendingPage;
-

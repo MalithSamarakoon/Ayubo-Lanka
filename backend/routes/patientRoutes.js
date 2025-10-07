@@ -1,3 +1,4 @@
+
 import express from "express";
 import {
   createPatient,
@@ -7,21 +8,14 @@ import {
   deletePatient,
 } from "../controllers/patientController.js";
 
-const patientRouter = express.Router();
+const router = express.Router();
 
-// Create patient
-patientRouter.post("/", createPatient);
+router.get("/", getPatients);
+router.get("/:id", getPatientById);
+router.post("/", createPatient);
 
-// Get all patients
-patientRouter.get("/", getPatients);
+router.patch("/:id", updatePatient);
 
-// Get patient by numeric ID
-patientRouter.get("/:id", getPatientById);
+router.delete("/:id", deletePatient);
 
-// Update patient by numeric ID
-patientRouter.put("/:id", updatePatient);
-
-// Delete patient by numeric ID
-patientRouter.delete("/:id", deletePatient);
-
-export default patientRouter;
+export default router;

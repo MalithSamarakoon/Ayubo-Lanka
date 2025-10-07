@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProductStore } from '../stores/useProductStore';
+import { addItem } from "../utils/cart";
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -37,15 +39,30 @@ const ProductDetail = () => {
     );
   }
 
-  const handleAddToCart = () => {
-    // Placeholder for cart functionality (will be implemented by team member)
-    alert(`Added ${quantity} x ${selectedProduct.name} to cart!\n(Cart functionality will be implemented by team member)`);
+ 
+
+   const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    if (typeof selectedProduct.stock !== "undefined" && selectedProduct.stock <= 0) {
+      toast.error("Out of stock");
+      return;
+    }
+    addItem(selectedProduct, quantity);
+    toast.success("Added to cart successfully");
+    // stay on page; Navbar badge auto-updates
   };
 
-  const handleBuyNow = () => {
-    // Placeholder for buy now functionality (will be implemented by team member)
-    alert(`Buy Now: ${quantity} x ${selectedProduct.name}\n(Buy Now functionality will be implemented by team member)`);
+ 
+    const handleBuyNow = () => {
+    if (!selectedProduct) return;
+    if (typeof selectedProduct.stock !== "undefined" && selectedProduct.stock <= 0) {
+      toast.error("Out of stock");
+      return;
+    }
+    addItem(selectedProduct, quantity);
+    navigate("/order-form"); // ✅ your route name in App.jsx
   };
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

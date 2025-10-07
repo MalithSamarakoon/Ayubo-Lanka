@@ -17,7 +17,6 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
 
-  // ✅ Password validation rules
   const validatePassword = (pwd) => {
     const rules = [
       { regex: /.{6,}/, message: "At least 6 characters" },
@@ -34,12 +33,10 @@ const SignUpPage = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    // 🔹 Mobile validation
     if (!/^\d{10}$/.test(mobile)) {
       return setValidationError("Mobile number must be exactly 10 digits.");
     }
 
-    // 🔹 Password validations
     const pwdError = validatePassword(password);
     if (pwdError) {
       return setValidationError(pwdError);
@@ -49,7 +46,7 @@ const SignUpPage = () => {
       return setValidationError("Passwords do not match.");
     }
 
-    setValidationError(""); // clear error if valid
+    setValidationError("");
 
     try {
       await signup({
@@ -84,6 +81,7 @@ const SignUpPage = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
 
           <Input
@@ -92,6 +90,7 @@ const SignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <Input
@@ -100,6 +99,7 @@ const SignUpPage = () => {
             placeholder="Mobile Number (10 digits)"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
+            required
           />
 
           <Input
@@ -108,6 +108,8 @@ const SignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
+            required
           />
 
           <Input
@@ -116,13 +118,17 @@ const SignUpPage = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            togglePassword
+            required
           />
 
-          {(validationError || error) && (
-            <p className="text-red-500 font-semibold mt-2.5 drop-shadow-sm">
-              {validationError || error}
-            </p>
-          )}
+          <center>
+            {(validationError || error) && (
+              <p className="text-red-500 font-semibold mt-2.5 drop-shadow-sm">
+                {validationError || error}
+              </p>
+            )}
+          </center>
 
           <PasswordStrengthMeter password={password} />
 
@@ -147,7 +153,10 @@ const SignUpPage = () => {
       <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
         <p className="text-sm text-gray-600 text-center">
           Already have an account?{" "}
-          <Link to={"/login"} className="text-green-600 font-medium hover:underline">
+          <Link
+            to={"/login"}
+            className="text-green-600 font-medium hover:underline"
+          >
             Login
           </Link>
         </p>

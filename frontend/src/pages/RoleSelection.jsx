@@ -5,9 +5,21 @@ export default function RoleSelection() {
   const navigate = useNavigate();
 
   const roles = [
-    { name: "Doctor", color: "from-green-400 to-green-600", path: "/signup/doctor" },
-    { name: "Supplier", color: "from-green-300 to-green-500", path: "/signup/supplier" },
-    { name: "User", color: "from-green-200 to-green-400", path: "/signup/user" },
+    {
+      name: "Doctor",
+      color: "from-green-400 to-green-600",
+      path: "/signup/doctor",
+    },
+    {
+      name: "Supplier",
+      color: "from-green-300 to-green-500",
+      path: "/signup/supplier",
+    },
+    {
+      name: "User",
+      color: "from-green-200 to-green-400",
+      path: "/signup/user",
+    },
   ];
 
   return (
@@ -19,7 +31,9 @@ export default function RoleSelection() {
         transition={{ duration: 0.8 }}
       >
         Who are you registering as?
-        <span className="block text-green-500 mt-2">Doctor, Supplier or User?</span>
+        <span className="block text-green-500 mt-2">
+          Doctor, Supplier or User?
+        </span>
       </motion.h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
@@ -40,4 +54,3 @@ export default function RoleSelection() {
     </div>
   );
 }
-
