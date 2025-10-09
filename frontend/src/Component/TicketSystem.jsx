@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const MAX_FILES = 5;
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -19,22 +19,7 @@ const initial = {
   subject: "",
   description: "",
 };
-<input
-  id="ticket-file-upload"
-  type="file"
-  multiple
-  className="sr-only"
-  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  onChange={(e) => {
-    try {
-      const next = Array.from(e.target.files || []);
-      setFiles(next);
-      validateField("files", next);
-    } catch (err) {
-      console.error("ticket file select error:", err);
-    }
-  }}
-/>
+// removed stray top-level input that caused crashes
 
 
 export default function TicketSystem() {
@@ -119,7 +104,7 @@ export default function TicketSystem() {
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
       files.forEach((f) => fd.append("attachments", f));
 
-      const { data } = await api.post("/api/tickets", fd, {
+      const { data } = await axiosInstance.post("/tickets", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

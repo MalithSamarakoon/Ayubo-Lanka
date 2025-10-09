@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 
 const TicketReview = () => {
@@ -24,7 +24,7 @@ const TicketReview = () => {
   const [removedSet, setRemovedSet] = useState(new Set());
   const [newFiles, setNewFiles] = useState([]);
 
-  const fileUrl = (p) => `${api.defaults.baseURL?.replace(/\/$/, "")}${p}`;
+  const fileUrl = (p) => `${axiosInstance.defaults.baseURL?.replace(/\/$/, "")}${p}`;
 
   useEffect(() => {
     (async () => {
@@ -32,7 +32,7 @@ const TicketReview = () => {
         // we created it via POST /api/tickets which returned ticket with _id
         // read it back: if you have GET /api/tickets/:id you can use that;
         // otherwise list & find (to match your existing routes)
-        const { data } = await api.get("/api/tickets");
+  const { data } = await axiosInstance.get("/tickets");
         const doc = (data || []).find((t) => String(t._id) === String(id));
         if (!doc) {
           toast.error("Ticket not found");
@@ -69,7 +69,7 @@ const TicketReview = () => {
   const onDelete = async () => {
     if (!window.confirm("Delete this ticket?")) return;
     try {
-      await api.delete(`/api/tickets/${ticket._id}`); // if you don't have this route, create it or skip delete here
+  await axiosInstance.delete(`/tickets/${ticket._id}`); // if you don't have this route, create it or skip delete here
       toast.success("Ticket deleted");
       navigate("/support");
     } catch (e) {
@@ -90,7 +90,7 @@ const TicketReview = () => {
       fd.append("keep", JSON.stringify(keep));
       newFiles.forEach((f) => fd.append("attachments", f));
 
-      const { data } = await api.put(`/api/tickets/${ticket._id}`, fd, {
+      const { data } = await axiosInstance.put(`/tickets/${ticket._id}`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

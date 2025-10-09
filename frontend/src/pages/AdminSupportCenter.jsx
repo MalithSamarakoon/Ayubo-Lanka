@@ -1,6 +1,6 @@
 // src/pages/AdminSupportCenter.jsx
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -10,7 +10,7 @@ const th = "px-4 py-3 text-left";
 const td = "px-4 py-3 border-t";
 const trim = (s, n = 80) => (s || "-").slice(0, n) + ((s || "").length > n ? "…" : "");
 const fmt = (d) => (d ? new Date(d).toLocaleString() : "—");
-const BASE = (api.defaults.baseURL || "").replace(/\/$/, "");
+const BASE = (axiosInstance.defaults.baseURL || "").replace(/\/$/, "");
 const abs = (p) => (p?.startsWith("http") ? p : `${BASE}${p || ""}`);
 
 // simple static badge (no dynamic Tailwind string)
@@ -37,15 +37,15 @@ export default function AdminSupportCenter() {
 
   // ---------- loaders ----------
   const loadInquiries = async () => {
-    const { data } = await api.get("/api/support/inquiries");
+  const { data } = await axiosInstance.get("/support/inquiries");
     setInquiries(data || []);
   };
   const loadTickets = async () => {
-    const { data } = await api.get("/api/tickets");
+  const { data } = await axiosInstance.get("/tickets");
     setTickets(data || []);
   };
   const loadFeedbacks = async () => {
-    const { data } = await api.get("/api/feedback");
+  const { data } = await axiosInstance.get("/feedback");
     setFeedbacks(data || []);
   };
 
@@ -79,7 +79,7 @@ export default function AdminSupportCenter() {
   const approveInquiry = async (id, next) => {
     setInquiries((prev) => prev.map((x) => (x._id === id ? { ...x, isApproved: next } : x)));
     try {
-      await api.patch(`/api/support/inquiry/${id}/approve`, { isApproved: next });
+      await axiosInstance.patch(`/support/inquiry/${id}/approve`, { isApproved: next });
     } catch {
       setInquiries((prev) => prev.map((x) => (x._id === id ? { ...x, isApproved: !next } : x)));
     }
@@ -89,7 +89,7 @@ export default function AdminSupportCenter() {
     const old = inquiries;
     setInquiries((prev) => prev.filter((x) => x._id !== id));
     try {
-      await api.delete(`/api/support/inquiry/${id}`);
+  await axiosInstance.delete(`/support/inquiry/${id}`);
     } catch {
       setInquiries(old);
     }
@@ -99,7 +99,7 @@ export default function AdminSupportCenter() {
   const approveTicket = async (id) => {
     setTickets((p) => p.map((t) => (t._id === id ? { ...t, status: "in-progress" } : t)));
     try {
-      await api.patch(`/api/tickets/${id}/approve`, { isApproved: true });
+      await axiosInstance.patch(`/tickets/${id}/approve`, { isApproved: true });
     } catch {
       loadTickets();
     }
@@ -108,7 +108,7 @@ export default function AdminSupportCenter() {
     if (!window.confirm("Reject (close) this ticket?")) return;
     setTickets((p) => p.map((t) => (t._id === id ? { ...t, status: "closed" } : t)));
     try {
-      await api.patch(`/api/tickets/${id}/reject`);
+      await axiosInstance.patch(`/tickets/${id}/reject`);
     } catch {
       loadTickets();
     }
@@ -119,7 +119,7 @@ export default function AdminSupportCenter() {
     // support page uses /approved and checks `isApproved`
     setFeedbacks((prev) => prev.map((f) => (f._id === id ? { ...f, isApproved: next } : f)));
     try {
-      await api.patch(`/api/feedback/${id}/approve`, { isApproved: next });
+      await axiosInstance.patch(`/feedback/${id}/approve`, { isApproved: next });
     } catch {
       setFeedbacks((prev) => prev.map((f) => (f._id === id ? { ...f, isApproved: !next } : f)));
     }
@@ -129,7 +129,7 @@ export default function AdminSupportCenter() {
     const old = feedbacks;
     setFeedbacks((prev) => prev.filter((x) => x._id !== id));
     try {
-      await api.delete(`/api/feedback/${id}`);
+  await axiosInstance.delete(`/feedback/${id}`);
     } catch {
       setFeedbacks(old);
     }

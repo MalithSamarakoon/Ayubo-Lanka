@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SupportForm from "../Component/SupportForm";
 import FeedbackForm from "../Component/FeedbackForm";
 import TicketSystem from "../Component/TicketSystem";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const TOAST_POSITION = "top-left";
 
@@ -33,8 +33,15 @@ export default function Support() {
   // ---- load approved feedbacks (shared helper) ----
   const loadApproved = useCallback(async () => {
     try {
-      const { data } = await api.get("/api/feedback/approved");
-      setApprovedFeedbacks(data || []);
+      const { data } = await axiosInstance.get("/feedback/approved");
+      if (Array.isArray(data) && data.length > 0) {
+        setApprovedFeedbacks(data);
+        return;
+      }
+      // Fallback for legacy data where `approved` flag or `consent` is used
+      const all = await axiosInstance.get("/feedback");
+      const list = (all.data || []).filter((f) => f.isApproved || f.approved || f.consent);
+      setApprovedFeedbacks(list);
     } catch (e) {
       console.error("Failed to load approved feedbacks", e);
     }

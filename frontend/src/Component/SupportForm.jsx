@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const MAX_FILES = 5;
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -14,23 +14,7 @@ const initial = {
   subject: "",
   message: "",
 };
-<input
-  id="support-file-upload"
-  type="file"
-  multiple
-  className="sr-only"
-  accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-  onChange={(e) => {
-    try {
-      const next = Array.from(e.target.files || []);
-      setFiles(next);
-      validateField("files", next);
-    } catch (err) {
-      console.error("support file select error:", err);
-    }
-  }}
-/>
-
+// removed stray top-level input that caused crashes
 
 export default function SupportForm() {
   const navigate = useNavigate();
@@ -111,7 +95,7 @@ export default function SupportForm() {
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
       files.forEach((f) => fd.append("files", f));
 
-      const { data } = await api.post("/api/support/inquiry", fd, {
+      const { data } = await axiosInstance.post("/support/inquiry", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

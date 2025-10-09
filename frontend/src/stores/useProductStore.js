@@ -1,7 +1,7 @@
 // frontend/src/stores/useProductStore.js
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
-import api from '../lib/api'; // ✅ use the consolidated client
+import axiosInstance from '../lib/axios'; // use the consolidated client
 
 export const useProductStore = create((set) => ({
   products: [],
@@ -13,7 +13,7 @@ export const useProductStore = create((set) => ({
   createProduct: async (productData) => {
     set({ loading: true });
     try {
-      const { data } = await api.post('/products/addProduct', productData);
+  const { data } = await axiosInstance.post('/products/addProduct', productData);
       // Backend may return { product } OR the product directly
       const newProduct = data?.product ?? data;
       set((state) => ({
@@ -35,7 +35,7 @@ export const useProductStore = create((set) => ({
   fetchAllProducts: async () => {
     set({ loading: true });
     try {
-      const { data } = await api.get('/products/allProducts');
+  const { data } = await axiosInstance.get('/products/allProducts');
       set({
         products: data?.products ?? [],
         loading: false,
@@ -53,7 +53,7 @@ export const useProductStore = create((set) => ({
   fetchFeaturedProducts: async () => {
     set({ loading: true });
     try {
-      const { data } = await api.get('/products/featuredProducts');
+  const { data } = await axiosInstance.get('/products/featuredProducts');
       set({
         products: data?.featuredProducts ?? [],
         loading: false,
@@ -71,7 +71,7 @@ export const useProductStore = create((set) => ({
   getProductById: async (productId) => {
     set({ loading: true, selectedProduct: null });
     try {
-      const { data } = await api.get(`/products/${productId}`);
+  const { data } = await axiosInstance.get(`/products/${productId}`);
       const product = data?.product ?? data;
       set({ selectedProduct: product, loading: false });
       return product;
@@ -89,7 +89,7 @@ export const useProductStore = create((set) => ({
   updateProduct: async (productId, productData) => {
     set({ loading: true });
     try {
-      const { data } = await api.patch(`/products/${productId}`, productData);
+  const { data } = await axiosInstance.patch(`/products/${productId}`, productData);
       const updated = data?.product ?? data;
       set((state) => ({
         products: state.products.map((p) =>
@@ -117,7 +117,7 @@ export const useProductStore = create((set) => ({
   toggleFeaturedProduct: async (productId) => {
     set({ loading: true });
     try {
-      const { data } = await api.patch(`/products/${productId}/toggleFeatured`);
+  const { data } = await axiosInstance.patch(`/products/${productId}/toggleFeatured`);
       const updated = data?.product ?? data;
       set((state) => ({
         products: state.products.map((p) =>
@@ -138,7 +138,7 @@ export const useProductStore = create((set) => ({
   deleteProduct: async (productId) => {
     set({ loading: true });
     try {
-      await api.delete(`/products/${productId}`);
+  await axiosInstance.delete(`/products/${productId}`);
       set((state) => ({
         products: state.products.filter((p) => p._id !== productId),
         loading: false,
