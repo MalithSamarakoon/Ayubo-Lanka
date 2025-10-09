@@ -4,20 +4,30 @@ import { Mail, Lock, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, setError } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const user = await login(email, password);
-    console.log("Login successful");
-    if (user.role === "SUPER_ADMIN") navigate("/admin-dashboard");
-    else navigate("/home");
+
+    if (user) {
+      if (user.role === "SUPER_ADMIN") {
+        toast.success("Admin logged in successfully");
+        navigate("/admin-dashboard");
+        setError(null);
+      } else {
+        toast.success("User logged in successfully");
+        navigate("/home");
+        setError(null);
+      }
+    }
   };
 
   return (
@@ -39,6 +49,7 @@ const LoginPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <Input
@@ -47,6 +58,8 @@ const LoginPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            togglePassword
+            required
           />
 
           <div className="flex items-center mb-6">
@@ -58,7 +71,11 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          {error && <p className="text-red-500 font-semibold mb-2">{error}</p>}
+          <center>
+            {error && (
+              <p className="text-red-500 font-semibold mb-2">{error}</p>
+            )}
+          </center>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -77,14 +94,20 @@ const LoginPage = () => {
           </motion.button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
-        <p className="text-sm text-gray-400">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-green-400 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
+      <center>
+        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-xl overflow-hidden border border-white/20">
+          <p className="text-sm text-gray-400">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              className="text-green-400 hover:underline"
+              onClick={() => setError(null)}
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </center>
     </motion.div>
   );
 };

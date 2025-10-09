@@ -1,4 +1,3 @@
-// frontend/src/pages/UploadSlip.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -17,7 +16,10 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
+<<<<<<< HEAD
   // derive appointment identifiers from router state/params/query
+=======
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const stateApptId = location.state?.appointmentId; // Patient._id
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");
@@ -189,9 +191,7 @@ export default function ReceiptUploadPage() {
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
-          <div className="absolute animate-bounce text-2xl font-bold text-emerald-700 bg-white px-4 py-2 rounded-lg shadow-lg">
-            🚀 Konami Code Activated! You're a coding legend! 🚀
-          </div>
+       
           <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 opacity-20 animate-pulse"></div>
         </div>
       )}
@@ -381,7 +381,7 @@ export default function ReceiptUploadPage() {
                 Submitting Receipt...
               </span>
             ) : (
-              "🚀 Submit Receipt"
+              " Submit Receipt"
             )}
           </motion.button>
 
@@ -392,7 +392,7 @@ export default function ReceiptUploadPage() {
   );
 }
 
-/* Reusable fields */
+
 function Input({ label, error, className, ...props }) {
   const base =
     "w-full border-2 rounded-xl p-3 transition-all duration-300 focus:ring-2 focus:ring-emerald-200";

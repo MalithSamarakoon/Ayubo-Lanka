@@ -1,15 +1,12 @@
-// backend/middleware/verifyToken.js
 import jwt from "jsonwebtoken";
 
-/**
- * Reads JWT from:
- *  1) Authorization header: "Bearer <token>"
- *  2) Cookie: token
- * On success: sets req.user (full payload) and req.userId (id/userId) then next()
- */
-function verifyToken(req, res, next) {
+export const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token)
+    return res
+      .status(401)
+      .json({ success: false, message: "unauthorized - no token provided" });
   try {
-    // 1) Try Authorization header
     const auth = req.headers?.authorization;
     let token = null;
 
@@ -17,7 +14,6 @@ function verifyToken(req, res, next) {
       token = auth.split(" ")[1];
     }
 
-    // 2) Fallback to cookie
     if (!token) {
       token = req.cookies?.token ?? null;
     }
@@ -30,7 +26,6 @@ function verifyToken(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // attach claims
     req.user = decoded;
     req.userId = decoded.userId || decoded.id || decoded._id || null;
 
@@ -44,6 +39,6 @@ function verifyToken(req, res, next) {
         : "Authentication failed";
     return res.status(401).json({ success: false, message });
   }
-}
+};
 
 export default verifyToken;

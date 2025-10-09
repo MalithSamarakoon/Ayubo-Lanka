@@ -23,11 +23,15 @@ import PatientUpdate from "./pages/PatientUpdate";
 import Onlinepayment from "./pages/Onlinepayment";
 import UserMgt from "./pages/UserMgt";
 import ProductDashboard from "./pages/ProductDashboard";
+import UpdateProduct from "./pages/UpdateProduct";
 import { useAuthStore } from "./store/authStore";
 import UpdateUser from "./pages/UpdateUser";
 import UploadSlip from "./pages/UploadSlip";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
+import Footer from "./Component/Fotter";
+import Collection from "./pages/Collection";
+import ProductDetail from "./pages/ProductDetail";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -52,11 +56,11 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen min-w-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen  w-full bg-white relative">
       <Navbar />
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<Home />} />
 
           {/* Dashboards */}
           <Route path="/dashboard" element={<UserDashboard />} />
@@ -65,7 +69,7 @@ function App() {
           <Route path="/dashboard/:id" element={<UpdateUser />} />
           <Route path="/product-dashboard" element={<ProductDashboard />} />
           <Route path="/CheckAppoinments" element={<CheckAppoinments />} />
-  <Route path="/my_appoinments" element={<MyAppoinment />} />
+          <Route path="/my_appoinments" element={<MyAppoinment />} />
 
           {/* Role selection & sign-ups */}
           <Route
@@ -131,8 +135,8 @@ function App() {
           {/* Misc */}
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
           <Route path="/home" element={<Home />} />
-
-          {/* Doctors & booking */}
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/doctor" element={<Doctor />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
           <Route
@@ -151,6 +155,8 @@ function App() {
             path="/doctor/:docId/book/patientupdate"
             element={<PatientUpdate />}
           />
+
+          <Route path="/update-product/:id" element={<UpdateProduct />} />
           <Route path="/onlinepayment" element={<Onlinepayment />} />
 
           {/* Fallback */}
@@ -158,6 +164,7 @@ function App() {
         </Routes>
       </div>
       <Toaster />
+      <Footer />
     </div>
   );
 }

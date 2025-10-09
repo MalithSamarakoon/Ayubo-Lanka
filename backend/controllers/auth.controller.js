@@ -6,40 +6,35 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 import { sendVerificationEmail, sendWelcomeEmail } from "../mailer.js";
 import { sendPasswordResetEmail } from "../mailer.js";
 import { sendPasswordResetSuccessEmail } from "../mailer.js";
-import { sendAdminApprovalRequestEmail } from "../mailer.js"; 
+import { sendAdminApprovalRequestEmail } from "../mailer.js";
 
 export const signup = async (req, res) => {
   const {
-    // common fields
     email,
     password,
     confirmPassword,
     name,
     mobile,
     role,
-    // doctor fields
+
     doctorLicenseNumber,
     specialization,
-    experience,        // New field
-    consultationFee,   // New field
-    description,       // New field
-    availability,      // New field
-    // supplier fields
+    experience,
+    consultationFee,
+    description,
+    availability,
+
     companyAddress,
     productCategory,
   } = req.body;
 
-  console.log(req.body);
-
   try {
-    // Check required fields
     if (!email || !password || !confirmPassword || !name || !mobile || !role) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
 
-    // Validate mobile number
     const mobileRegex = /^\d{10}$/;
     if (!mobileRegex.test(mobile)) {
       return res.status(400).json({
@@ -48,7 +43,6 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Check passwords match
     if (password !== confirmPassword) {
       return res
         .status(400)
@@ -57,40 +51,41 @@ export const signup = async (req, res) => {
 
     // Check role-specific fields
     if (role === "DOCTOR") {
-      // If DOCTOR, ensure basic doctor fields are present
       if (!doctorLicenseNumber || !specialization) {
-        return res
-          .status(400)
-          .json({ success: false, message: "DOCTOR license number and specialization are required" });
+        return res.status(400).json({
+          success: false,
+          message: "DOCTOR license number and specialization are required",
+        });
       }
     }
 
     if (role === "SUPPLIER") {
       if (!companyAddress || !productCategory) {
-        return res
-          .status(400)
-          .json({ success: false, message: "All supplier fields are required" });
+        return res.status(400).json({
+          success: false,
+          message: "All supplier fields are required",
+        });
       }
     }
 
-    // Check if user exists by email or mobile (optional, based on your need)
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists with this email" });
+      return res.status(400).json({
+        success: false,
+        message: "User already exists with this email",
+      });
     }
     const userWithMobile = await User.findOne({ mobile });
     if (userWithMobile) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists with this mobile number" });
+      return res.status(400).json({
+        success: false,
+        message: "User already exists with this mobile number",
+      });
     }
 
     // Hash password
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // Case 1: Normal USER
     if (role === "USER") {
       const verificationToken = Math.floor(
         100000 + Math.random() * 900000
@@ -107,7 +102,6 @@ export const signup = async (req, res) => {
         verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
       });
 
-      // Send verification email
       await sendVerificationEmail(user.email, user.name, verificationToken);
 
       const { password: _password, ...userTokenData } = user.toObject();
@@ -120,9 +114,8 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Case 2: DOCTOR / SUPPLIER (needs admin approval)
+    //DOCTOR or SUPPLIER signup
     if (role === "DOCTOR" || role === "SUPPLIER") {
-      // If role is doctor or supplier, validate and save specific fields
       const user = await User.create({
         email,
         password: hashedPassword,
@@ -131,16 +124,15 @@ export const signup = async (req, res) => {
         role,
         doctorLicenseNumber,
         specialization,
-        experience,       // Save experience for doctor
-        consultationFee,  // Save consultationFee for doctor
-        description,      // Save description for doctor
-        availability,     // Save availability for doctor
+        experience,
+        consultationFee,
+        description,
+        availability,
         companyAddress,
         productCategory,
-        isApproved: false, // pending approval
+        isApproved: false,
       });
 
-      // Send admin approval request email for DOCTOR/SUPPLIER
       await sendAdminApprovalRequestEmail(user.name, user.role);
 
       return res.status(201).json({
@@ -154,8 +146,6 @@ export const signup = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-
 
 export const verifyEmail = async (req, res) => {
   const { code } = req.body;
@@ -194,7 +184,6 @@ export const verifyEmail = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -210,7 +199,7 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // Block unapproved users (DOCTOR/SUPPLIER)
+    // Approval needed for roles
     if (
       (user.role === "DOCTOR" || user.role === "SUPPLIER") &&
       !user.isApproved
@@ -221,7 +210,7 @@ export const login = async (req, res) => {
       });
     }
 
-       const { password: _password, ...userTokenData } = user.toObject();
+    const { password: _password, ...userTokenData } = user.toObject();
     generateTokenAndSetCookie(res, userTokenData);
 
     user.lastLogin = new Date();
@@ -261,7 +250,7 @@ export const forgotPassword = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1h
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = resetTokenExpiresAt;
@@ -345,6 +334,3 @@ export const checkAuth = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-
-

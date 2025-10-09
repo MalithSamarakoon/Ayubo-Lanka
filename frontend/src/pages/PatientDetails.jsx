@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   User,
@@ -11,6 +11,7 @@ import {
   X,
   CreditCard,
   AlertTriangle,
+  Loader,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -19,15 +20,65 @@ const PatientDetails = () => {
   const navigate = useNavigate();
   const { docId } = useParams();
 
+<<<<<<< HEAD
   const patient = location.state; // data from PatientForm or after Update
+=======
+  const [patient, setPatient] = useState(location.state);
+  const [loading, setLoading] = useState(!location.state);
+  const [error, setError] = useState(null);
+
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const bookingId =
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
+  const appointmentId = patient?._id || null;
+  const appointmentNo = patient?.id ?? null;
 
+<<<<<<< HEAD
   // IDs to link receipt with this booking
   const appointmentId = patient?._id || null; // Mongo _id of Patient/Booking
   const appointmentNo = patient?.id ?? null; // numeric booking no (if you have)
+=======
+  // Fetch patient data if not in location.state or if we need updated data
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!location.state && patient?._id) {
+        try {
+          setLoading(true);
+          const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+          const res = await fetch(`${base}/api/patients/${patient._id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPatient(data);
+          } else {
+            setError("Failed to fetch patient data");
+          }
+        } catch (err) {
+          setError("Error fetching patient data");
+          console.error("Fetch patient error:", err);
+        } finally {
+          setLoading(false);
+        }
+      } else if (location.state) {
+        setLoading(false);
+      }
+    };
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
 
-  if (!patient) {
+    fetchPatientData();
+  }, [location.state, patient?._id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center">
+          <Loader className="w-8 h-8 animate-spin text-emerald-600 mb-4" />
+          <p className="text-gray-600">Loading patient details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !patient) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
         <motion.div
@@ -40,19 +91,27 @@ const PatientDetails = () => {
             <AlertTriangle className="w-10 h-10 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            No Patient Data Found
+            {error || "No Patient Data Found"}
           </h2>
           <p className="text-gray-600 mb-6">
-            Please insert patient details first to continue.
+            {error || "Please insert patient details first to continue."}
           </p>
-          <div className="w-16 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full"></div>
+          <button
+            onClick={() => navigate(`/doctor/${docId}/book/patientform`)}
+            className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+          >
+            Create New Patient
+          </button>
         </motion.div>
       </div>
     );
   }
 
   const handleUpdate = () => {
-    navigate(`/doctor/${docId}/book/patientupdate`, { state: patient });
+    navigate(`/doctor/${docId}/book/patientupdate`, {
+      state: patient,
+      onUpdate: (updatedPatient) => setPatient(updatedPatient),
+    });
   };
 
   const handleCancel = async () => {
@@ -73,6 +132,7 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
+<<<<<<< HEAD
     // 👉 Pass via state + ALSO via URL query (for refresh/update safety)
     const search = new URLSearchParams();
     if (appointmentId) search.set("appointmentId", appointmentId);
@@ -80,6 +140,16 @@ const PatientDetails = () => {
       search.set("appointmentNo", String(appointmentNo));
 
     navigate(`/onlinepayment?${search.toString()}`, {
+=======
+    if (!patient._id) {
+      alert(
+        "Patient ID is missing. Please try updating the patient details again."
+      );
+      return;
+    }
+
+    navigate(`/onlinepayment`, {
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       state: {
         docId,
         bookingId,
@@ -87,9 +157,16 @@ const PatientDetails = () => {
         phone: patient.phone,
         email: patient.email,
         amount: patient.amount,
+<<<<<<< HEAD
         appointmentId,
         appointmentNo,
+=======
+        appointmentId: patient._id, 
+        appointmentNo: patient.id,
+        patientData: patient,
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       },
+      replace: true,
     });
   };
 
@@ -105,6 +182,7 @@ const PatientDetails = () => {
             </h3>
           </div>
 
+<<<<<<< HEAD
           <div className="p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <button
@@ -131,6 +209,9 @@ const PatientDetails = () => {
                 Proceed to Payment
               </button>
             </div>
+=======
+           
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
           </div>
         </div>
       </div>

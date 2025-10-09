@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Smartphone,
   CircleDollarSign,
@@ -12,14 +17,26 @@ export default function Onlinepayment() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const urlParams = useParams();
+  const [searchParams] = useSearchParams();
 
+<<<<<<< HEAD
   // Get docId from URL if present (not for /onlinepayment), else from state
+=======
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const docId = urlParams.docId || state?.docId || "";
+
+  const apptId =
+    state?.appointmentId || searchParams.get("appointmentId") || "";
+  const apptNo =
+    state?.appointmentNo || searchParams.get("appointmentNo") || "";
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
+<<<<<<< HEAD
   // If someone opened directly without state, send them back safely
+=======
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -28,6 +45,7 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
+<<<<<<< HEAD
     navigate(`/doctor/${docId}/book/patientdetails/slip`, {
       state: {
         bookingId: state.bookingId,
@@ -40,29 +58,66 @@ export default function Onlinepayment() {
         appointmentNo: state.appointmentNo || null,
       },
     });
+=======
+    const targetDocId = urlParams.docId || state?.docId;
+    if (!targetDocId) {
+      alert("Missing doctor route. Returning to Home.");
+      navigate("/home");
+      return;
+    }
+
+    const qs = new URLSearchParams();
+    if (apptId) qs.set("appointmentId", String(apptId));
+    if (apptNo) qs.set("appointmentNo", String(apptNo));
+
+    navigate(
+      `/doctor/${targetDocId}/book/patientdetails/slip?${qs.toString()}`,
+      {
+        state: {
+          bookingId: state?.bookingId,
+          amount: state?.amount,
+          name: state?.name,
+          phone: state?.phone,
+          email: state?.email,
+          appointmentId: apptId || null,
+          appointmentNo: apptNo || null,
+        },
+      }
+    );
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   };
 
   const handlePay = async () => {
     try {
       setLoading(true);
 
+<<<<<<< HEAD
       // If user chose bank slip → go to UploadSlip route
+=======
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       if (method === "slip") {
         goToUploadSlip();
         return;
       }
+<<<<<<< HEAD
 
       // Otherwise (wallet/bank) — simulate other gateway flow
+=======
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       await new Promise((r) => setTimeout(r, 800));
       const order = {
-        bookingId: state.bookingId,
+        bookingId: state?.bookingId,
         method: method.toUpperCase(),
         paid: true,
         paidAt: new Date().toISOString(),
-        name: state.name,
-        phone: state.phone,
-        email: state.email,
+        name: state?.name,
+        phone: state?.phone,
+        email: state?.email,
       };
+<<<<<<< HEAD
+=======
+      // you can change this to your real success route
+>>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       navigate(`/doctor/${docId}/book/success`, { state: { order } });
     } catch (e) {
       alert("Payment failed. Please try again.");
@@ -85,19 +140,14 @@ export default function Onlinepayment() {
           whileHover={{ scale: 1.01 }}
           className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden"
         >
-          {/* Header */}
+       
           <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600">
             <h1 className="text-2xl font-bold text-white">Online Payment</h1>
-            <p className="text-green-100 text-sm mt-1">
-              Booking ID:{" "}
-              <span className="font-mono font-semibold text-yellow-200">
-                {state.bookingId}
-              </span>
-            </p>
+            
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Methods */}
+         
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">
                 Select a payment method
@@ -160,7 +210,7 @@ export default function Onlinepayment() {
             >
               <p className="text-sm text-emerald-800">
                 You’re paying for the appointment of{" "}
-                <strong>{state.name}</strong>.
+                <strong>{state?.name}</strong>.
               </p>
               {state?.amount && (
                 <p className="text-sm text-emerald-800 mt-1">

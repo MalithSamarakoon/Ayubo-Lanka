@@ -1,4 +1,3 @@
-// backend/routes/receipts.routes.js
 import express from "express";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
@@ -45,13 +44,11 @@ const createLimiter = rateLimit({
 
 const receiptsRouter = express.Router();
 
-// Public submit: frontend must send FormData field name "file"
 receiptsRouter.post("/", createLimiter, upload.single("file"), createReceipt);
 receiptsRouter.get("/", listReceipts);
 receiptsRouter.get("/:id", getReceipt);
 receiptsRouter.patch("/:id/review", reviewReceipt);
 
-// Multer & validation error handler
 receiptsRouter.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {

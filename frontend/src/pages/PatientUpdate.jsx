@@ -11,6 +11,7 @@ import {
   X,
   Check,
   Shield,
+  Loader,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -36,6 +37,7 @@ const PatientUpdate = () => {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(false); // Added loading state
   const refs = {
     name: useRef(null),
     age: useRef(null),
@@ -43,6 +45,44 @@ const PatientUpdate = () => {
     email: useRef(null),
     address: useRef(null),
     medicalInfo: useRef(null),
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate all fields before submitting
+    if (!validateAll()) {
+      scrollToFirstError();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+      const res = await fetch(`${base}/api/patients/${patient._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        const updatedPatient = await res.json();
+        alert("Patient details updated successfully!");
+
+        // Pass the updated data back to PatientDetails
+        navigate(`/doctor/${docId}/book/patientdetails`, {
+          state: updatedPatient,
+          replace: true,
+        });
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update patient");
+      }
+    } catch (err) {
+      alert(err.message || "Error updating patient");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const setFieldError = (field, message) =>
@@ -111,16 +151,6 @@ const PatientUpdate = () => {
       });
       refs[first[0]].current.focus?.();
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setTouched({ name: true, age: true, phone: true, email: true });
-    if (!validateAll()) {
-      setTimeout(scrollToFirstError, 0);
-      return;
-    }
-    navigate(`/doctor/${docId}/book/patientdetails`, { state: formData });
   };
 
   const handleCancel = () => navigate(-1);
@@ -389,7 +419,8 @@ const PatientUpdate = () => {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 px-8 py-4 bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-3 group"
+                disabled={loading}
+                className="flex-1 px-8 py-4 bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 <span>Cancel Changes</span>
@@ -397,10 +428,20 @@ const PatientUpdate = () => {
 
               <button
                 type="submit"
-                className="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 group transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={loading}
+                className="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 group transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Save Patient Record</span>
+                {loading ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Save Patient Record</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

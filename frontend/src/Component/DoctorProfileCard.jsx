@@ -1,14 +1,10 @@
 import { Award, User, Calendar, Star } from "lucide-react";
 
-/**
- * Optional props:
- *  - onBook?: () => void   -> show CTA if provided (e.g., scroll to booking section)
- */
 const DoctorProfileCard = ({ docInfo, onBook }) => {
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-green-100 mb-8 overflow-hidden transform hover:shadow-2xl transition-all duration-500">
       <div className="flex flex-col lg:flex-row">
-        {/* Left Section - Doctor Image */}
+        
         <div className="relative lg:w-80">
           <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 "></div>
           <div className="relative p-8 flex flex-col items-center justify-center h-full min-h-[320px]">
@@ -43,7 +39,6 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
           </div>
         </div>
 
-        {/* Right Section - Doctor Details */}
         <div className="flex-1 p-8 lg:p-10">
           <div className="flex flex-col h-full">
             <div className="flex-1">
