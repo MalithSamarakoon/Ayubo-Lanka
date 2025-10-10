@@ -19,48 +19,13 @@ const PatientDetails = () => {
   const navigate = useNavigate();
   const { docId } = useParams();
 
-<<<<<<< HEAD
-  const [patient, setPatient] = useState(location.state);
-  const [loading, setLoading] = useState(!location.state);
-  const [error, setError] = useState(null);
-
-=======
   const patient = location.state; // data from PatientForm or after Update
->>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
   const bookingId =
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
 
-<<<<<<< HEAD
-  // Fetch patient data if not in location.state (e.g., on page refresh)
-  useEffect(() => {
-    const fetchPatientData = async () => {
-      // We only fetch if state is empty but we have an ID to look up
-      if (!location.state && patient?._id) {
-        try {
-          setLoading(true);
-          const base = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-          const res = await fetch(`${base}/api/patients/${patient._id}`);
-          if (res.ok) {
-            const data = await res.json();
-            setPatient(data);
-          } else {
-            setError("Failed to fetch patient data");
-          }
-        } catch (err) {
-          setError("Error fetching patient data");
-          console.error("Fetch patient error:", err);
-        } finally {
-          setLoading(false);
-        }
-      } else if (location.state) {
-        setLoading(false);
-      }
-    };
-=======
   // IDs to link receipt with this booking
   const appointmentId = patient?._id || null; // Mongo _id of Patient/Booking
   const appointmentNo = patient?.id ?? null; // numeric booking no (if you have)
->>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
 
   if (!patient) {
     return (
@@ -108,7 +73,6 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
-<<<<<<< HEAD
     if (!appointmentId) {
       alert(
         "Patient ID is missing. Please try updating the patient details again."
@@ -122,13 +86,6 @@ const PatientDetails = () => {
     if (appointmentNo != null) {
       search.set("appointmentNo", String(appointmentNo));
     }
-=======
-    // 👉 Pass via state + ALSO via URL query (for refresh/update safety)
-    const search = new URLSearchParams();
-    if (appointmentId) search.set("appointmentId", appointmentId);
-    if (appointmentNo != null)
-      search.set("appointmentNo", String(appointmentNo));
->>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
 
     navigate(`/onlinepayment?${search.toString()}`, {
       state: {
