@@ -306,3 +306,34 @@ export const getFeaturedProducts = async (req, res) => {
   }
 };
 
+// Get product category statistics
+export const getCategoryStats = async (req, res) => {
+  try {
+    // Use MongoDB aggregation to group products by category and count them
+    const rows = await ayurvedicProduct.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    // Initialize stats object with all categories set to 0
+    const stats = {
+      Kasthausadhi: 0,
+      Rasaushadhi: 0,
+      Jangama: 0,
+      Kwatha: 0,
+      Kalka: 0
+    };
+
+    // Populate stats with actual counts from database
+    rows.forEach(r => {
+      if (stats.hasOwnProperty(r._id)) {
+        stats[r._id] = r.count;
+      }
+    });
+
+    return res.json({ ok: true, stats });
+  } catch (err) {
+    console.error("Error fetching category stats:", err);
+    return res.status(500).json({ ok: false, message: "Failed to fetch category stats" });
+  }
+};
+
