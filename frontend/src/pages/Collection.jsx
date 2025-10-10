@@ -3,6 +3,7 @@ import { useProductStore } from '../stores/useProductStore'
 import Title from '../Component/Title';
 import ProductItems from '../Component/ProductItems';
 import ProductFilterSidebar from '../components/ProductFilterSidebar';
+import { Search, X } from 'lucide-react';
 
 // Categories from CreateProductForm
 const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"];
@@ -22,6 +23,7 @@ const Collection = () => {
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchAllProducts();
@@ -50,15 +52,33 @@ const Collection = () => {
     });
   };
 
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+
   // Clear all filters
   const clearAllFilters = () => {
     setSelectedCategories([]);
     setSelectedPriceRanges([]);
+    setSearchTerm('');
   };
 
   // Get filtered products based on selected filters
   const getFilteredProducts = useMemo(() => {
     let filtered = [...products];
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
     // Filter by category
     if (selectedCategories.length > 0) {
@@ -78,7 +98,7 @@ const Collection = () => {
     }
 
     return filtered;
-  }, [products, selectedCategories, selectedPriceRanges]);
+  }, [products, searchTerm, selectedCategories, selectedPriceRanges]);
 
 
   if (loading) {
@@ -107,6 +127,40 @@ const Collection = () => {
         </p>
       </div>
 
+      {/* Search Bar Section */}
+      <div className="mb-6">
+        <div className="relative max-w-md mx-auto">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search products by name..."
+            className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg 
+            bg-white text-gray-900 placeholder-gray-400 
+            focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
+            transition duration-200"
+          />
+          {searchTerm && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+        
+        {/* Search Result Count */}
+        {searchTerm && (
+          <p className="mt-2 text-sm text-gray-600 text-center">
+            Found {getFilteredProducts.length} product{getFilteredProducts.length !== 1 ? 's' : ''} matching "{searchTerm}"
+          </p>
+        )}
+      </div>
+
       {/* Main Content: Sidebar + Products Grid */}
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Sidebar */}
@@ -126,7 +180,13 @@ const Collection = () => {
         <main className="flex-1">
           {getFilteredProducts.length === 0 ? (
             <div className="text-center py-20">
+              <Search className="h-12 w-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-500 text-lg">No products available</p>
+              {searchTerm && (
+                <p className="text-gray-400 text-sm mt-2">
+                  No products found matching "{searchTerm}"
+                </p>
+              )}
               {(selectedCategories.length > 0 || selectedPriceRanges.length > 0) && (
                 <p className="text-gray-400 text-sm mt-2">
                   Try adjusting your filters
