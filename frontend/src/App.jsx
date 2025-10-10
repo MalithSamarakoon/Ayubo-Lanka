@@ -40,7 +40,6 @@ import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
 
 import UserMgt from "./pages/UserMgt";
-import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
