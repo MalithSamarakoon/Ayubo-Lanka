@@ -66,7 +66,8 @@ const ProtectedRoute = ({ children }) => {
 
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.isVerified) return <Navigate to="/home" replace />;
+  if (isAuthenticated && user?.isVerified)
+    return <Navigate to="/home" replace />;
   return children;
 };
 
@@ -74,7 +75,9 @@ function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div style={{ padding: 16 }}>
       <h2>Something went wrong</h2>
-      <pre style={{ whiteSpace: "pre-wrap" }}>{error?.stack || String(error)}</pre>
+      <pre style={{ whiteSpace: "pre-wrap" }}>
+        {error?.stack || String(error)}
+      </pre>
       <button onClick={resetErrorBoundary}>Try again</button>
     </div>
   );
@@ -82,7 +85,9 @@ function AppErrorFallback({ error, resetErrorBoundary }) {
 
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
-  useEffect(() => { checkAuth(); }, [checkAuth]);
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
@@ -93,14 +98,7 @@ function App() {
         <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
           <Routes>
             {/* Auth entry */}
-            <Route
-              path="/"
-              element={
-                <RedirectAuthenticatedUser>
-                  <LoginPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
+            <Route path="/" element={<Home />} />
             <Route
               path="/login"
               element={
