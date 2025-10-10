@@ -91,7 +91,7 @@ const EmailVerificationPage = () => {
             ))}
           </div>
 
-          {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
+           <center>{error && <p className="text-red-500 font-semibold mt-2">{error}</p>}</center>
 
           <motion.button
             whileHover={{ scale: 1.05 }}

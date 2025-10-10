@@ -1,5 +1,5 @@
 // src/App.jsx
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
@@ -10,6 +10,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 
 import { useAuthStore } from "./store/authStore";
 
+// Pages
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -26,7 +27,7 @@ import Collection from "./pages/Collection";
 import Doctor from "./pages/Doctor";
 import Support from "./pages/support";
 import About from "./pages/About";
-import Appointment from "./pages/Appoinment"; // keep your spelling
+import Appointment from "./pages/Appoinment";
 import AdminDashboard from "./pages/AdminDashboard";
 
 import PatientForm from "./pages/PatientForm";
@@ -44,12 +45,11 @@ import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
 import AdminSupportCenter from "./pages/AdminSupportCenter";
-// Review pages
+
 import TicketReview from "./pages/TicketReview";
 import SupportReview from "./pages/SupportReview";
 import FeedbackReview from "./pages/FeedbackReview";
 
-// Orders & Cart pages
 import OrderForm from "./pages/OrderForm";
 import OrdersList from "./pages/OrdersList";
 import Cart from "./pages/Cart";
@@ -57,10 +57,10 @@ import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
 
+// -------------------- Route Protection --------------------
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
   return children;
 };
 
@@ -71,6 +71,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
+// -------------------- Error Fallback --------------------
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div style={{ padding: 16 }}>
@@ -83,22 +84,62 @@ function AppErrorFallback({ error, resetErrorBoundary }) {
   );
 }
 
+// -------------------- Main App --------------------
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
+  const location = useLocation();
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
   if (isCheckingAuth) return <LoadingSpinner />;
+
+  const hideNavbarPaths = [
+    "/login",
+    "/signup",
+    "/role-selection",
+    "/doctor-signup",
+    "/supplier-signup",
+    "/verify-email",
+    "/forgot-password",
+    "/reset-password",
+    "/approval-pending",
+    "/admin-dashboard",
+    "/user-management",
+    "/dashboard/",
+    "/product-dashboard",
+    "/update-product",
+    "/CheckAppoinments",
+    "/admin/support-center",
+    "/tickets/review",
+    "/support/review",
+    "/feedback/review",
+  ];
+
+  // Check if current path starts with any of the hidden paths
+  const hideNavbar = hideNavbarPaths.some((path) =>
+    location.pathname.startsWith(path.replace(/:.*$/, ""))
+  );
 
   return (
     <ErrorBoundary FallbackComponent={AppErrorFallback}>
       <div className="min-h-screen w-full bg-white relative">
-        <Navbar />
+        {!hideNavbar && <Navbar />}
 
         <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
           <Routes>
-            {/* Auth entry */}
+            {/* ---------- Public Routes ---------- */}
             <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/doctor" element={<Doctor />} />
+            <Route path="/doctor/:docId" element={<Appointment />} />
+
+            {/* ---------- Auth Routes ---------- */}
             <Route
               path="/login"
               element={
@@ -112,31 +153,6 @@ function App() {
               element={
                 <RedirectAuthenticatedUser>
                   <SignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            {/* Role-driven signup aliases */}
-            <Route
-              path="/signup/user"
-              element={
-                <RedirectAuthenticatedUser>
-                  <SignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/signup/doctor"
-              element={
-                <RedirectAuthenticatedUser>
-                  <DoctorSignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/signup/supplier"
-              element={
-                <RedirectAuthenticatedUser>
-                  <SupplierSignUpPage />
                 </RedirectAuthenticatedUser>
               }
             />
@@ -164,18 +180,26 @@ function App() {
                 </RedirectAuthenticatedUser>
               }
             />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
+            <Route
+              path="/forgot-password"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ForgotPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/reset-password/:token"
+              element={
+                <RedirectAuthenticatedUser>
+                  <ResetPasswordPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-            {/* Public browse pages */}
-            <Route path="/home" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/doctor" element={<Doctor />} />
-            {/* doctor public entry */}
-            <Route path="/doctor/:docId" element={<Appointment />} />
-
-            {/* Dashboards / protected */}
+            {/* ---------- Protected Dashboards ---------- */}
             <Route
               path="/dashboard"
               element={
@@ -209,7 +233,7 @@ function App() {
               }
             />
 
-            {/* Products */}
+            {/* ---------- Product Management ---------- */}
             <Route
               path="/product-dashboard"
               element={
@@ -227,7 +251,7 @@ function App() {
               }
             />
 
-            {/* Orders & Payments */}
+            {/* ---------- Orders & Payments ---------- */}
             <Route
               path="/order-form"
               element={
@@ -271,27 +295,7 @@ function App() {
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/cart" element={<Cart />} />
 
-            {/* Auth helpers */}
-            <Route path="/verify-email" element={<EmailVerificationPage />} />
-            <Route
-              path="/forgot-password"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ForgotPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/reset-password/:token"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ResetPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route path="/approval-pending" element={<ApprovalPendingPage />} />
-
-            {/* Doctor nested protected */}
+            {/* ---------- Doctor Booking ---------- */}
             <Route
               path="/doctor/:docId/book/patientform"
               element={
@@ -325,7 +329,7 @@ function App() {
               }
             />
 
-            {/* Appointment overviews */}
+            {/* ---------- Appointment Lists ---------- */}
             <Route
               path="/CheckAppoinments"
               element={
@@ -343,7 +347,7 @@ function App() {
               }
             />
 
-            {/* Support admin center */}
+            {/* ---------- Support & Reviews ---------- */}
             <Route
               path="/admin/support-center"
               element={
@@ -352,19 +356,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* Review pages (after submit redirects) */}
             <Route path="/tickets/review/:id" element={<TicketReview />} />
             <Route path="/support/review/:id" element={<SupportReview />} />
             <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
-            {/* Fallback */}
+            {/* ---------- Fallback ---------- */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
 
         <Toaster position="top-right" />
-        <Footer />
+        {!hideNavbar && <Footer />}
       </div>
     </ErrorBoundary>
   );
