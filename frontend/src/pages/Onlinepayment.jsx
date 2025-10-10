@@ -19,10 +19,7 @@ export default function Onlinepayment() {
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
 
-<<<<<<< HEAD
   // Get docId from URL if present (not for /onlinepayment), else from state
-=======
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const docId = urlParams.docId || state?.docId || "";
 
   const apptId =
@@ -33,10 +30,7 @@ export default function Onlinepayment() {
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
-<<<<<<< HEAD
   // If someone opened directly without state, send them back safely
-=======
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
@@ -45,20 +39,6 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
-<<<<<<< HEAD
-    navigate(`/doctor/${docId}/book/patientdetails/slip`, {
-      state: {
-        bookingId: state.bookingId,
-        amount: state.amount,
-        name: state.name,
-        phone: state.phone,
-        email: state.email,
-        // pass linkage ids so UploadSlip can attach to the same booking
-        appointmentId: state.appointmentId || null,
-        appointmentNo: state.appointmentNo || null,
-      },
-    });
-=======
     const targetDocId = urlParams.docId || state?.docId;
     if (!targetDocId) {
       alert("Missing doctor route. Returning to Home.");
@@ -84,26 +64,19 @@ export default function Onlinepayment() {
         },
       }
     );
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   };
 
   const handlePay = async () => {
     try {
       setLoading(true);
 
-<<<<<<< HEAD
       // If user chose bank slip → go to UploadSlip route
-=======
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       if (method === "slip") {
         goToUploadSlip();
         return;
       }
-<<<<<<< HEAD
 
       // Otherwise (wallet/bank) — simulate other gateway flow
-=======
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state?.bookingId,
@@ -114,10 +87,7 @@ export default function Onlinepayment() {
         phone: state?.phone,
         email: state?.email,
       };
-<<<<<<< HEAD
-=======
       // you can change this to your real success route
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       navigate(`/doctor/${docId}/book/success`, { state: { order } });
     } catch (e) {
       alert("Payment failed. Please try again.");
@@ -140,14 +110,11 @@ export default function Onlinepayment() {
           whileHover={{ scale: 1.01 }}
           className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden"
         >
-       
           <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600">
             <h1 className="text-2xl font-bold text-white">Online Payment</h1>
-            
           </div>
 
           <div className="p-6 space-y-6">
-         
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">
                 Select a payment method

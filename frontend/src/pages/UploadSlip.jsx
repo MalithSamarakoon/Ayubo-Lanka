@@ -16,10 +16,7 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-<<<<<<< HEAD
   // derive appointment identifiers from router state/params/query
-=======
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const stateApptId = location.state?.appointmentId; // Patient._id
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");
@@ -191,7 +188,7 @@ export default function ReceiptUploadPage() {
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
-       
+
           <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 opacity-20 animate-pulse"></div>
         </div>
       )}
@@ -371,9 +368,9 @@ export default function ReceiptUploadPage() {
             type="submit"
             disabled={loading}
             className="w-full py-4 rounded-xl text-white font-semibold text-lg shadow-lg
-                       bg-gradient-to-r from-green-500 to-emerald-600
-                       hover:from-green-600 hover:to-emerald-700
-                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                bg-gradient-to-r from-green-500 to-emerald-600
+                                hover:from-green-600 hover:to-emerald-700
+                                disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -384,14 +381,11 @@ export default function ReceiptUploadPage() {
               " Submit Receipt"
             )}
           </motion.button>
-
-        
         </motion.form>
       </motion.div>
     </div>
   );
 }
-
 
 function Input({ label, error, className, ...props }) {
   const base =

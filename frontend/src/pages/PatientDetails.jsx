@@ -20,27 +20,19 @@ const PatientDetails = () => {
   const navigate = useNavigate();
   const { docId } = useParams();
 
-<<<<<<< HEAD
-  const patient = location.state; // data from PatientForm or after Update
-=======
   const [patient, setPatient] = useState(location.state);
   const [loading, setLoading] = useState(!location.state);
   const [error, setError] = useState(null);
 
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
   const bookingId =
     patient?.bookingId || `AYU-${Math.floor(Math.random() * 1000000)}`;
   const appointmentId = patient?._id || null;
   const appointmentNo = patient?.id ?? null;
 
-<<<<<<< HEAD
-  // IDs to link receipt with this booking
-  const appointmentId = patient?._id || null; // Mongo _id of Patient/Booking
-  const appointmentNo = patient?.id ?? null; // numeric booking no (if you have)
-=======
-  // Fetch patient data if not in location.state or if we need updated data
+  // Fetch patient data if not in location.state (e.g., on page refresh)
   useEffect(() => {
     const fetchPatientData = async () => {
+      // We only fetch if state is empty but we have an ID to look up
       if (!location.state && patient?._id) {
         try {
           setLoading(true);
@@ -62,7 +54,6 @@ const PatientDetails = () => {
         setLoading(false);
       }
     };
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
 
     fetchPatientData();
   }, [location.state, patient?._id]);
@@ -132,24 +123,21 @@ const PatientDetails = () => {
   };
 
   const handlePay = () => {
-<<<<<<< HEAD
-    // 👉 Pass via state + ALSO via URL query (for refresh/update safety)
-    const search = new URLSearchParams();
-    if (appointmentId) search.set("appointmentId", appointmentId);
-    if (appointmentNo != null)
-      search.set("appointmentNo", String(appointmentNo));
-
-    navigate(`/onlinepayment?${search.toString()}`, {
-=======
-    if (!patient._id) {
+    if (!appointmentId) {
       alert(
         "Patient ID is missing. Please try updating the patient details again."
       );
       return;
     }
 
-    navigate(`/onlinepayment`, {
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
+    // Pass IDs via state AND URL query for refresh/update safety
+    const search = new URLSearchParams();
+    search.set("appointmentId", appointmentId);
+    if (appointmentNo != null) {
+      search.set("appointmentNo", String(appointmentNo));
+    }
+
+    navigate(`/onlinepayment?${search.toString()}`, {
       state: {
         docId,
         bookingId,
@@ -157,14 +145,8 @@ const PatientDetails = () => {
         phone: patient.phone,
         email: patient.email,
         amount: patient.amount,
-<<<<<<< HEAD
         appointmentId,
         appointmentNo,
-=======
-        appointmentId: patient._id, 
-        appointmentNo: patient.id,
-        patientData: patient,
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
       },
       replace: true,
     });
@@ -172,7 +154,7 @@ const PatientDetails = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/30 py-10 px-4">
-      {/* ... (UI content unchanged for brevity) ... */}
+      {/* ... (Assuming the main patient details UI exists here) ... */}
       <div className="px-6 md:px-8 pb-8">
         <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl overflow-hidden">
           <div className="px-6 md:px-8 py-5 border-b border-emerald-100">
@@ -182,7 +164,6 @@ const PatientDetails = () => {
             </h3>
           </div>
 
-<<<<<<< HEAD
           <div className="p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <button
@@ -209,9 +190,6 @@ const PatientDetails = () => {
                 Proceed to Payment
               </button>
             </div>
-=======
-           
->>>>>>> 1fb6856e269c0dd655edd238ef239b8b47e059bf
           </div>
         </div>
       </div>
