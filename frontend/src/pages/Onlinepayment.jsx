@@ -19,7 +19,10 @@ export default function Onlinepayment() {
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
 
+<<<<<<< HEAD
   // Get docId from URL if present (not for /onlinepayment), else from state
+=======
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
   const docId = urlParams.docId || state?.docId || "";
 
   const apptId =
@@ -30,8 +33,12 @@ export default function Onlinepayment() {
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
 
+<<<<<<< HEAD
   // If someone opened directly without state, send them back safely
   useEffect(() => {
+=======
+ useEffect(() => {
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
       else navigate("/home");
@@ -39,7 +46,24 @@ export default function Onlinepayment() {
   }, [state, docId, navigate]);
 
   const goToUploadSlip = () => {
+<<<<<<< HEAD
     const targetDocId = urlParams.docId || state?.docId;
+=======
+ navigate(`/doctor/${docId}/book/patientdetails/slip`, {
+      state: {
+        bookingId: state.bookingId,
+        amount: state.amount,
+        name: state.name,
+        phone: state.phone,
+        email: state.email,
+        // pass linkage ids so UploadSlip can attach to the same booking
+        appointmentId: state.appointmentId || null,
+        appointmentNo: state.appointmentNo || null,
+      },
+    });
+  
+const targetDocId = urlParams.docId || state?.docId;
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
     if (!targetDocId) {
       alert("Missing doctor route. Returning to Home.");
       navigate("/home");
@@ -64,12 +88,17 @@ export default function Onlinepayment() {
         },
       }
     );
+<<<<<<< HEAD
   };
+=======
+ };
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
 
   const handlePay = async () => {
     try {
       setLoading(true);
 
+<<<<<<< HEAD
       // If user chose bank slip → go to UploadSlip route
       if (method === "slip") {
         goToUploadSlip();
@@ -78,6 +107,13 @@ export default function Onlinepayment() {
 
       // Otherwise (wallet/bank) — simulate other gateway flow
       await new Promise((r) => setTimeout(r, 800));
+=======
+ if (method === "slip") {
+        goToUploadSlip();
+        return;
+      }
+ await new Promise((r) => setTimeout(r, 800));
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
       const order = {
         bookingId: state?.bookingId,
         method: method.toUpperCase(),
@@ -87,8 +123,12 @@ export default function Onlinepayment() {
         phone: state?.phone,
         email: state?.email,
       };
+<<<<<<< HEAD
       // you can change this to your real success route
       navigate(`/doctor/${docId}/book/success`, { state: { order } });
+=======
+ navigate(`/doctor/${docId}/book/success`, { state: { order } });
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
     } catch (e) {
       alert("Payment failed. Please try again.");
     } finally {

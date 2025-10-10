@@ -16,8 +16,12 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
+<<<<<<< HEAD
   // derive appointment identifiers from router state/params/query
   const stateApptId = location.state?.appointmentId; // Patient._id
+=======
+ const stateApptId = location.state?.appointmentId; // Patient._id
+>>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");
   const queryApptNo = searchParams.get("appointmentNo");
