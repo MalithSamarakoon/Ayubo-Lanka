@@ -16,12 +16,8 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-<<<<<<< HEAD
   // derive appointment identifiers from router state/params/query
   const stateApptId = location.state?.appointmentId; // Patient._id
-=======
- const stateApptId = location.state?.appointmentId; // Patient._id
->>>>>>> e770c022b491eae61554b45a0d226e87e840fd45
   const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
   const queryApptId = searchParams.get("appointmentId");
   const queryApptNo = searchParams.get("appointmentNo");
@@ -372,9 +368,9 @@ export default function ReceiptUploadPage() {
             type="submit"
             disabled={loading}
             className="w-full py-4 rounded-xl text-white font-semibold text-lg shadow-lg
-                                bg-gradient-to-r from-green-500 to-emerald-600
-                                hover:from-green-600 hover:to-emerald-700
-                                disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                      bg-gradient-to-r from-green-500 to-emerald-600
+                                      hover:from-green-600 hover:to-emerald-700
+                                      disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
