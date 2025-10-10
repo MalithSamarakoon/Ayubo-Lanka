@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const SupportReview = () => {
   const { id } = useParams();
@@ -18,12 +18,12 @@ const SupportReview = () => {
   const [removed, setRemoved] = useState(new Set());
   const [newFiles, setNewFiles] = useState([]);
 
-  const fileUrl = (p) => `${api.defaults.baseURL?.replace(/\/$/, "")}${p}`;
+  const fileUrl = (p) => `${axiosInstance.defaults.baseURL?.replace(/\/$/, "")}${p}`;
 
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get(`/api/support/inquiry/${id}`);
+  const { data } = await axiosInstance.get(`/support/inquiry/${id}`);
         setFormData({
           name: data.name || "",
           email: data.email || "",
@@ -54,7 +54,7 @@ const SupportReview = () => {
   const onDelete = async () => {
     if (!window.confirm("Delete this inquiry?")) return;
     try {
-      await api.delete(`/api/support/inquiry/${id}`);
+  await axiosInstance.delete(`/support/inquiry/${id}`);
       toast.success("Inquiry deleted");
       navigate("/support");
     } catch (e) {
@@ -71,7 +71,7 @@ const SupportReview = () => {
       fd.append("keep", JSON.stringify(keep));
       newFiles.forEach((f) => fd.append("files", f));
 
-      const { data } = await api.put(`/api/support/inquiry/${id}`, fd, {
+      const { data } = await axiosInstance.put(`/support/inquiry/${id}`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

@@ -1,7 +1,18 @@
 // frontend/src/stores/useProductStore.js
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
-import api from '../lib/api'; // ✅ use the consolidated client
+import axiosInstance from '../lib/axios'; // use the consolidated client
+
+const apiBase = (axiosInstance?.defaults?.baseURL || '').replace(/\/$/, '');
+const serverOrigin = apiBase.replace(/\/api\/?$/, '');
+const toAbs = (u) => {
+  if (!u) return u;
+  if (typeof u !== 'string') return u;
+  if (u.startsWith('http://') || u.startsWith('https://')) return u;
+  // for local uploads like /uploads/products/...
+  return `${serverOrigin}${u.startsWith('/') ? '' : '/'}${u}`;
+};
+const mapImage = (p) => ({ ...p, image: toAbs(p.image) });
 
 export const useProductStore = create((set) => ({
   products: [],
@@ -13,9 +24,9 @@ export const useProductStore = create((set) => ({
   createProduct: async (productData) => {
     set({ loading: true });
     try {
-      const { data } = await api.post('/products/addProduct', productData);
+  const { data } = await axiosInstance.post('/products/addProduct', productData);
       // Backend may return { product } OR the product directly
-      const newProduct = data?.product ?? data;
+  const newProduct = mapImage(data?.product ?? data);
       set((state) => ({
         products: [...state.products, newProduct],
         loading: false,
@@ -35,11 +46,9 @@ export const useProductStore = create((set) => ({
   fetchAllProducts: async () => {
     set({ loading: true });
     try {
-      const { data } = await api.get('/products/allProducts');
-      set({
-        products: data?.products ?? [],
-        loading: false,
-      });
+  const { data } = await axiosInstance.get('/products/allProducts');
+      const list = (data?.products ?? []).map(mapImage);
+      set({ products: list, loading: false });
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -53,11 +62,9 @@ export const useProductStore = create((set) => ({
   fetchFeaturedProducts: async () => {
     set({ loading: true });
     try {
-      const { data } = await api.get('/products/featuredProducts');
-      set({
-        products: data?.featuredProducts ?? [],
-        loading: false,
-      });
+  const { data } = await axiosInstance.get('/products/featuredProducts');
+      const list = (data?.featuredProducts ?? []).map(mapImage);
+      set({ products: list, loading: false });
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -71,8 +78,8 @@ export const useProductStore = create((set) => ({
   getProductById: async (productId) => {
     set({ loading: true, selectedProduct: null });
     try {
-      const { data } = await api.get(`/products/${productId}`);
-      const product = data?.product ?? data;
+  const { data } = await axiosInstance.get(`/products/${productId}`);
+  const product = mapImage(data?.product ?? data);
       set({ selectedProduct: product, loading: false });
       return product;
     } catch (error) {
@@ -89,8 +96,8 @@ export const useProductStore = create((set) => ({
   updateProduct: async (productId, productData) => {
     set({ loading: true });
     try {
-      const { data } = await api.patch(`/products/${productId}`, productData);
-      const updated = data?.product ?? data;
+  const { data } = await axiosInstance.patch(`/products/${productId}`, productData);
+  const updated = mapImage(data?.product ?? data);
       set((state) => ({
         products: state.products.map((p) =>
           p._id === productId ? updated : p
@@ -117,14 +124,19 @@ export const useProductStore = create((set) => ({
   toggleFeaturedProduct: async (productId) => {
     set({ loading: true });
     try {
-      const { data } = await api.patch(`/products/${productId}/toggleFeatured`);
-      const updated = data?.product ?? data;
+  const { data } = await axiosInstance.patch(`/products/${productId}/toggleFeatured`);
+  const updated = mapImage(data?.product ?? data);
       set((state) => ({
         products: state.products.map((p) =>
           p._id === updated?._id ? updated : p
         ),
+        selectedProduct:
+          state.selectedProduct && state.selectedProduct._id === productId
+            ? updated
+            : state.selectedProduct,
         loading: false,
       }));
+      toast.success(data?.message || (updated?.isFeatured ? 'Marked as featured' : 'Removed from featured'));
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -138,12 +150,12 @@ export const useProductStore = create((set) => ({
   deleteProduct: async (productId) => {
     set({ loading: true });
     try {
-      await api.delete(`/products/${productId}`);
+  const { data } = await axiosInstance.delete(`/products/${productId}`);
       set((state) => ({
         products: state.products.filter((p) => p._id !== productId),
         loading: false,
       }));
-      toast.success('Product deleted successfully');
+      toast.success(data?.message || 'Product deleted successfully');
     } catch (error) {
       const msg =
         error?.response?.data?.message ||

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const FeedbackReview = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const FeedbackReview = () => {
 
   const load = async () => {
     try {
-      const { data } = await api.get(`/api/feedback/${id}`);
+  const { data } = await axiosInstance.get(`/feedback/${id}`);
       const fb = data.feedback;
       setDoc(fb);
       setDraft({
@@ -52,7 +52,7 @@ const FeedbackReview = () => {
     try {
       const payload = { ...draft };
       payload.rating = Number(payload.rating);
-      const { data } = await api.put(`/api/feedback/${id}`, payload);
+  const { data } = await axiosInstance.put(`/feedback/${id}`, payload);
       setDoc(data.feedback);
       setEdit(false);
       toast.success("Feedback updated");
@@ -68,7 +68,7 @@ const FeedbackReview = () => {
     const ok = window.confirm("Delete this feedback?");
     if (!ok) return;
     try {
-      await api.delete(`/api/feedback/${id}`);
+  await axiosInstance.delete(`/feedback/${id}`);
       toast.success("Feedback deleted");
       navigate("/support");
     } catch (err) {

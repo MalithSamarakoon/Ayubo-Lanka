@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const initial = {
   name: "",
@@ -59,7 +59,7 @@ export default function FeedbackForm() {
 
     setIsSubmitting(true);
     try {
-      const { data } = await api.post("/api/feedback", formData);
+  const { data } = await axiosInstance.post("/feedback", formData);
       // 🚀 go to review page immediately
       navigate(`/feedback/review/${data.feedback._id}`);
     } catch (error) {
