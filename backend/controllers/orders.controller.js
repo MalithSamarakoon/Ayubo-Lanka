@@ -197,8 +197,24 @@ export const updateStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid status" });
     }
 
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    // Get the current order first to check its current status
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // If changing to REJECTED and wasn't already REJECTED, restore stock
+    if (status === "REJECTED" && order.status !== "REJECTED") {
+      for (const item of order.items) {
+        await ayurvedicProduct.findByIdAndUpdate(
+          item.id,
+          { $inc: { stock: item.qty } },  // Add back the quantity
+          { new: true }
+        );
+      }
+    }
+
+    // Update the order status
+    order.status = status;
+    await order.save();
 
     return res.json({ success: true, data: order });
   } catch (err) {
