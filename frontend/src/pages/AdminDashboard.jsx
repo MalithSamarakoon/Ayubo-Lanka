@@ -1,10 +1,9 @@
-import React from "react";
+// frontend/src/pages/AdminDashboard.jsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -13,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useAuthStore } from "../store/authStore";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -34,9 +34,7 @@ function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/user/role-stats"
-        );
+        const res = await axios.get("http://localhost:5000/api/user/role-stats");
         const s = res.data?.stats || {};
         setRoleStats({
           user: s.user || 0,
@@ -60,6 +58,7 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
+      {/* LEFT SIDEBAR */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -102,7 +101,7 @@ function AdminDashboard() {
               Orders
             </motion.button>
 
-            {/* FIXED: correct route to match App.jsx */}
+            {/* correct route to match App.jsx */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -111,6 +110,17 @@ function AdminDashboard() {
                 rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
             >
               Appointments
+            </motion.button>
+
+            {/* NEW: Support & Inquiries hub */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleNavigation("/admin/support-center")}
+              className="py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 
+                rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
+            >
+              Support & Inquiries
             </motion.button>
           </div>
         </div>
@@ -128,6 +138,7 @@ function AdminDashboard() {
         </motion.button>
       </motion.div>
 
+      {/* RIGHT CONTENT */}
       <div className="flex-1 p-10 overflow-y-auto">
         <center><h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Welcome, Admin

@@ -153,4 +153,119 @@ export const sendUserApprovedEmail = async (toEmail, userName) => {
   } catch (error) {
     console.error("Error sending user approval email:", error);
   }
+
+};
+// ------------------ Ticket / Inquiry Emails ------------------
+
+const wrap = (title, inner) => `
+  <div style="font-family:Inter, Arial, sans-serif; line-height:1.6; color:#111827; background:#f8fafc; padding:16px">
+    <div style="max-width:680px; margin:0 auto; background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden">
+      <div style="background:#10b981; color:white; padding:16px 20px">
+        <div style="font-weight:700; font-size:16px;">AYUBO LANKA</div>
+        <div style="opacity:.9; font-size:13px">${title}</div>
+      </div>
+      <div style="padding:20px">${inner}</div>
+      <div style="background:#f9fafb; padding:12px 20px; font-size:12px; color:#6b7280">
+        This is an automated message from AYUBO LANKA Support.
+      </div>
+    </div>
+  </div>
+`;
+
+// ------------------ Ticket / Inquiry Emails ------------------
+export const sendTicketStatusEmail = async (toEmail, name, ticket, status, opts = {}) => {
+  try {
+    const { attachments = [], links = [] } = opts;
+    const pretty =
+      status === "approved"
+        ? { emoji: "✅", head: "Ticket Received & In Progress" }
+        : { emoji: "❌", head: "Ticket Rejected" };
+
+    const filesBlock =
+      links.length
+        ? `<div style="margin-top:12px">
+             <div style="font-weight:600; margin-bottom:6px;">Files</div>
+             <ul style="margin:0; padding-left:18px;">
+               ${links.map(h => `<li><a href="${h}" style="color:#059669">${h}</a></li>`).join("")}
+             </ul>
+           </div>`
+        : "";
+
+    const html = wrap(pretty.head, `
+      <h2 style="margin:0 0 8px 0">${pretty.emoji} ${pretty.head}</h2>
+      <p>Hello ${name || "Customer"},</p>
+      <p>${
+        status === "approved"
+          ? "We have received your ticket and our team has started reviewing it."
+          : "We’re sorry to inform you that your ticket has been rejected."
+      }</p>
+      <div style="margin-top:10px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb">
+        <p><b>Ticket #</b>: ${ticket.ticketNumber}</p>
+        <p><b>Subject</b>: ${ticket.subject || "-"}</p>
+        <p><b>Description</b>: ${ticket.description || "-"}</p>
+        <p><b>Department</b>: ${ticket.department || "-"}</p>
+        <p><b>Status</b>: ${ticket.status}</p>
+      </div>
+      ${filesBlock}
+      <p style="margin-top:16px">Best regards,<br/>AYUBO LANKA Team</p>
+    `);
+
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: `[${ticket.ticketNumber}] ${pretty.head} – AYUBO LANKA`,
+      html,
+      attachments, // ✅ attach uploaded files (kept to first 5 by router)
+    });
+  } catch (err) {
+    console.error("sendTicketStatusEmail failed:", err.message);
+  }
+};
+
+export const sendInquiryStatusEmail = async (toEmail, name, inquiry, status, opts = {}) => {
+  try {
+    const { attachments = [], links = [] } = opts;
+    const pretty =
+      status === "approved"
+        ? { emoji: "✅", head: "Inquiry Received & Under Review" }
+        : { emoji: "❌", head: "Inquiry Rejected" };
+
+    const filesBlock =
+      links.length
+        ? `<div style="margin-top:12px">
+             <div style="font-weight:600; margin-bottom:6px;">Files</div>
+             <ul style="margin:0; padding-left:18px;">
+               ${links.map(h => `<li><a href="${h}" style="color:#059669">${h}</a></li>`).join("")}
+             </ul>
+           </div>`
+        : "";
+
+    const html = wrap(pretty.head, `
+      <h2 style="margin:0 0 8px 0">${pretty.emoji} ${pretty.head}</h2>
+      <p>Hello ${inquiry.name || name || "Customer"},</p>
+      <p>${
+        status === "approved"
+          ? "We’ve received your inquiry and we’re reviewing it. We’ll reply shortly."
+          : "We’re sorry to inform you that your inquiry has been rejected."
+      }</p>
+      <div style="margin-top:10px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb">
+        <p><b>Type</b>: ${inquiry.inquiryType || "-"}</p>
+        <p><b>Subject</b>: ${inquiry.subject || "-"}</p>
+        <p><b>Message</b>: ${inquiry.message || "-"}</p>
+        <p><b>Status</b>: ${inquiry.isApproved ? "Approved" : "Pending/Rejected"}</p>
+      </div>
+      ${filesBlock}
+      <p style="margin-top:16px">Best regards,<br/>AYUBO LANKA Team</p>
+    `);
+
+    await transporter.sendMail({
+      from: `"AYUBO LANKA" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
+      subject: `${pretty.head} – AYUBO LANKA`,
+      html,
+      attachments, // ✅ attach uploaded files
+    });
+  } catch (err) {
+    console.error("sendInquiryStatusEmail failed:", err.message);
+  }
 };

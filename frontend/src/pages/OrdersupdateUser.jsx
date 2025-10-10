@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import axiosInstance from "../lib/axios";
 
 
 const fmt = (n) => `Rs. ${Number(n || 0).toLocaleString()}`;
@@ -32,9 +33,9 @@ export default function OrdersupdateUser() {
     (async () => {
       try {
         setLoading(true);
-        const r = await api.get(`/api/orders/${id}`);
-        if (!r.data?.success) throw new Error(r.data?.message || "Load failed");
-        if (mounted) setOrder(r.data.order);
+  const r = await axiosInstance.get(`/orders/${id}`);
+  if (!r.data?.success) throw new Error(r.data?.message || "Load failed");
+  if (mounted) setOrder(r.data.data || r.data.order);
       } catch (e) {
         const msg =
           e?.response?.data?.message ||
@@ -105,18 +106,18 @@ export default function OrdersupdateUser() {
         fd.append("shipping", JSON.stringify(shipping));
         fd.append("payment", JSON.stringify({ method: "BANK_SLIP" }));
         fd.append("items", JSON.stringify(order.items || []));
-        res = await api.put(`/api/orders/${order._id}`, fd, {
+        res = await axiosInstance.patch(`/orders/${order._id}`, fd, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        res = await api.put(`/api/orders/${order._id}`, {
+        res = await axiosInstance.patch(`/orders/${order._id}`, {
           shipping,
           payment: { method: paymentMethod },
         });
       }
 
       if (!res.data?.success) throw new Error(res.data?.message || "Update failed");
-      const updated = res.data.order;
+      const updated = res.data.data || res.data.order;
       toast.success("✅ Details updated");
       navigate(`/orderdisplay/${updated._id}`, { state: { order: updated }, replace: true });
     } catch (e) {
