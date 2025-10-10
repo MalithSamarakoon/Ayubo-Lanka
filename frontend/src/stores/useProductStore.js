@@ -3,6 +3,17 @@ import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import axiosInstance from '../lib/axios'; // use the consolidated client
 
+const apiBase = (axiosInstance?.defaults?.baseURL || '').replace(/\/$/, '');
+const serverOrigin = apiBase.replace(/\/api\/?$/, '');
+const toAbs = (u) => {
+  if (!u) return u;
+  if (typeof u !== 'string') return u;
+  if (u.startsWith('http://') || u.startsWith('https://')) return u;
+  // for local uploads like /uploads/products/...
+  return `${serverOrigin}${u.startsWith('/') ? '' : '/'}${u}`;
+};
+const mapImage = (p) => ({ ...p, image: toAbs(p.image) });
+
 export const useProductStore = create((set) => ({
   products: [],
   loading: false,
@@ -15,7 +26,7 @@ export const useProductStore = create((set) => ({
     try {
   const { data } = await axiosInstance.post('/products/addProduct', productData);
       // Backend may return { product } OR the product directly
-      const newProduct = data?.product ?? data;
+  const newProduct = mapImage(data?.product ?? data);
       set((state) => ({
         products: [...state.products, newProduct],
         loading: false,
@@ -36,10 +47,8 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
   const { data } = await axiosInstance.get('/products/allProducts');
-      set({
-        products: data?.products ?? [],
-        loading: false,
-      });
+      const list = (data?.products ?? []).map(mapImage);
+      set({ products: list, loading: false });
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -54,10 +63,8 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
   const { data } = await axiosInstance.get('/products/featuredProducts');
-      set({
-        products: data?.featuredProducts ?? [],
-        loading: false,
-      });
+      const list = (data?.featuredProducts ?? []).map(mapImage);
+      set({ products: list, loading: false });
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -72,7 +79,7 @@ export const useProductStore = create((set) => ({
     set({ loading: true, selectedProduct: null });
     try {
   const { data } = await axiosInstance.get(`/products/${productId}`);
-      const product = data?.product ?? data;
+  const product = mapImage(data?.product ?? data);
       set({ selectedProduct: product, loading: false });
       return product;
     } catch (error) {
@@ -90,7 +97,7 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
   const { data } = await axiosInstance.patch(`/products/${productId}`, productData);
-      const updated = data?.product ?? data;
+  const updated = mapImage(data?.product ?? data);
       set((state) => ({
         products: state.products.map((p) =>
           p._id === productId ? updated : p
@@ -118,13 +125,18 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
   const { data } = await axiosInstance.patch(`/products/${productId}/toggleFeatured`);
-      const updated = data?.product ?? data;
+  const updated = mapImage(data?.product ?? data);
       set((state) => ({
         products: state.products.map((p) =>
           p._id === updated?._id ? updated : p
         ),
+        selectedProduct:
+          state.selectedProduct && state.selectedProduct._id === productId
+            ? updated
+            : state.selectedProduct,
         loading: false,
       }));
+      toast.success(data?.message || (updated?.isFeatured ? 'Marked as featured' : 'Removed from featured'));
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -138,12 +150,12 @@ export const useProductStore = create((set) => ({
   deleteProduct: async (productId) => {
     set({ loading: true });
     try {
-  await axiosInstance.delete(`/products/${productId}`);
+  const { data } = await axiosInstance.delete(`/products/${productId}`);
       set((state) => ({
         products: state.products.filter((p) => p._id !== productId),
         loading: false,
       }));
-      toast.success('Product deleted successfully');
+      toast.success(data?.message || 'Product deleted successfully');
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
