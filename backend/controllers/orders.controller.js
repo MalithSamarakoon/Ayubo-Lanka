@@ -1,4 +1,5 @@
 import Order from "../models/Order.js";
+import ayurvedicProduct from "../models/product.model.js";
 
 // POST /api/orders
 export const createOrder = async (req, res) => {
@@ -33,6 +34,39 @@ export const createOrder = async (req, res) => {
     }
     if (!payment?.method) {
       return res.status(400).json({ success: false, message: "Missing payment method" });
+    }
+
+    // Validate items exist
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "No items in order" });
+    }
+
+    // Check stock availability for all items first (before any updates)
+    for (const item of items) {
+      const product = await ayurvedicProduct.findById(item.id || item._id);
+      
+      if (!product) {
+        return res.status(404).json({ 
+          success: false, 
+          message: `Product "${item.name}" not found in inventory` 
+        });
+      }
+      
+      if (product.stock < item.qty) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Insufficient stock for "${product.name}". Available: ${product.stock}, Requested: ${item.qty}` 
+        });
+      }
+    }
+
+    // If all stock checks pass, then decrement stock
+    for (const item of items) {
+      await ayurvedicProduct.findByIdAndUpdate(
+        item.id || item._id,
+        { $inc: { stock: -item.qty } },
+        { new: true }
+      );
     }
 
     const order = await Order.create({
@@ -134,8 +168,19 @@ export const getOrder = async (req, res) => {
 // DELETE /api/orders/:id
 export const deleteOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    
+    // Restore stock when order is deleted/cancelled
+    for (const item of order.items) {
+      await ayurvedicProduct.findByIdAndUpdate(
+        item.id,
+        { $inc: { stock: item.qty } }, // Add back the quantity
+        { new: true }
+      );
+    }
+    
+    await Order.findByIdAndDelete(req.params.id);
     return res.json({ success: true });
   } catch (err) {
     console.error("deleteOrder error:", err);
