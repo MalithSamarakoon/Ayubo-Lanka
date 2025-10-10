@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import ayurvedicProduct from "../models/product.model.js";
+import { sendRestockNotificationEmail } from "../mailer.js";
 
 // POST /api/orders
 export const createOrder = async (req, res) => {
@@ -62,11 +63,25 @@ export const createOrder = async (req, res) => {
 
     // If all stock checks pass, then decrement stock
     for (const item of items) {
-      await ayurvedicProduct.findByIdAndUpdate(
+      const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
         item.id || item._id,
         { $inc: { stock: -item.qty } },
         { new: true }
       );
+
+      // Check if stock has fallen to or below minimum threshold
+      if (updatedProduct && updatedProduct.stock <= updatedProduct.minimumStock) {
+        // Send restock notification email asynchronously (don't wait for it)
+        sendRestockNotificationEmail(
+          updatedProduct.name,
+          updatedProduct.stock,
+          updatedProduct.minimumStock,
+          updatedProduct._id.toString()
+        ).catch(err => {
+          // Log error but don't interrupt the order process
+          console.error(`Failed to send restock email for ${updatedProduct.name}:`, err.message);
+        });
+      }
     }
 
     const order = await Order.create({
