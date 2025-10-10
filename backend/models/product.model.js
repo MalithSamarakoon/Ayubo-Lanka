@@ -31,8 +31,7 @@ const ayurvedicproductSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      required: false,
-      default: null,
+       required: [true, "Image is required."]
     },
 
     isFeatured: {

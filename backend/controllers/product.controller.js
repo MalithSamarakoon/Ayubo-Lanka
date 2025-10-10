@@ -1,57 +1,18 @@
 import ayurvedicProduct from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const saveBase64ToLocal = async (dataUri) => {
-  try {
-    if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
-    const [meta, base64] = dataUri.split(',');
-    if (!base64) return null;
-    const mimeMatch = /data:(.*?);base64/.exec(meta || '');
-    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
-    const ext = mime === 'image/jpeg' || mime === 'image/jpg' ? '.jpg'
-              : mime === 'image/gif' ? '.gif'
-              : mime === 'image/webp' ? '.webp'
-              : '.png';
-    const buf = Buffer.from(base64, 'base64');
-    const uploadDir = path.join(__dirname, '..', 'uploads', 'products');
-    await fs.promises.mkdir(uploadDir, { recursive: true });
-    const filename = `prod-${Date.now()}-${Math.round(Math.random()*1e6)}${ext}`;
-    const abs = path.join(uploadDir, filename);
-    await fs.promises.writeFile(abs, buf);
-    // return public path served by server static
-    return `/uploads/products/${filename}`;
-  } catch (e) {
-    console.error('Local save failed:', e?.message || e);
-    return null;
-  }
-};
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("createProduct req.body keys:", Object.keys(req.body || {}));
+    console.log("req.body:", req.body);
     const { name, description, category, price, stock, minimumStock, image, isFeatured } =
       req.body; //getting required information from request.
 
-    let imageUrl = null;
+    let cloudinaryResponse = null;
+
     if (image) {
-      const hasCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-      if (hasCloudinary) {
-        try {
-          const resp = await cloudinary.uploader.upload(image, { folder: 'products' });
-          imageUrl = resp?.secure_url || null;
-        } catch (err) {
-          console.error('Cloudinary upload failed:', err?.message || err);
-          imageUrl = await saveBase64ToLocal(image);
-        }
-      } else {
-        imageUrl = await saveBase64ToLocal(image);
-      }
+      cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
     }
 
     const saveProduct = {
@@ -61,17 +22,19 @@ export const createProduct = async (req, res) => {
       price : price ? Number(price) : 0,
       stock : stock ? Number(stock) : 0,
       minimumStock : minimumStock ? Number(minimumStock) : 0,
-      image: imageUrl,
+      image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
       isFeatured: isFeatured ? Boolean(isFeatured) : false,
     }
 
     const product = await ayurvedicProduct.create(saveProduct);
 
-    res.status(201).json({ message: 'Product created successfully', product });
+    res.status(201).json({
+      message: "Product created successfully",
+      product,
+    });
   } catch (error) {
-    console.error('Error creating product:', error);
-    const msg = error?.message || 'Internal server error';
-    res.status(500).json({ message: msg });
+    console.error("Error creating product:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -129,8 +92,8 @@ export const toggleFeaturedProduct = async (req, res) => {
 		if (product) {
 			product.isFeatured = !product.isFeatured;
 			const updatedProduct = await product.save();
-      // return a consistent shape used elsewhere
-      res.json({ message: 'Product featured status updated', product: updatedProduct });
+			
+			res.json({ updatedProduct });
 		} else {
 			res.status(404).json({ message: "Product not found" });
 		}
@@ -166,35 +129,30 @@ export const updateProduct = async (req, res) => {
 
     // Handle image update if a new image is provided
     if (image) {
-      // Clean up previous asset
+      // Delete the old image from Cloudinary if it exists
       if (existingProduct.image) {
-        if (existingProduct.image.startsWith('/uploads/products/')) {
-          const oldName = existingProduct.image.replace('/uploads/products/', '');
-          const oldAbs = path.join(__dirname, '..', 'uploads', 'products', oldName);
-          try { await fs.promises.unlink(oldAbs); } catch {}
-        } else {
-          // try cloudinary destroy if it was a cloudinary URL
-          try {
-            const publicId = existingProduct.image.split('/').pop()?.split('.')?.[0];
-            if (publicId) await cloudinary.uploader.destroy(`products/${publicId}`);
-          } catch (err) {
-            console.log('Cloudinary destroy failed (ok to ignore):', err?.message || err);
-          }
+        const publicId = existingProduct.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log("Old image deleted from Cloudinary");
+        } catch (error) {
+          console.log(
+            "Error deleting old image from Cloudinary:",
+            error.message
+          );
         }
       }
 
-      // Upload new image
-      const hasCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-      if (hasCloudinary) {
-        try {
-          const resp = await cloudinary.uploader.upload(image, { folder: 'products' });
-          imageUrl = resp?.secure_url || null;
-        } catch (err) {
-          console.error('Cloudinary upload failed:', err?.message || err);
-          imageUrl = await saveBase64ToLocal(image);
-        }
-      } else {
-        imageUrl = await saveBase64ToLocal(image);
+      // Upload the new image to Cloudinary
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+          folder: "products",
+        });
+        imageUrl = cloudinaryResponse.secure_url;
+        console.log("New image uploaded to Cloudinary");
+      } catch (error) {
+        console.error("Error uploading new image to Cloudinary:", error);
+        return res.status(500).json({ message: "Error uploading image" });
       }
     }
 
@@ -234,25 +192,17 @@ export const deleteProduct = async (req, res) => {
     }
 
     if (product.image) {
-      // if local file path like /uploads/products/...
-      if (typeof product.image === 'string' && product.image.startsWith('/uploads/products/')) {
-        const filename = product.image.replace('/uploads/products/', '');
-        const abs = path.join(__dirname, '..', 'uploads', 'products', filename);
-        try { await fs.promises.unlink(abs); } catch (_) { /* ignore */ }
-      } else {
-        // Try deleting from Cloudinary if it was a cloud URL
-        try {
-          const publicId = product.image.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(`products/${publicId}`);
-        } catch (error) {
-          console.log("Error deleting image from Cloudinary", error.message);
-        }
+      //Delete image from cloudinary
+      const publicId = product.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+      try {
+        await cloudinary.uploader.destroy(`products/${publicId}`);
+        console.log("Image deleted from Cloudinary");
+      } catch (error) {
+        console.log("Error deleting image from Cloudinary", error.message);
       }
     }
 
     await ayurvedicProduct.findByIdAndDelete(req.params.id);
-
-    return res.status(200).json({ message: 'Product deleted successfully', id: req.params.id });
   } catch (error) {
     console.error("Error deleting product:", error);
     res.status(500).json({ message: "Internal server error" });

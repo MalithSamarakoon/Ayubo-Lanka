@@ -2,14 +2,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { ErrorBoundary } from "react-error-boundary";
-
 import Navbar from "./Component/Navbar";
-import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
-
-import { useAuthStore } from "./store/authStore";
-
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -20,44 +14,33 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-
-import Home from "./pages/Home";
-import Collection from "./pages/Collection";
 import Doctor from "./pages/Doctor";
-import Support from "./pages/support";
-import About from "./pages/About";
+import Home from "./pages/Home";
 import Appointment from "./pages/Appoinment"; // keep your spelling
 import AdminDashboard from "./pages/AdminDashboard";
-
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
-import UploadSlip from "./pages/UploadSlip";
 import Onlinepayment from "./pages/Onlinepayment";
-
-import ProductDetail from "./pages/ProductDetail";
+import UserMgt from "./pages/UserMgt";
 import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
-
-import UserMgt from "./pages/UserMgt";
-import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
+import UploadSlip from "./pages/UploadSlip";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
-import AdminSupportCenter from "./pages/AdminSupportCenter";
-// Review pages
-import TicketReview from "./pages/TicketReview";
-import SupportReview from "./pages/SupportReview";
-import FeedbackReview from "./pages/FeedbackReview";
-
-// Orders & Cart pages
+import Footer from "./Component/Fotter";
+import Collection from "./pages/Collection";
+import ProductDetail from "./pages/ProductDetail";
 import OrderForm from "./pages/OrderForm";
 import OrdersList from "./pages/OrdersList";
 import Cart from "./pages/Cart";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
+import { useAuthStore } from "./store/authStore";
 
+// ---------- Auth Guards ----------
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -71,248 +54,276 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
-function AppErrorFallback({ error, resetErrorBoundary }) {
-  return (
-    <div style={{ padding: 16 }}>
-      <h2>Something went wrong</h2>
-      <pre style={{ whiteSpace: "pre-wrap" }}>{error?.stack || String(error)}</pre>
-      <button onClick={resetErrorBoundary}>Try again</button>
-    </div>
-  );
-}
-
+// ---------- Main App ----------
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
-  useEffect(() => { checkAuth(); }, [checkAuth]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
-    <ErrorBoundary FallbackComponent={AppErrorFallback}>
-      <div className="min-h-screen w-full bg-white relative">
-        <Navbar />
+    <div className="min-h-screen w-full bg-white relative">
+      <Navbar />
 
-        <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
-          <Routes>
-            {/* Auth entry */}
-            <Route
-              path="/"
-              element={
-                <RedirectAuthenticatedUser>
-                  <LoginPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <RedirectAuthenticatedUser>
-                  <LoginPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
+        <Routes>
+          {/* Auth entry */}
+          <Route
+            path="/"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-            {/* Public browse pages */}
-            <Route path="/home" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/doctor" element={<Doctor />} />
-            {/* doctor public entry */}
-            <Route path="/doctor/:docId" element={<Appointment />} />
+          {/* Public browse pages */}
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/doctor" element={<Doctor />} />
 
-            {/* Dashboards / protected */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin-dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user-management"
-              element={
-                <ProtectedRoute>
-                  <UserMgt />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/:id"
-              element={
-                <ProtectedRoute>
-                  <UpdateUser />
-                </ProtectedRoute>
-              }
-            />
+          {/* Home (protected after login) */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Products */}
-            <Route
-              path="/product-dashboard"
-              element={
-                <ProtectedRoute>
-                  <ProductDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/update-product/:id"
-              element={
-                <ProtectedRoute>
-                  <UpdateProduct />
-                </ProtectedRoute>
-              }
-            />
+          {/* Dashboards */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user-management"
+            element={
+              <ProtectedRoute>
+                <UserMgt />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/:id"
+            element={
+              <ProtectedRoute>
+                <UpdateUser />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Orders & Payments */}
-            <Route
-              path="/order-form"
-              element={
-                <ProtectedRoute>
-                  <OrderForm />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <OrdersList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orderdisplay/:id"
-              element={
-                <ProtectedRoute>
-                  <OrderDisplay />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orderupdateuser/:id"
-              element={
-                <ProtectedRoute>
-                  <OrdersupdateUser />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/onlinepayment"
-              element={
-                <ProtectedRoute>
-                  <Onlinepayment />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/cart" element={<Cart />} />
+          {/* Products */}
+          <Route
+            path="/product-dashboard"
+            element={
+              <ProtectedRoute>
+                <ProductDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/update-product/:id"
+            element={
+              <ProtectedRoute>
+                <UpdateProduct />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Auth helpers */}
-            <Route path="/verify-email" element={<EmailVerificationPage />} />
-            <Route
-              path="/forgot-password"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ForgotPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/reset-password/:token"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ResetPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route path="/approval-pending" element={<ApprovalPendingPage />} />
+          {/* -------- Orders & Payments -------- */}
+          <Route
+            path="/order-form"
+            element={
+              <ProtectedRoute>
+                <OrderForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orderdisplay/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDisplay />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orderupdateuser/:id"
+            element={
+              <ProtectedRoute>
+                <OrdersupdateUser />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onlinepayment"
+            element={
+              <ProtectedRoute>
+                <Onlinepayment />
+              </ProtectedRoute>
+            }
+          />
+          {/* Payment success page (public) */}
+          <Route path="/order-success" element={<OrderSuccess />} />
 
-            {/* Doctor nested protected */}
-            <Route
-              path="/doctor/:docId/book/patientform"
-              element={
-                <ProtectedRoute>
-                  <PatientForm />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientdetails"
-              element={
-                <ProtectedRoute>
-                  <PatientDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientdetails/slip"
-              element={
-                <ProtectedRoute>
-                  <UploadSlip />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientupdate"
-              element={
-                <ProtectedRoute>
-                  <PatientUpdate />
-                </ProtectedRoute>
-              }
-            />
+          {/* Role Selection & Signups */}
+          <Route
+            path="/signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <RoleSelection />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/user"
+            element={
+              <RedirectAuthenticatedUser>
+                <SignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/doctor"
+            element={
+              <RedirectAuthenticatedUser>
+                <DoctorSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup/supplier"
+            element={
+              <RedirectAuthenticatedUser>
+                <SupplierSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-            {/* Appointment overviews */}
-            <Route
-              path="/CheckAppoinments"
-              element={
-                <ProtectedRoute>
-                  <CheckAppoinments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my_appoinments"
-              element={
-                <ProtectedRoute>
-                  <MyAppoinment />
-                </ProtectedRoute>
-              }
-            />
+          {/* Auth helpers */}
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-            {/* Support admin center */}
-            <Route
-              path="/admin/support-center"
-              element={
-                <ProtectedRoute>
-                  <AdminSupportCenter />
-                </ProtectedRoute>
-              }
-            />
+          {/* Doctor appointment & patient routes */}
+          <Route
+            path="/doctor/:docId"
+            element={
+              <ProtectedRoute>
+                <Appointment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={
+              <ProtectedRoute>
+                <PatientForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={
+              <ProtectedRoute>
+                <PatientDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails/slip"
+            element={
+              <ProtectedRoute>
+                <UploadSlip />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={
+              <ProtectedRoute>
+                <PatientUpdate />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Review pages (after submit redirects) */}
-            <Route path="/tickets/review/:id" element={<TicketReview />} />
-            <Route path="/support/review/:id" element={<SupportReview />} />
-            <Route path="/feedback/review/:id" element={<FeedbackReview />} />
+          {/* Appointment overviews */}
+          <Route
+            path="/CheckAppoinments"
+            element={
+              <ProtectedRoute>
+                <CheckAppoinments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my_appoinments"
+            element={
+              <ProtectedRoute>
+                <MyAppoinment />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+          {/* Cart (usually public) */}
+          <Route path="/cart" element={<Cart />} />
 
-        <Toaster position="top-right" />
-        <Footer />
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
-    </ErrorBoundary>
+
+      <Toaster position="top-right" />
+      <Footer />
+    </div>
   );
 }
 
