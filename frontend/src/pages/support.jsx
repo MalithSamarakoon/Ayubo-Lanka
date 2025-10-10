@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SupportForm from "../Component/SupportForm";
 import FeedbackForm from "../Component/FeedbackForm";
 import TicketSystem from "../Component/TicketSystem";
-import api from "../lib/api";
+import axiosInstance from "../lib/axios";
 
 const TOAST_POSITION = "top-left";
 
@@ -243,7 +243,7 @@ export default function Support() {
         </motion.section>
       </div>
 
-      {/* Modal area — now uses stable ModalShell */}
+  {/* Modal area — lightweight ModalShell to avoid re-renders */}
       <ModalShell open={Boolean(activeModal)} onClose={() => setActiveModal(null)}>
         {activeModal === "inquiry" && (
           <div className="p-6">
@@ -283,3 +283,19 @@ export default function Support() {
     </div>
   );
 }
+
+// Minimal modal shell implementation (JS only, no portals)
+const ModalShell = memo(function ModalShell({ open, onClose, children }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl max-w-2xl w-[90%] shadow-xl border p-2">
+        <button className="absolute right-3 top-3 text-gray-500" onClick={onClose}>
+          ✕
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+});

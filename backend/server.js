@@ -23,6 +23,10 @@ import adminExportRoutes from './routes/adminExportRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ESM __dirname shim
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // --- DB ---
 connectDB();
 

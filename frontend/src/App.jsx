@@ -40,7 +40,6 @@ import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
 
 import UserMgt from "./pages/UserMgt";
-import AdminDashboard from "./pages/AdminDashboard";
 import UpdateUser from "./pages/UpdateUser";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
@@ -107,6 +106,63 @@ function App() {
               element={
                 <RedirectAuthenticatedUser>
                   <LoginPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            {/* Role-driven signup aliases */}
+            <Route
+              path="/signup/user"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/signup/doctor"
+              element={
+                <RedirectAuthenticatedUser>
+                  <DoctorSignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/signup/supplier"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SupplierSignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/role-selection"
+              element={
+                <RedirectAuthenticatedUser>
+                  <RoleSelection />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/doctor-signup"
+              element={
+                <RedirectAuthenticatedUser>
+                  <DoctorSignUpPage />
+                </RedirectAuthenticatedUser>
+              }
+            />
+            <Route
+              path="/supplier-signup"
+              element={
+                <RedirectAuthenticatedUser>
+                  <SupplierSignUpPage />
                 </RedirectAuthenticatedUser>
               }
             />
