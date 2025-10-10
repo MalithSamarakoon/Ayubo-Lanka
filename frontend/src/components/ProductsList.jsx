@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import {motion} from 'framer-motion'
-import { Trash, Star, SquarePen, Search, X } from 'lucide-react'
+import { Trash, Star, SquarePen, Search, X, FileDown } from 'lucide-react'
 import { useProductStore }  from '../stores/useProductStore'
 import { useNavigate } from 'react-router-dom'
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 function ProductsList() {
   const { products, toggleFeaturedProduct, deleteProduct } = useProductStore();
@@ -28,6 +30,329 @@ function ProductsList() {
     setSearchTerm('');
   };
 
+  // Generate Complete Inventory PDF Report
+  const generateInventoryPDF = () => {
+    try {
+      // Initialize PDF in landscape mode for better table layout
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "A4",
+      });
+
+      // ========== HEADER SECTION ==========
+      // Company Title
+      doc.setFontSize(18);
+      doc.setTextColor(16, 185, 129); // Emerald-500 color
+      doc.setFont(undefined, 'bold');
+      doc.text("AYUBO LANKA - AYURVEDIC PRODUCTS", 40, 35);
+      
+      // Report Title
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0); // Black
+      doc.text("Complete Product Inventory Report", 40, 55);
+      
+      // Generation timestamp
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      const now = new Date().toLocaleString("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+      doc.text(`Generated: ${now}`, 40, 72);
+
+      // ========== SUMMARY STATISTICS ==========
+      const totalProducts = filteredProducts.length;
+      const lowStockProducts = filteredProducts.filter(
+        p => p.stock <= p.minimumStock
+      ).length;
+      const totalInventoryValue = filteredProducts.reduce(
+        (sum, p) => sum + (Number(p.price) * Number(p.stock)), 
+        0
+      );
+      const outOfStockProducts = filteredProducts.filter(p => p.stock === 0).length;
+
+      // Summary Box
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Total Products: ${totalProducts}`, 40, 92);
+      doc.text(`Low Stock Items: ${lowStockProducts}`, 200, 92);
+      doc.text(`Out of Stock: ${outOfStockProducts}`, 360, 92);
+      doc.text(`Total Inventory Value: Rs. ${totalInventoryValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 500, 92);
+
+      // ========== MAIN PRODUCTS TABLE ==========
+      const tableData = filteredProducts.map(product => {
+        const stockStatus = product.stock === 0 
+          ? '❌ OUT' 
+          : product.stock <= product.minimumStock 
+            ? '⚠️ LOW' 
+            : '✓ OK';
+        
+        const itemValue = Number(product.price) * Number(product.stock);
+        
+        return [
+          product.name || '-',
+          product.category || '-',
+          product.description?.substring(0, 50) + (product.description?.length > 50 ? '...' : '') || '-',
+          `Rs. ${Number(product.price).toFixed(2)}`,
+          product.stock.toString(),
+          product.minimumStock.toString(),
+          stockStatus,
+          `Rs. ${itemValue.toFixed(2)}`,
+          product.isFeatured ? '⭐ Yes' : 'No'
+        ];
+      });
+
+      autoTable(doc, {
+        head: [[
+          'Product Name', 
+          'Category', 
+          'Description',
+          'Unit Price', 
+          'Stock', 
+          'Min Stock', 
+          'Status', 
+          'Total Value',
+          'Featured'
+        ]],
+        body: tableData,
+        startY: 110,
+        
+        styles: {
+          fontSize: 8,
+          cellPadding: 4,
+          overflow: 'linebreak',
+          halign: 'left',
+        },
+        
+        headStyles: {
+          fillColor: [16, 185, 129], // Emerald-500
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'center',
+          fontSize: 9,
+        },
+        
+        columnStyles: {
+          0: { cellWidth: 100 }, // Product name
+          1: { cellWidth: 70 },  // Category
+          2: { cellWidth: 120 }, // Description
+          3: { cellWidth: 70, halign: 'right' },  // Price
+          4: { cellWidth: 45, halign: 'center' }, // Stock
+          5: { cellWidth: 50, halign: 'center' }, // Min Stock
+          6: { cellWidth: 55, halign: 'center' }, // Status
+          7: { cellWidth: 80, halign: 'right' },  // Value
+          8: { cellWidth: 55, halign: 'center' }, // Featured
+        },
+
+        // Conditional row coloring based on stock status
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.column.index === 6) {
+            const statusText = data.cell.text[0];
+            if (statusText === '❌ OUT') {
+              data.cell.styles.fillColor = [254, 202, 202]; // Red-200
+              data.cell.styles.textColor = [153, 27, 27];   // Red-900
+              data.cell.styles.fontStyle = 'bold';
+            } else if (statusText === '⚠️ LOW') {
+              data.cell.styles.fillColor = [254, 243, 199]; // Amber-100
+              data.cell.styles.textColor = [146, 64, 14];   // Amber-900
+              data.cell.styles.fontStyle = 'bold';
+            } else if (statusText === '✓ OK') {
+              data.cell.styles.fillColor = [209, 250, 229]; // Emerald-100
+              data.cell.styles.textColor = [6, 95, 70];     // Emerald-900
+            }
+          }
+        },
+
+        alternateRowStyles: {
+          fillColor: [249, 250, 251] // Gray-50
+        },
+      });
+
+      // ========== CATEGORY BREAKDOWN SECTION ==========
+      const categoryStats = {};
+      filteredProducts.forEach(p => {
+        const cat = p.category || 'Uncategorized';
+        if (!categoryStats[cat]) {
+          categoryStats[cat] = { 
+            count: 0, 
+            totalValue: 0,
+            lowStock: 0 
+          };
+        }
+        categoryStats[cat].count++;
+        categoryStats[cat].totalValue += Number(p.price) * Number(p.stock);
+        if (p.stock <= p.minimumStock) {
+          categoryStats[cat].lowStock++;
+        }
+      });
+
+      const categoryData = Object.entries(categoryStats)
+        .sort((a, b) => b[1].totalValue - a[1].totalValue) // Sort by value descending
+        .map(([category, stats]) => [
+          category,
+          stats.count.toString(),
+          `Rs. ${stats.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+          stats.lowStock > 0 ? `⚠️ ${stats.lowStock}` : '✓ None'
+        ]);
+
+      const startYForCategory = doc.lastAutoTable.finalY + 20;
+
+      // Category section title
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text("Category-wise Breakdown", 40, startYForCategory);
+
+      autoTable(doc, {
+        head: [['Category', 'Product Count', 'Total Value', 'Low Stock Items']],
+        body: categoryData,
+        startY: startYForCategory + 10,
+        margin: { left: 40 },
+        tableWidth: 400,
+        
+        styles: {
+          fontSize: 9,
+          cellPadding: 5,
+        },
+        
+        headStyles: {
+          fillColor: [59, 130, 246], // Blue-500
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'center',
+        },
+        
+        columnStyles: {
+          0: { cellWidth: 120 },
+          1: { cellWidth: 80, halign: 'center' },
+          2: { cellWidth: 120, halign: 'right' },
+          3: { cellWidth: 80, halign: 'center' },
+        },
+      });
+
+      // ========== LOW STOCK ALERTS SECTION ==========
+      const lowStockItems = filteredProducts.filter(
+        p => p.stock > 0 && p.stock <= p.minimumStock
+      );
+      
+      const outOfStockItems = filteredProducts.filter(p => p.stock === 0);
+
+      if (lowStockItems.length > 0 || outOfStockItems.length > 0) {
+        const startYForAlerts = doc.lastAutoTable.finalY + 20;
+        
+        // Alerts section title
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(185, 28, 28); // Red-700
+        doc.text("⚠️ Stock Alerts", 40, startYForAlerts);
+
+        const alertData = [];
+        
+        // Add out of stock items first
+        if (outOfStockItems.length > 0) {
+          outOfStockItems.forEach(p => {
+            alertData.push([
+              '❌ OUT OF STOCK',
+              p.name,
+              p.category,
+              `Current: ${p.stock}`,
+              `Minimum: ${p.minimumStock}`,
+              `Shortage: ${p.minimumStock} units`
+            ]);
+          });
+        }
+        
+        // Add low stock items
+        if (lowStockItems.length > 0) {
+          lowStockItems.forEach(p => {
+            const shortage = p.minimumStock - p.stock;
+            alertData.push([
+              '⚠️ LOW STOCK',
+              p.name,
+              p.category,
+              `Current: ${p.stock}`,
+              `Minimum: ${p.minimumStock}`,
+              `Need: ${shortage} more units`
+            ]);
+          });
+        }
+
+        autoTable(doc, {
+          head: [['Alert Type', 'Product Name', 'Category', 'Current Stock', 'Min Required', 'Action Needed']],
+          body: alertData,
+          startY: startYForAlerts + 10,
+          
+          styles: {
+            fontSize: 8,
+            cellPadding: 4,
+          },
+          
+          headStyles: {
+            fillColor: [239, 68, 68], // Red-500
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            halign: 'center',
+          },
+          
+          columnStyles: {
+            0: { cellWidth: 90, halign: 'center', fontStyle: 'bold' },
+            1: { cellWidth: 120 },
+            2: { cellWidth: 80 },
+            3: { cellWidth: 80, halign: 'center' },
+            4: { cellWidth: 80, halign: 'center' },
+            5: { cellWidth: 100, halign: 'center' },
+          },
+
+          didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 0) {
+              if (data.cell.text[0]?.includes('OUT OF STOCK')) {
+                data.cell.styles.fillColor = [254, 202, 202]; // Red-200
+                data.cell.styles.textColor = [153, 27, 27];   // Red-900
+              } else if (data.cell.text[0]?.includes('LOW STOCK')) {
+                data.cell.styles.fillColor = [254, 243, 199]; // Amber-100
+                data.cell.styles.textColor = [146, 64, 14];   // Amber-900
+              }
+            }
+          },
+        });
+      }
+
+      // ========== FOOTER WITH PAGE NUMBERS ==========
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(107, 114, 128); // Gray-500
+        doc.setFont(undefined, 'normal');
+        
+        // Page number (right side)
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() - 80,
+          doc.internal.pageSize.getHeight() - 20
+        );
+        
+        // Footer text (left side)
+        doc.text(
+          'Generated by Ayubo Lanka Product Management System',
+          40,
+          doc.internal.pageSize.getHeight() - 20
+        );
+      }
+
+      // ========== SAVE PDF ==========
+      const filename = `inventory_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(filename);
+      
+      console.log(`PDF generated successfully: ${filename}`);
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF report. Please try again.');
+    }
+  };
+
   console.log("products:", products);
 
   return (
@@ -38,8 +363,26 @@ function ProductsList() {
 			transition={{ duration: 0.8 }}
 		>
     
+		{/* PDF Export Button Section */}
+		<div className='px-6 pt-6 pb-2 flex justify-end'>
+			<button
+				onClick={generateInventoryPDF}
+				disabled={!filteredProducts || filteredProducts.length === 0}
+				className='flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white 
+						rounded-lg hover:bg-emerald-700 transition-colors font-medium
+						disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50
+						shadow-md hover:shadow-lg'
+				title={filteredProducts?.length > 0 
+					? 'Generate PDF report of current inventory' 
+					: 'No products available to generate report'}
+			>
+				<FileDown className='w-5 h-5' />
+				<span>Generate Inventory Report (PDF)</span>
+			</button>
+		</div>
+
 		{/* Search Bar Section */}
-		<div className='px-6 pt-6 pb-4'>
+		<div className='px-6 pt-4 pb-4'>
 			<div className='relative'>
 				<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
 					<Search className='h-5 w-5 text-gray-400' />
