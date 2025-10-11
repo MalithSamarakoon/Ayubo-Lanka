@@ -9,7 +9,7 @@ import {
   updateStatus,
 } from "../controllers/orders.controller.js";
 
-const router = express.Router();
+const orderRouter = express.Router();
 
 // ✅ Setup multer for slip uploads
 const storage = multer.diskStorage({
@@ -22,16 +22,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ✅ CRUD routes
-router.get("/", listOrders);
-router.get("/:id", getOrder);
+orderRouter.get("/", listOrders);
+orderRouter.get("/:id", getOrder);
 
 // ⚙️ Use upload.single("slip") for create and update to handle file uploads
-router.post("/", upload.single("slip"), createOrder);
-router.patch("/:id", upload.single("slip"), updateOrder);
+orderRouter.post("/", upload.single("slip"), createOrder);
+orderRouter.patch("/:id", upload.single("slip"), updateOrder);
 
-router.delete("/:id", deleteOrder);
+orderRouter.delete("/:id", deleteOrder);
 
 // ✅ Optional: update order status only
-router.patch("/:id/status", updateStatus);
+orderRouter.patch("/:id/status", updateStatus);
 
-export default router;
+export default orderRouter;

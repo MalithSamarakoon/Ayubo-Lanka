@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Save, Upload, Loader, ArrowLeft, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
+import axiosInstance from '../lib/axios';
 
 const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"];
 
@@ -23,15 +24,23 @@ const UpdateProduct = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // helpers to make image URLs absolute when backend returns relative /uploads paths
+  const apiBase = (axiosInstance?.defaults?.baseURL || '').replace(/\/$/, '');
+  const serverOrigin = apiBase.replace(/\/api\/?$/, '');
+  const toAbs = (u) => {
+    if (!u || typeof u !== 'string') return u;
+    if (u.startsWith('http://') || u.startsWith('https://')) return u;
+    return `${serverOrigin}${u.startsWith('/') ? '' : '/'}${u}`;
+  };
+
   // Fetch product data when component mounts
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`http://localhost:5000/api/products/${id}`);
-        const data = await response.json();
-        if (response.ok) {
-          const product = data.product;
+        const { data } = await axiosInstance.get(`/products/${id}`);
+        if (data) {
+          const product = data.product ?? data;
           setProductData({
             name: product.name || "",
             description: product.description || "",
@@ -41,9 +50,9 @@ const UpdateProduct = () => {
             minimumStock: product.minimumStock?.toString() || "",
             isFeatured: product.isFeatured || false
           });
-          setCurrentImageUrl(product.image || "");
+          setCurrentImageUrl(toAbs(product.image) || "");
         } else {
-          toast.error(data.message || "Failed to fetch product");
+          toast.error(data?.message || "Failed to fetch product");
           navigate('/product-dashboard');
         }
       } catch (error) {
@@ -69,20 +78,17 @@ const UpdateProduct = () => {
         updateData.image = previewImage;
       }
 
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
+      const { data } = await axiosInstance.patch(`/products/${id}`, updateData);
+      if (data) {
         toast.success("Product updated successfully");
+        // in case we remain on this page in future, ensure preview reflects latest image
+        const updated = data.product ?? data;
+        if (updated?.image && !previewImage) {
+          setCurrentImageUrl(toAbs(updated.image));
+        }
         navigate('/product-dashboard');
       } else {
-        toast.error(data.message || "Failed to update product");
+        toast.error(data?.message || "Failed to update product");
       }
     } catch (error) {
       console.error("Error updating product:", error);

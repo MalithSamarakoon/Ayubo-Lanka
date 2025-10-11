@@ -99,7 +99,7 @@ const LoginPage = () => {
           <p className="text-sm text-gray-400">
             Don't have an account?{" "}
             <Link
-              to="/signup"
+              to="/role-selection"
               className="text-green-400 hover:underline"
               onClick={() => setError(null)}
             >

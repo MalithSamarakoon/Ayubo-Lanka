@@ -1,5 +1,36 @@
 import ayurvedicProduct from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const saveBase64ToLocal = async (dataUri) => {
+  try {
+    if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
+    const [meta, base64] = dataUri.split(',');
+    if (!base64) return null;
+    const mimeMatch = /data:(.*?);base64/.exec(meta || '');
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const ext = mime === 'image/jpeg' || mime === 'image/jpg' ? '.jpg'
+              : mime === 'image/gif' ? '.gif'
+              : mime === 'image/webp' ? '.webp'
+              : '.png';
+    const buf = Buffer.from(base64, 'base64');
+    const uploadDir = path.join(__dirname, '..', 'uploads', 'products');
+    await fs.promises.mkdir(uploadDir, { recursive: true });
+    const filename = `prod-${Date.now()}-${Math.round(Math.random()*1e6)}${ext}`;
+    const abs = path.join(uploadDir, filename);
+    await fs.promises.writeFile(abs, buf);
+    // return public path served by server static
+    return `/uploads/products/${filename}`;
+  } catch (e) {
+    console.error('Local save failed:', e?.message || e);
+    return null;
+  }
+};
 
 
 const validateProductData = (data) => {
@@ -87,10 +118,7 @@ export const createProduct = async (req, res) => {
 
     const product = await ayurvedicProduct.create(saveProduct);
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product,
-    });
+    res.status(201).json({ message: 'Product created successfully', product });
   } catch (error) {
     console.error("Error creating product:", error);
     

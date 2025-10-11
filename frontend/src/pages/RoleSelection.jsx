@@ -8,17 +8,17 @@ export default function RoleSelection() {
     {
       name: "Doctor",
       color: "from-green-400 to-green-600",
-      path: "/signup/doctor",
+      path: "/doctor-signup",
     },
     {
       name: "Supplier",
       color: "from-green-300 to-green-500",
-      path: "/signup/supplier",
+      path: "/supplier-signup",
     },
     {
       name: "User",
       color: "from-green-200 to-green-400",
-      path: "/signup/user",
+      path: "/signup",
     },
   ];
 

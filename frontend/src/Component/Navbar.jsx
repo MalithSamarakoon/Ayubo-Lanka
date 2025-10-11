@@ -63,6 +63,18 @@ const Navbar = () => {
             </>
           )}
         </NavLink>
+        <NavLink to="/support" className="flex flex-col items-center gap-1">
+          {({ isActive }) => (
+            <>
+              <p>SUPPORT</p>
+              <hr
+                className={`w-2/4 border-none h-[1.5px] bg-gray-700 ${
+                  isActive ? "block" : "hidden"
+                }`}
+              />
+            </>
+          )}
+        </NavLink>
         <NavLink to="/About" className="flex flex-col items-center gap-1">
           {({ isActive }) => (
             <>
@@ -191,6 +203,13 @@ const Navbar = () => {
             to="/About"
           >
             ABOUT
+          </NavLink>
+          <NavLink
+            onClick={() => setVisible(false)}
+            className="py-2 pl-6 border"
+            to="/support"
+          >
+            SUPPORT
           </NavLink>
           <NavLink
             onClick={() => setVisible(false)}
