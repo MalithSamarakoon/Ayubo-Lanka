@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+
 const BookingDateSelector = ({ bookingSlots, selectedDay, setSelectedDay }) => (
   <div className="mb-8">
     <h3 className="text-sm font-semibold text-gray-700 mb-4">Booking slots</h3>
