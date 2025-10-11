@@ -7,10 +7,6 @@ const FilterSidebar = ({
   activeSpec,
   handleFilterClick,
   specialityList,
-  showAvailableOnly,
-  setShowAvailableOnly,
-  selectedRating,
-  setSelectedRating,
   clearAllFilters,
   resultsCount,
 }) => {
