@@ -68,34 +68,8 @@ const FilterSidebar = ({
               ))}
             </div>
           </div>
-          <div>
-            <h3 className="font-medium text-gray-900 mb-3">Availability</h3>
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={showAvailableOnly}
-                onChange={(e) => setShowAvailableOnly(e.target.checked)}
-                className="rounded"
-              />
-              <span className="ml-2 text-sm text-gray-700">
-                Available today only
-              </span>
-            </label>
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-900 mb-3">Minimum Rating</h3>
-            <select
-              value={selectedRating}
-              onChange={(e) => setSelectedRating(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
-            >
-              <option value="all">All Ratings</option>
-              <option value="4.5">4.5+ Stars</option>
-              <option value="4.0">4.0+ Stars</option>
-              <option value="3.5">3.5+ Stars</option>
-              <option value="3.0">3.0+ Stars</option>
-            </select>
-          </div>
+          
+          
         </div>
 
         {/* Stats Footer */}
