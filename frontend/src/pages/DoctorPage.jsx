@@ -109,14 +109,14 @@ const DoctorPage = () => {
 
   const specialityList = [
     "All",
-    "Ayurveda Massage Therapist",
-    "Ayurvedic Detox Specialist",
-    "Ayurveda Yoga Consultant",
-    "Ayurveda Panchakarma Specialist",
-    "Ayurvedic Pulse Diagnostician",
-    "Sri Lankan Herbal Medicine Expert",
-    "Ayurveda Herbalist",
-    "Ayurvedic Physician",
+    "General Ayurveda",
+    "Women’s Health",
+    "Child Health",
+    "Detox & Panchakarma",
+    "Mental Health",
+    "Geriatric Care",
+    "Ayurvedic Surgery",
+   
   ];
 
   return (
