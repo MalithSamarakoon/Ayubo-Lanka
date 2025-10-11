@@ -14,6 +14,7 @@ import Input from "../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
+import bgImage from "../assets/frontend_assets/ayur8.jpg";
 
 const DoctorSignUpPage = () => {
   const [name, setName] = useState("");
@@ -84,130 +85,138 @@ const DoctorSignUpPage = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
+    <div
+      className="min-h-screen w-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
     >
-      <div className="p-8">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-500 to-emerald-500 text-transparent bg-clip-text drop-shadow-lg">
-          Doctor Registration
-        </h2>
-        <form onSubmit={handleSignUp}>
-          <Input
-            icon={User}
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            icon={FileText}
-            type="text"
-            placeholder="Doctor License Number"
-            value={doctorLicenseNumber}
-            onChange={(e) => setDoctorLicenseNumber(e.target.value)}
-            required
-          />
+      <div className="absolute inset-0 bg-white/20"></div>
 
-          <div className="mb-4 relative">
-            <FileText
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
-              size={18}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
+      >
+        <div className="p-8">
+          <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-500 to-emerald-500 text-transparent bg-clip-text drop-shadow-lg">
+            Doctor Registration
+          </h2>
+          <form onSubmit={handleSignUp}>
+            <Input
+              icon={User}
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
             />
-            <select
-              className="w-full bg-white text-gray-700 placeholder-gray-400 border border-white/20 rounded-lg shadow-sm py-3 pl-12 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
+            <Input
+              icon={FileText}
+              type="text"
+              placeholder="Doctor License Number"
+              value={doctorLicenseNumber}
+              onChange={(e) => setDoctorLicenseNumber(e.target.value)}
+              required
+            />
+
+            <div className="mb-4 relative">
+              <FileText
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"
+                size={18}
+              />
+              <select
+                className="w-full bg-white text-gray-700 placeholder-gray-400 border border-white/20 rounded-lg shadow-sm py-3 pl-12 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                value={specialization}
+                onChange={(e) => setSpecialization(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select Specialization
+                </option>
+                <option value="General Ayurveda">General Ayurveda</option>
+                <option value="Women’s Health">Women’s Health</option>
+                <option value="Child Health">Child Health</option>
+                <option value="Detox & Panchakarma">Detox & Panchakarma</option>
+                <option value="Mental Health">Mental Health</option>
+                <option value="Geriatric Care">Geriatric Care</option>
+                <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
+              </select>
+            </div>
+
+            <Input
+              icon={Mail}
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              icon={Phone}
+              type="text"
+              placeholder="Mobile Number (10 digits)"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              required
+            />
+            <Input
+              icon={Lock}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              togglePassword
+              required
+            />
+
+            <Input
+              icon={Lock}
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              togglePassword
+              required
+            />
+
+            <center>
+              {(validationError || error) && (
+                <p className="text-red-500 font-semibold mt-2">
+                  {validationError || error}
+                </p>
+              )}
+            </center>
+
+            <PasswordStrengthMeter password={password} />
+
+            <motion.button
+              className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-2xl hover:from-green-600 hover:to-emerald-700 transition duration-200"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={isLoading}
             >
-              <option value="" disabled>
-                Select Specialization
-              </option>
-              <option value="General Ayurveda">General Ayurveda</option>
-              <option value="Women’s Health">Women’s Health</option>
-              <option value="Child Health">Child Health</option>
-              <option value="Detox & Panchakarma">Detox & Panchakarma</option>
-              <option value="Mental Health">Mental Health</option>
-              <option value="Geriatric Care">Geriatric Care</option>
-              <option value="Ayurvedic Surgery">Ayurvedic Surgery</option>
-            </select>
-          </div>
-
-          <Input
-            icon={Mail}
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            icon={Phone}
-            type="text"
-            placeholder="Mobile Number (10 digits)"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            required
-          />
-          <Input
-            icon={Lock}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            togglePassword
-            required
-          />
-
-          <Input
-            icon={Lock}
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            togglePassword
-            required
-          />
-          
-
-          <center>
-            {(validationError || error) && (
-              <p className="text-red-500 font-semibold mt-2">
-                 {validationError || error}
-              </p>
-            )}
-          </center>
-
-          <PasswordStrengthMeter password={password} />
-
-          <motion.button
-            className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-2xl hover:from-green-600 hover:to-emerald-700 transition duration-200"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader className="animate-spin mx-auto" size={24} />
-            ) : (
-              "Sign Up as Doctor"
-            )}
-          </motion.button>
-        </form>
-      </div>
-      <center>
-        <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
-          <p className="text-sm text-gray-600">
-            Already registered?{" "}
-            <Link to={"/login"} className="text-green-500 hover:underline">
-              Login
-            </Link>
-          </p>
+              {isLoading ? (
+                <Loader className="animate-spin mx-auto" size={24} />
+              ) : (
+                "Sign Up as Doctor"
+              )}
+            </motion.button>
+          </form>
         </div>
-      </center>
-    </motion.div>
+        <center>
+          <div className="px-8 py-4 bg-black/10 backdrop-blur-xl shadow-inner border-t border-white/20">
+            <p className="text-sm text-gray-900">
+              Already registered?{" "}
+              <Link to={"/login"} className="text-green-500 hover:underline">
+                Login
+              </Link>
+            </p>
+          </div>
+        </center>
+      </motion.div>
+    </div>
   );
 };
 
