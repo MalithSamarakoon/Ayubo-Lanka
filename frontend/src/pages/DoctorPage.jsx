@@ -88,7 +88,7 @@ const DoctorPage = () => {
     () => ({
       total: filteredApiDoctors.length,
       approved: filteredApiDoctors.filter((d) => d.isApproved).length,
-      avgRating: "4.0", // Assuming static rating for now as it's not in user data
+      avgRating: "4.0", 
       specialties: new Set(filteredApiDoctors.map((d) => d.specialization))
         .size,
     }),
