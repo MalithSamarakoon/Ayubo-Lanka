@@ -14,7 +14,7 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-import Doctor from "./pages/Doctor";
+import Doctor from "./pages/DoctorPage";
 import Home from "./pages/Home";
 import Appointment from "./pages/Appoinment"; // keep your spelling
 import AdminDashboard from "./pages/AdminDashboard";
