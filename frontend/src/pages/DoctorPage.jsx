@@ -4,7 +4,6 @@ import axios from "axios";
 import DirectoryHeader from "../components/DirectoryHeader";
 import FilterSidebar from "../components/FilterSidebar";
 import DoctorList from "../components/DoctorList";
-import Fotter from "../Component/Fotter";
 
 const URL = "http://localhost:5000/api/user/users";
 
@@ -151,7 +150,6 @@ const DoctorPage = () => {
           />
         </div>
       </div>
-      <Fotter />
     </div>
   );
 };

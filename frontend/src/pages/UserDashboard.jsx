@@ -53,7 +53,7 @@ const UserDashboard = () => {
             "success"
           );
 
-          navigate("/login");
+          navigate("/");
         } catch (err) {
           console.error("Delete failed:", err);
           Swal.fire(
