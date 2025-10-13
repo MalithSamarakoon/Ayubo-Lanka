@@ -1,8 +1,7 @@
 import { isValidObjectId } from "mongoose";
 import Patient from "../models/patient.js";
-import Receipt from "../models/Receipt.js";
-import { sendAppointmentApprovedEmail } from "../mailer.js"; 
-
+import Receipt from "../models/Receipt.js"; 
+import { sendAppointmentApprovedEmail } from "../mailer.js";
 
 export const createPatient = async (req, res) => {
   try {
@@ -16,8 +15,9 @@ export const createPatient = async (req, res) => {
 
     const lastPatient = await Patient.findOne().sort({ id: -1 }).lean();
 
+    
     const nextId =
-      lastPatient && Number.isFinite(lastPatient.id) 
+      lastPatient && Number.isFinite(lastPatient.id)
         ? Number(lastPatient.id) + 1
         : 1000;
 
@@ -38,15 +38,12 @@ export const createPatient = async (req, res) => {
   }
 };
 
-
-
 export const getPatients = async (req, res) => {
   try {
-    const page = Math.max(1, Number(req.query.page) || 1); 
+    const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
-
     const skip = (page - 1) * limit;
- 
+
     const [items, total] = await Promise.all([
       Patient.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
       Patient.countDocuments(),
@@ -81,40 +78,33 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-
 export const updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
-
 
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    // 1) Load current patient to compare later
     const before = await Patient.findOne(query);
     if (!before) return res.status(404).json({ message: "Patient not found." });
 
-    // 2) Update the patient with provided fields
     const patient = await Patient.findOneAndUpdate(query, req.body, {
       new: true,
     });
     if (!patient)
       return res.status(404).json({ message: "Patient not found." });
 
-    // 3) Compare status transition
-      const beforeStatus = String(before.status || "pending").toLowerCase();
+    const beforeStatus = String(before.status || "pending").toLowerCase();
     const afterStatus = String(patient.status || "pending").toLowerCase();
 
-    // Only when changing from NOT-approved to approved
     if (beforeStatus !== "approved" && afterStatus === "approved") {
       const toEmail = patient.email;
       const userName = patient.name || "";
-      const bookingId = patient.id; 
+      const bookingId = patient.id;
 
       if (toEmail) {
-        
         sendAppointmentApprovedEmail(toEmail, userName, bookingId);
       }
     }
@@ -172,7 +162,7 @@ export const getPatientWithPayments = async (req, res) => {
     }
 
     const payments = await Receipt.find({ appointmentId: patient._id })
-      .sort({ createdAt: -1 })//newest first
+      .sort({ createdAt: -1 }) 
       .populate("patientId", "name email mobile role");
 
     return res.json({ patient, payments });

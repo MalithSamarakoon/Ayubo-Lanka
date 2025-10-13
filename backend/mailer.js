@@ -91,11 +91,8 @@ export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId)
     console.log(`Appointment approval email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending appointment approval email:", error);
-   
   }
-};
-
-
+}
 export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
