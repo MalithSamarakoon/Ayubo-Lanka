@@ -1,8 +1,8 @@
 import express from "express";
 import { askChat } from "../controllers/chat.controller.js";
 
-const router = express.Router();
+const chatRouter = express.Router();
 
-router.post("/ask", askChat);
+chatRouter.post("/ask", askChat);
 
-export default router;
+export default chatRouter;
