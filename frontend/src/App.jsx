@@ -54,6 +54,7 @@ import Cart from "./pages/Cart";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
+import Contact from "./pages/Contact";
 
 // -------------------- Route Protection --------------------
 const ProtectedRoute = ({ children }) => {
@@ -133,6 +134,7 @@ function App() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/Contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/doctor" element={<DoctorPage />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
@@ -357,10 +359,10 @@ function App() {
           <Route path="/tickets/review/:id" element={<TicketReview />} />
           <Route path="/support/review/:id" element={<SupportReview />} />
           <Route path="/feedback/review/:id" element={<FeedbackReview />} />
-          <Chatbot />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Chatbot />
       </div>
 
       <Toaster position="top-right" />
