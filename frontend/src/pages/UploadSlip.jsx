@@ -18,14 +18,15 @@ export default function ReceiptUploadPage() {
 
   const stateApptId = location.state?.appointmentId;
   const stateApptNo = location.state?.appointmentNo;
-   const paramApptId = params.appointmentId;
+  const paramApptId = params.appointmentId;
+
+  const docId = params.docId || location.state?.docId || "";
 
   const queryApptId = searchParams.get("appointmentId");
   const queryApptNo = searchParams.get("appointmentNo");
- 
+
   const appointmentId = stateApptId || queryApptId || paramApptId;
   const appointmentNo = stateApptNo || queryApptNo || undefined;
-
 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -44,32 +45,6 @@ export default function ReceiptUploadPage() {
   const allowed = ["image/jpeg", "image/png", "application/pdf"];
   const maxSize = 5 * 1024 * 1024;
 
-  
-  const konamiCode = [
-    "ArrowUp",
-    "ArrowUp",
-    "ArrowDown",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowLeft",
-    "ArrowRight",
-    "KeyB",
-    "KeyA",
-  ];
-  const konamiSeqRef = useRef([]);
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      konamiSeqRef.current = [...konamiSeqRef.current, e.code].slice(-10);
-      if (konamiSeqRef.current.join(",") === konamiCode.join(",")) {
-        setEasterEgg(true);
-        setTimeout(() => setEasterEgg(false), 5000);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   function update(k, v) {
     setForm((p) => ({ ...p, [k]: v }));
     if (errors[k]) setErrors((prev) => ({ ...prev, [k]: undefined }));
@@ -77,26 +52,31 @@ export default function ReceiptUploadPage() {
 
   function validateForm() {
     const newErrors = {};
+
     if (!user?._id) newErrors.patientId = "Not logged in. Please log in again.";
+
     if (!appointmentId && !appointmentNo)
       newErrors.appointmentId =
         "Missing booking. Open payment from the appointment page.";
+
     if (!form.bank) newErrors.bank = "Bank selection is required";
     if (!form.paymentDate) newErrors.paymentDate = "Payment date is required";
-
     if (!form.paymentMethod)
       newErrors.paymentMethod = "Payment method is required";
     if (!file) newErrors.file = "Receipt file is required (JPG/PNG/PDF)";
+
     if (form.paymentDate) {
       const selectedDate = new Date(form.paymentDate);
       const today = new Date();
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(today.getFullYear() - 1);
+
       if (selectedDate > today)
         newErrors.paymentDate = "Payment date cannot be in the future";
       else if (selectedDate < oneYearAgo)
         newErrors.paymentDate = "Payment date cannot be more than 1 year ago";
     }
+
     if (!form.consent) newErrors.consent = "You must confirm the details";
 
     setErrors(newErrors);
@@ -106,6 +86,7 @@ export default function ReceiptUploadPage() {
   function onFileChange(e) {
     const f = e.target.files?.[0];
     if (!f) return;
+
     const next = { ...errors };
     delete next.file;
 
@@ -114,6 +95,7 @@ export default function ReceiptUploadPage() {
       setErrors(next);
       return;
     }
+
     if (f.size > maxSize) {
       next.file = "File size must be 5MB or less";
       setErrors(next);
@@ -124,6 +106,7 @@ export default function ReceiptUploadPage() {
     setFile(f);
 
     if (previewUrl) URL.revokeObjectURL(previewUrl);
+
     if (f.type.startsWith("image/")) setPreviewUrl(URL.createObjectURL(f));
     else setPreviewUrl("");
   }
@@ -141,6 +124,7 @@ export default function ReceiptUploadPage() {
     setLoading(true);
     try {
       const fd = new FormData();
+
       fd.append("patientId", user?._id);
       if (appointmentId) fd.append("appointmentId", appointmentId);
       if (!appointmentId && appointmentNo)
@@ -148,7 +132,6 @@ export default function ReceiptUploadPage() {
       fd.append("bank", form.bank);
       fd.append("branch", form.branch);
       fd.append("paymentDate", form.paymentDate);
-
       fd.append("paymentMethod", form.paymentMethod);
       fd.append("notes", form.notes || "");
       fd.append("file", file);
@@ -162,6 +145,7 @@ export default function ReceiptUploadPage() {
         replace: true,
         state: { receiptId: data?.id, appointmentId: data?.appointmentId },
       });
+
       setForm({
         bank: "",
         branch: "",
@@ -186,7 +170,6 @@ export default function ReceiptUploadPage() {
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
-
           <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 opacity-20 animate-pulse"></div>
         </div>
       )}
@@ -226,12 +209,14 @@ export default function ReceiptUploadPage() {
                 "Other",
               ]}
             />
+
             <Input
               label="Branch"
               value={form.branch}
               onChange={(e) => update("branch", e.target.value)}
               placeholder="e.g. Colombo, Kandy"
             />
+
             <Input
               type="date"
               label="Payment Date *"
@@ -287,6 +272,7 @@ export default function ReceiptUploadPage() {
                 </div>
               </motion.label>
             </div>
+
             {errors.file && (
               <p className="text-red-600 text-sm">{errors.file}</p>
             )}
@@ -304,6 +290,7 @@ export default function ReceiptUploadPage() {
                 />
               </motion.div>
             )}
+
             {file && !previewUrl && file.type === "application/pdf" && (
               <p className="text-xs text-emerald-800/80">
                 📄 PDF selected. Preview not shown here.
@@ -342,6 +329,7 @@ export default function ReceiptUploadPage() {
               is genuine.
             </span>
           </label>
+
           {errors.consent && (
             <p className="text-red-600 text-sm ml-1">{errors.consent}</p>
           )}
@@ -393,6 +381,7 @@ function Input({ label, error, className, ...props }) {
     </div>
   );
 }
+
 function Select({ label, options, error, className, ...props }) {
   const base =
     "w-full border-2 rounded-xl p-3 transition-all duration-300 focus:ring-2 focus:ring-emerald-200";
