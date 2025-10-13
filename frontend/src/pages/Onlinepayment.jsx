@@ -18,9 +18,7 @@ export default function Onlinepayment() {
   const navigate = useNavigate();
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
-
-  // Get docId from URL if present (not for /onlinepayment), else from state
-  const docId = urlParams.docId || state?.docId || "";
+const docId = urlParams.docId || state?.docId || "";
 
   const apptId =
     state?.appointmentId || searchParams.get("appointmentId") || "";
@@ -29,9 +27,7 @@ export default function Onlinepayment() {
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
-
-  // If someone opened directly without state, send them back safely
-  useEffect(() => {
+useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
       else navigate("/home");
@@ -70,14 +66,12 @@ export default function Onlinepayment() {
     try {
       setLoading(true);
 
-      // If user chose bank slip → go to UploadSlip route
-      if (method === "slip") {
+    if (method === "slip") {
         goToUploadSlip();
         return;
       }
 
-      // Otherwise (wallet/bank) — simulate other gateway flow
-      await new Promise((r) => setTimeout(r, 800));
+     await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state?.bookingId,
         method: method.toUpperCase(),
@@ -87,8 +81,7 @@ export default function Onlinepayment() {
         phone: state?.phone,
         email: state?.email,
       };
-      // you can change this to your real success route
-      navigate(`/doctor/${docId}/book/success`, { state: { order } });
+     navigate(`/doctor/${docId}/book/success`, { state: { order } });
     } catch (e) {
       alert("Payment failed. Please try again.");
     } finally {

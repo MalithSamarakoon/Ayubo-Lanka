@@ -1,4 +1,3 @@
-// src/components/FilterSidebar.jsx
 import React from "react";
 
 const FilterSidebar = ({
@@ -13,10 +12,10 @@ const FilterSidebar = ({
   return (
     <div className="lg:w-80 flex-shrink-0">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-6">
-        {/* Search */}
+      
         <div className="p-6 border-b border-gray-200">
           <div className="relative">
-            {/* Search Icon */}
+           
             <input
               type="text"
               placeholder="Search doctors, specialties..."
@@ -27,7 +26,6 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Filter Header */}
         <div className="px-6 py-4 border-b border-green-400 bg-emerald-500">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white flex items-center">
