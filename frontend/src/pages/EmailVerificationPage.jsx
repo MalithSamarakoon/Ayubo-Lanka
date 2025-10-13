@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
+import bgImage from "../assets/frontend_assets/ayur8.jpg";
+
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -61,7 +63,15 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20">
+    <div
+          className="min-h-screen w-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+          style={{
+            backgroundImage: `url(${bgImage})`,
+          }}
+        >
+          <div className="absolute inset-0 bg-white/20"></div>
+    
+    
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -91,7 +101,7 @@ const EmailVerificationPage = () => {
             ))}
           </div>
 
-          {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
+           <center>{error && <p className="text-red-500 font-semibold mt-2">{error}</p>}</center>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
