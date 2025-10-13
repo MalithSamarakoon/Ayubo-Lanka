@@ -60,7 +60,7 @@ export default function Chatbot() {
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "0px";
-    const h = Math.min(128, textareaRef.current.scrollHeight);
+    const h = Math.min(160, textareaRef.current.scrollHeight);
     textareaRef.current.style.height = `${h}px`;
   }, [input]);
 
@@ -131,7 +131,7 @@ export default function Chatbot() {
       {/* Chat window */}
       {open && (
         <div
-          className="fixed bottom-24 right-6 z-40 w-[24rem] max-h-[78vh] bg-white/95 backdrop-blur border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_.2s_ease]"
+          className="fixed bottom-24 right-6 z-40 w-[28rem] md:w-[34rem] max-h-[85vh] bg-white/95 backdrop-blur border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_.2s_ease]"
           role="dialog"
           aria-label="Ayubo Lanka Assistant chat"
           aria-modal="true"
@@ -191,7 +191,7 @@ export default function Chatbot() {
               return (
                 <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
                   {/* bubble */}
-                  <div className={`flex items-end gap-2 max-w-[80%] ${isUser ? "flex-row-reverse" : ""}`}>
+                  <div className={`flex items-end gap-2 max-w-[85%] ${isUser ? "flex-row-reverse" : ""}`}>
                     {/* avatar */}
                     <div
                       className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 ${
