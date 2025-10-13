@@ -16,15 +16,16 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-  // derive appointment identifiers from router state/params/query
-  const stateApptId = location.state?.appointmentId; // Patient._id
-  const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
+  const stateApptId = location.state?.appointmentId;
+  const stateApptNo = location.state?.appointmentNo;
+   const paramApptId = params.appointmentId;
+
   const queryApptId = searchParams.get("appointmentId");
   const queryApptNo = searchParams.get("appointmentNo");
-  const paramApptId = params.appointmentId;
-
+ 
   const appointmentId = stateApptId || queryApptId || paramApptId;
   const appointmentNo = stateApptNo || queryApptNo || undefined;
+
 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -43,7 +44,7 @@ export default function ReceiptUploadPage() {
   const allowed = ["image/jpeg", "image/png", "application/pdf"];
   const maxSize = 5 * 1024 * 1024;
 
-  // Konami code
+  
   const konamiCode = [
     "ArrowUp",
     "ArrowUp",
@@ -82,7 +83,7 @@ export default function ReceiptUploadPage() {
         "Missing booking. Open payment from the appointment page.";
     if (!form.bank) newErrors.bank = "Bank selection is required";
     if (!form.paymentDate) newErrors.paymentDate = "Payment date is required";
-    
+
     if (!form.paymentMethod)
       newErrors.paymentMethod = "Payment method is required";
     if (!file) newErrors.file = "Receipt file is required (JPG/PNG/PDF)";
@@ -147,7 +148,7 @@ export default function ReceiptUploadPage() {
       fd.append("bank", form.bank);
       fd.append("branch", form.branch);
       fd.append("paymentDate", form.paymentDate);
-    
+
       fd.append("paymentMethod", form.paymentMethod);
       fd.append("notes", form.notes || "");
       fd.append("file", file);
