@@ -59,6 +59,17 @@ export const askChat = async (req, res) => {
       return res.status(400).json({ message: "message is required" });
     }
 
+    // Easter egg: handle "who is raja?" with a playful fixed reply
+    try {
+      const norm = String(message).trim().toLowerCase();
+      if (/\bwho\s+is\s+raja\b\??/.test(norm)) {
+        const reply = "you dont know about Raja, the king of SLIIT, Oooph, so sad, He is the genious who behind all of this, The creater of me, do some research bro....";
+        return res.json({ reply, easterEgg: true });
+      }
+    } catch (_) {
+      // ignore and continue
+    }
+
     // Pull a compact product catalog for accurate price/details answers (limit to keep prompt small)
     const products = await ayurvedicProduct
       .find({}, "name category price description")

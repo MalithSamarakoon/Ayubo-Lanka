@@ -28,4 +28,7 @@ async function post(message){
     console.log('\nFunctionalities test ->');
     const f = await post('What can I do on the Ayubo Lanka website?');
     console.log(f);
+    console.log('\nEaster egg test ->');
+    const egg = await post('who is raja?');
+    console.log(egg);
 })();
