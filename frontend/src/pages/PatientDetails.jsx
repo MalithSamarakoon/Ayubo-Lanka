@@ -179,13 +179,7 @@ const PatientDetails = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-1">
                 Patient Appointment Summary
               </h1>
-              <p className="text-sm text-gray-600 flex items-center gap-2">
-                <span className="inline-block w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                Booking ID:{" "}
-                <span className="font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full text-xs">
-                  {bookingId}
-                </span>
-              </p>
+             
             </div>
           </div>
 

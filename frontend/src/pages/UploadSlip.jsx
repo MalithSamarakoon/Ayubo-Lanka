@@ -241,15 +241,7 @@ export default function ReceiptUploadPage() {
               onChange={(e) => update("paymentDate", e.target.value)}
               error={errors.paymentDate}
             />
-            <Input
-              type="number"
-              step="0.01"
-              label="Amount (LKR) *"
-              value={form.amount}
-              onChange={(e) => update("amount", e.target.value)}
-              error={errors.amount}
-              placeholder="0.00"
-            />
+            
             <Select
               label="Payment Method *"
               value={form.paymentMethod}

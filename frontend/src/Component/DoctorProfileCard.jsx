@@ -1,7 +1,6 @@
 import { Award, User, Calendar, Star } from "lucide-react";
 
 const DoctorProfileCard = ({ docInfo, onBook }) => {
-  // ADDED: Extract consultation fee from docInfo with fallback
   const consultationFee = docInfo.consultationFee || "Not specified";
 
   return (
@@ -43,7 +42,7 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
         <div className="flex-1 p-8 lg:p-10">
           <div className="flex flex-col h-full">
             <div className="flex-1">
-              {/* Header Section */}
+         
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
                 <div className="mb-4 lg:mb-0">
                   <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
@@ -59,11 +58,9 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
                     {docInfo.degree || "Ayurveda Specialist"}
                   </div>
                 </div>
-                {/* MODIFIED: Consultation fee section to use fetched data */}
-                <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 px-6 py-4 rounded-2xl text-center shadow-sm">
+               <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 px-6 py-4 rounded-2xl text-center shadow-sm">
                   <p className="text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-400 bg-clip-text text-transparent">
-                    {/* CHANGED: Use actual consultation fee from API */}
-                    {consultationFee === "Not specified"
+                  {consultationFee === "Not specified"
                       ? "N/A"
                       : `Rs. ${consultationFee}`}
                   </p>
@@ -72,10 +69,7 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
                   </p>
                 </div>
               </div>
-
-              {/* Professional Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                {/* MODIFIED: Experience to use fetched data */}
+       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-3 text-gray-700 bg-green-50 p-3 rounded-xl">
                   <User className="w-5 h-5 text-emerald-600" />
                   <span className="font-medium">
@@ -104,7 +98,7 @@ const DoctorProfileCard = ({ docInfo, onBook }) => {
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                   About {docInfo.name}
                 </h3>
-                {/* MODIFIED: Description to use fetched data */}
+               
                 <p className="text-gray-700 leading-relaxed text-justify">
                   {docInfo.description ||
                     docInfo.about ||

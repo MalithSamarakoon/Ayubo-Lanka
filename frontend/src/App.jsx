@@ -2,7 +2,7 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { ErrorBoundary } from "react-error-boundary";
+// REMOVED: react-error-boundary import since it's not installed
 
 import Navbar from "./Component/Navbar";
 import Footer from "./Component/Fotter";
@@ -21,14 +21,9 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-<<<<<<< HEAD
-import Doctor from "./pages/DoctorPage";
-=======
-
->>>>>>> de68dc94edfbe06d904ee1b907c915e9e5429d2a
+import DoctorPage from "./pages/DoctorPage"; // CHANGED: Renamed to avoid conflict
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
-import Doctor from "./pages/Doctor";
 import Support from "./pages/support";
 import About from "./pages/About";
 import Appointment from "./pages/Appoinment";
@@ -76,6 +71,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 // -------------------- Error Fallback --------------------
+// SIMPLIFIED: Remove ErrorBoundary since the package isn't installed
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div style={{ padding: 16 }}>
@@ -127,252 +123,252 @@ function App() {
   );
 
   return (
-    <ErrorBoundary FallbackComponent={AppErrorFallback}>
-      <div className="min-h-screen w-full bg-white relative">
-        {!hideNavbar && <Navbar />}
+    // REMOVED: ErrorBoundary wrapper since package isn't installed
+    <div className="min-h-screen w-full bg-white relative">
+      {!hideNavbar && <Navbar />}
 
-        <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
-          <Routes>
-            {/* ---------- Public Routes ---------- */}
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/doctor" element={<Doctor />} />
-            <Route path="/doctor/:docId" element={<Appointment />} />
+      <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
+        <Routes>
+          {/* ---------- Public Routes ---------- */}
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/about" element={<About />} />
+          {/* CHANGED: Updated route to use DoctorPage instead of Doctor */}
+          <Route path="/doctor" element={<DoctorPage />} />
+          <Route path="/doctor/:docId" element={<Appointment />} />
 
-            {/* ---------- Auth Routes ---------- */}
-            <Route
-              path="/login"
-              element={
-                <RedirectAuthenticatedUser>
-                  <LoginPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                <RedirectAuthenticatedUser>
-                  <SignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/role-selection"
-              element={
-                <RedirectAuthenticatedUser>
-                  <RoleSelection />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/doctor-signup"
-              element={
-                <RedirectAuthenticatedUser>
-                  <DoctorSignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/supplier-signup"
-              element={
-                <RedirectAuthenticatedUser>
-                  <SupplierSignUpPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route path="/verify-email" element={<EmailVerificationPage />} />
-            <Route
-              path="/forgot-password"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ForgotPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route
-              path="/reset-password/:token"
-              element={
-                <RedirectAuthenticatedUser>
-                  <ResetPasswordPage />
-                </RedirectAuthenticatedUser>
-              }
-            />
-            <Route path="/approval-pending" element={<ApprovalPendingPage />} />
+          {/* ---------- Auth Routes ---------- */}
+          <Route
+            path="/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <LoginPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <SignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/role-selection"
+            element={
+              <RedirectAuthenticatedUser>
+                <RoleSelection />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/doctor-signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <DoctorSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/supplier-signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <SupplierSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-            {/* ---------- Protected Dashboards ---------- */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin-dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user-management"
-              element={
-                <ProtectedRoute>
-                  <UserMgt />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/:id"
-              element={
-                <ProtectedRoute>
-                  <UpdateUser />
-                </ProtectedRoute>
-              }
-            />
+          {/* ---------- Protected Dashboards ---------- */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user-management"
+            element={
+              <ProtectedRoute>
+                <UserMgt />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/:id"
+            element={
+              <ProtectedRoute>
+                <UpdateUser />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ---------- Product Management ---------- */}
-            <Route
-              path="/product-dashboard"
-              element={
-                <ProtectedRoute>
-                  <ProductDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/update-product/:id"
-              element={
-                <ProtectedRoute>
-                  <UpdateProduct />
-                </ProtectedRoute>
-              }
-            />
+          {/* ---------- Product Management ---------- */}
+          <Route
+            path="/product-dashboard"
+            element={
+              <ProtectedRoute>
+                <ProductDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/update-product/:id"
+            element={
+              <ProtectedRoute>
+                <UpdateProduct />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ---------- Orders & Payments ---------- */}
-            <Route
-              path="/order-form"
-              element={
-                <ProtectedRoute>
-                  <OrderForm />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <OrdersList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orderdisplay/:id"
-              element={
-                <ProtectedRoute>
-                  <OrderDisplay />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orderupdateuser/:id"
-              element={
-                <ProtectedRoute>
-                  <OrdersupdateUser />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/onlinepayment"
-              element={
-                <ProtectedRoute>
-                  <Onlinepayment />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/cart" element={<Cart />} />
+          {/* ---------- Orders & Payments ---------- */}
+          <Route
+            path="/order-form"
+            element={
+              <ProtectedRoute>
+                <OrderForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orderdisplay/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDisplay />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orderupdateuser/:id"
+            element={
+              <ProtectedRoute>
+                <OrdersupdateUser />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onlinepayment"
+            element={
+              <ProtectedRoute>
+                <Onlinepayment />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/cart" element={<Cart />} />
 
-            {/* ---------- Doctor Booking ---------- */}
-            <Route
-              path="/doctor/:docId/book/patientform"
-              element={
-                <ProtectedRoute>
-                  <PatientForm />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientdetails"
-              element={
-                <ProtectedRoute>
-                  <PatientDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientdetails/slip"
-              element={
-                <ProtectedRoute>
-                  <UploadSlip />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctor/:docId/book/patientupdate"
-              element={
-                <ProtectedRoute>
-                  <PatientUpdate />
-                </ProtectedRoute>
-              }
-            />
+          {/* ---------- Doctor Booking ---------- */}
+          <Route
+            path="/doctor/:docId/book/patientform"
+            element={
+              <ProtectedRoute>
+                <PatientForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails"
+            element={
+              <ProtectedRoute>
+                <PatientDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientdetails/slip"
+            element={
+              <ProtectedRoute>
+                <UploadSlip />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/:docId/book/patientupdate"
+            element={
+              <ProtectedRoute>
+                <PatientUpdate />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ---------- Appointment Lists ---------- */}
-            <Route
-              path="/CheckAppoinments"
-              element={
-                <ProtectedRoute>
-                  <CheckAppoinments />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my_appoinments"
-              element={
-                <ProtectedRoute>
-                  <MyAppoinment />
-                </ProtectedRoute>
-              }
-            />
+          {/* ---------- Appointment Lists ---------- */}
+          <Route
+            path="/CheckAppoinments"
+            element={
+              <ProtectedRoute>
+                <CheckAppoinments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my_appoinments"
+            element={
+              <ProtectedRoute>
+                <MyAppoinment />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* ---------- Support & Reviews ---------- */}
-            <Route
-              path="/admin/support-center"
-              element={
-                <ProtectedRoute>
-                  <AdminSupportCenter />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/tickets/review/:id" element={<TicketReview />} />
-            <Route path="/support/review/:id" element={<SupportReview />} />
-            <Route path="/feedback/review/:id" element={<FeedbackReview />} />
+          {/* ---------- Support & Reviews ---------- */}
+          <Route
+            path="/admin/support-center"
+            element={
+              <ProtectedRoute>
+                <AdminSupportCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/tickets/review/:id" element={<TicketReview />} />
+          <Route path="/support/review/:id" element={<SupportReview />} />
+          <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
-            {/* ---------- Fallback ---------- */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-
-        <Toaster position="top-right" />
-        {!hideNavbar && <Footer />}
+          {/* ---------- Fallback ---------- */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
-    </ErrorBoundary>
+
+      <Toaster position="top-right" />
+      {!hideNavbar && <Footer />}
+    </div>
   );
 }
 
