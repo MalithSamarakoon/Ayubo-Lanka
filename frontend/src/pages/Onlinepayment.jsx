@@ -18,8 +18,7 @@ export default function Onlinepayment() {
   const navigate = useNavigate();
   const urlParams = useParams();
   const [searchParams] = useSearchParams();
-
-  const docId = urlParams.docId || state?.docId || "";
+const docId = urlParams.docId || state?.docId || "";
 
   const apptId =
     state?.appointmentId || searchParams.get("appointmentId") || "";
@@ -28,8 +27,7 @@ export default function Onlinepayment() {
 
   const [method, setMethod] = useState("slip");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
+useEffect(() => {
     if (!state?.bookingId) {
       if (docId) navigate(`/doctor/${docId}/book/patientdetails`);
       else navigate("/home");
@@ -68,11 +66,12 @@ export default function Onlinepayment() {
     try {
       setLoading(true);
 
-      if (method === "slip") {
+    if (method === "slip") {
         goToUploadSlip();
         return;
       }
-      await new Promise((r) => setTimeout(r, 800));
+
+     await new Promise((r) => setTimeout(r, 800));
       const order = {
         bookingId: state?.bookingId,
         method: method.toUpperCase(),
@@ -82,8 +81,7 @@ export default function Onlinepayment() {
         phone: state?.phone,
         email: state?.email,
       };
-      // you can change this to your real success route
-      navigate(`/doctor/${docId}/book/success`, { state: { order } });
+     navigate(`/doctor/${docId}/book/success`, { state: { order } });
     } catch (e) {
       alert("Payment failed. Please try again.");
     } finally {
@@ -105,14 +103,11 @@ export default function Onlinepayment() {
           whileHover={{ scale: 1.01 }}
           className="bg-white shadow-xl rounded-2xl border border-green-100 overflow-hidden"
         >
-       
           <div className="px-6 py-5 border-b border-green-100 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600">
             <h1 className="text-2xl font-bold text-white">Online Payment</h1>
-            
           </div>
 
           <div className="p-6 space-y-6">
-         
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3">
                 Select a payment method

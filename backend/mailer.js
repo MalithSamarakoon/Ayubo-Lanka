@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import "dotenv/config";
 import { VERIFICATION_EMAIL } from "./verification.js";
 import { RESET_PASSWORD_EMAIL } from "./resetPassword.js";
+import { RESTOCK_NOTIFICATION_EMAIL } from "./restockNotification.js";
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -90,11 +91,8 @@ export const sendAppointmentApprovedEmail = async (toEmail, userName, bookingId)
     console.log(`Appointment approval email sent to ${toEmail}`);
   } catch (error) {
     console.error("Error sending appointment approval email:", error);
-   
   }
-};
-
-
+}
 export const sendPasswordResetSuccessEmail = async (toEmail, userName) => {
   try {
     await transporter.sendMail({
@@ -155,6 +153,27 @@ export const sendUserApprovedEmail = async (toEmail, userName) => {
   }
 
 };
+
+export const sendRestockNotificationEmail = async (
+  productName,
+  currentStock,
+  minimumStock,
+  productId
+) => {
+  try {
+    await transporter.sendMail({
+      from: `"AYUBO LANKA Inventory System" <${process.env.GMAIL_USER}>`,
+      to: process.env.SUPPLIER_EMAIL,
+      subject: `⚠️ URGENT: Low Stock Alert - ${productName}`,
+      html: RESTOCK_NOTIFICATION_EMAIL(productName, currentStock, minimumStock, productId),
+    });
+    console.log(`Restock notification sent for "${productName}" (Stock: ${currentStock}) to ${process.env.SUPPLIER_EMAIL}`);
+  } catch (error) {
+    console.error(`Error sending restock notification for "${productName}":`, error);
+    // Don't throw - we don't want to fail the order if email fails
+  }
+};
+
 // ------------------ Ticket / Inquiry Emails ------------------
 
 const wrap = (title, inner) => `

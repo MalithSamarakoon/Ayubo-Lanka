@@ -1,9 +1,19 @@
 import React from "react";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import bgImage from "../assets/frontend_assets/ayur8.jpg";
+
 
 const ApprovalPendingPage = () => {
   return (
+    <div
+          className="min-h-screen w-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+          style={{
+            backgroundImage: `url(${bgImage})`,
+          }}
+        >
+          <div className="absolute inset-0 bg-white/20"></div>
+    
     <div className="max-w-md w-full bg-black/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20">
       <div className="bg-white/20 backdrop-blur-xl border border-white/30 p-8 rounded-2xl shadow-2xl text-center max-w-md">
         <Clock className="w-12 h-12 mx-auto text-green-400 mb-4 drop-shadow-lg" />
@@ -21,6 +31,7 @@ const ApprovalPendingPage = () => {
           </button>
         </Link>
       </div>
+    </div>
     </div>
   );
 };

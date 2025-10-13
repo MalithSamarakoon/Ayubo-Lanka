@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { isValidObjectId } from "mongoose";
 import Receipt from "../models/Receipt.js";
-import Patient from "../models/patient.js"; 
+import Patient from "../models/patient.js";
 
 const allowed = ["image/jpeg", "image/png", "application/pdf"];
 
@@ -13,19 +13,18 @@ function isValidDateStr(d) {
 export async function createReceipt(req, res) {
   try {
     const {
-      patientId, 
+      patientId,
       appointmentId,
-      appointmentNo, 
+      appointmentNo,
       bank,
       paymentDate,
-      amount,
+      // REMOVED: amount from destructuring
       paymentMethod,
       branch,
       notes,
     } = req.body;
 
     const errors = {};
-
 
     if (!patientId || !isValidObjectId(patientId)) {
       errors.patientId = "Valid patientId (User _id) required";
@@ -50,8 +49,7 @@ export async function createReceipt(req, res) {
     if (!bank) errors.bank = "Bank is required";
     if (!isValidDateStr(paymentDate))
       errors.paymentDate = "Valid date required";
-    if (!amount || Number.isNaN(Number(amount)) || Number(amount) <= 0)
-      errors.amount = "Amount must be > 0";
+    // REMOVED: Amount validation
     if (
       !["Online transfer", "Cash deposit", "ATM", "CDM"].includes(
         paymentMethod || ""
@@ -86,14 +84,14 @@ export async function createReceipt(req, res) {
     const base = `${proto}://${req.get("host")}`;
     const fileUrl = `${base}/${relPath}`;
 
-    // create receipt with linkage
+    // create receipt without amount field
     const doc = await Receipt.create({
       patientId,
       appointmentId: finalAppointmentId,
       bank,
       branch: branch || "",
       paymentDate: new Date(paymentDate),
-      amount: Number(amount),
+      // REMOVED: amount field
       paymentMethod,
       notes: notes || "",
       file: {
@@ -177,7 +175,7 @@ export async function listReceipts(req, res) {
 export async function reviewReceipt(req, res) {
   try {
     const { id } = req.params;
-    const { action, comment } = req.body; 
+    const { action, comment } = req.body;
 
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid id" });

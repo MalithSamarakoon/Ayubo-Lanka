@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const FileSchema = new mongoose.Schema(
@@ -42,7 +41,7 @@ const ReceiptSchema = new mongoose.Schema(
 
     appointmentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Patient", 
+      ref: "Patient",
       required: true,
       index: true,
     },
@@ -50,7 +49,7 @@ const ReceiptSchema = new mongoose.Schema(
     bank: { type: String, required: true, maxlength: 80 },
     branch: { type: String, maxlength: 120 },
     paymentDate: { type: Date, required: true },
-    amount: { type: Number, required: true, min: 0.01 },
+    // REMOVED: amount field
     paymentMethod: {
       type: String,
       required: true,

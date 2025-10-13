@@ -16,14 +16,16 @@ export default function ReceiptUploadPage() {
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
-  const stateApptId = location.state?.appointmentId; // Patient._id
-  const stateApptNo = location.state?.appointmentNo; // Patient.id (numeric)
+  const stateApptId = location.state?.appointmentId;
+  const stateApptNo = location.state?.appointmentNo;
+   const paramApptId = params.appointmentId;
+
   const queryApptId = searchParams.get("appointmentId");
   const queryApptNo = searchParams.get("appointmentNo");
-  const paramApptId = params.appointmentId;
-
+ 
   const appointmentId = stateApptId || queryApptId || paramApptId;
   const appointmentNo = stateApptNo || queryApptNo || undefined;
+
 
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -34,7 +36,6 @@ export default function ReceiptUploadPage() {
     bank: "",
     branch: "",
     paymentDate: "",
-    amount: "",
     paymentMethod: "",
     notes: "",
     consent: false,
@@ -43,7 +44,7 @@ export default function ReceiptUploadPage() {
   const allowed = ["image/jpeg", "image/png", "application/pdf"];
   const maxSize = 5 * 1024 * 1024;
 
-  // Konami code
+  
   const konamiCode = [
     "ArrowUp",
     "ArrowUp",
@@ -82,8 +83,7 @@ export default function ReceiptUploadPage() {
         "Missing booking. Open payment from the appointment page.";
     if (!form.bank) newErrors.bank = "Bank selection is required";
     if (!form.paymentDate) newErrors.paymentDate = "Payment date is required";
-    if (!form.amount || Number(form.amount) <= 0)
-      newErrors.amount = "Amount must be greater than 0";
+
     if (!form.paymentMethod)
       newErrors.paymentMethod = "Payment method is required";
     if (!file) newErrors.file = "Receipt file is required (JPG/PNG/PDF)";
@@ -148,7 +148,7 @@ export default function ReceiptUploadPage() {
       fd.append("bank", form.bank);
       fd.append("branch", form.branch);
       fd.append("paymentDate", form.paymentDate);
-      fd.append("amount", form.amount);
+
       fd.append("paymentMethod", form.paymentMethod);
       fd.append("notes", form.notes || "");
       fd.append("file", file);
@@ -166,7 +166,6 @@ export default function ReceiptUploadPage() {
         bank: "",
         branch: "",
         paymentDate: "",
-        amount: "",
         paymentMethod: "",
         notes: "",
         consent: false,
@@ -187,7 +186,7 @@ export default function ReceiptUploadPage() {
       {easterEgg && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-pulse text-6xl">🎉</div>
-       
+
           <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 opacity-20 animate-pulse"></div>
         </div>
       )}
@@ -240,15 +239,7 @@ export default function ReceiptUploadPage() {
               onChange={(e) => update("paymentDate", e.target.value)}
               error={errors.paymentDate}
             />
-            <Input
-              type="number"
-              step="0.01"
-              label="Amount (LKR) *"
-              value={form.amount}
-              onChange={(e) => update("amount", e.target.value)}
-              error={errors.amount}
-              placeholder="0.00"
-            />
+
             <Select
               label="Payment Method *"
               value={form.paymentMethod}
@@ -367,9 +358,9 @@ export default function ReceiptUploadPage() {
             type="submit"
             disabled={loading}
             className="w-full py-4 rounded-xl text-white font-semibold text-lg shadow-lg
-                       bg-gradient-to-r from-green-500 to-emerald-600
-                       hover:from-green-600 hover:to-emerald-700
-                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                      bg-gradient-to-r from-green-500 to-emerald-600
+                                      hover:from-green-600 hover:to-emerald-700
+                                      disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -380,14 +371,11 @@ export default function ReceiptUploadPage() {
               " Submit Receipt"
             )}
           </motion.button>
-
-        
         </motion.form>
       </motion.div>
     </div>
   );
 }
-
 
 function Input({ label, error, className, ...props }) {
   const base =
