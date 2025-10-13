@@ -3,7 +3,6 @@ import Patient from "../models/patient.js";
 import Receipt from "../models/Receipt.js"; 
 import { sendAppointmentApprovedEmail } from "../mailer.js";
 
-
 export const createPatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;

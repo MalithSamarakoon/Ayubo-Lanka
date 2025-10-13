@@ -1,16 +1,14 @@
-
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom"; // Added useParams import
 import axios from "axios";
 import DirectoryHeader from "../components/DirectoryHeader";
 import FilterSidebar from "../components/FilterSidebar";
 import DoctorList from "../components/DoctorList";
-import Fotter from "../Component/Fotter"; 
+import Fotter from "../Component/Fotter";
 
 const URL = "http://localhost:5000/api/user/users";
 
 const DoctorPage = () => {
-
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeSpec, setActiveSpec] = useState("All");
@@ -19,6 +17,7 @@ const DoctorPage = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [selectedRating, setSelectedRating] = useState("all");
   const navigate = useNavigate();
+  const { id } = useParams(); // This will be used if you need to fetch a specific doctor
 
   // --- DATA FETCHING ---
   useEffect(() => {
@@ -34,6 +33,11 @@ const DoctorPage = () => {
           mobile: u.mobile ?? "-",
           doctorLicenseNumber: u.doctorLicenseNumber ?? "-",
           specialization: u.specialization ?? "-",
+          // ADDED: Fetch consultation fee from API response
+          consultationFee: u.consultationFee ?? "",
+          experience: u.experience ?? "",
+          description: u.description ?? "",
+          availability: u.availability ?? "not_available",
           isApproved:
             typeof u.isApproved === "boolean"
               ? u.isApproved
@@ -69,7 +73,7 @@ const DoctorPage = () => {
         doc.specialization?.toLowerCase().includes(activeSpec.toLowerCase())
       );
     }
-  
+
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "specialization":
@@ -110,13 +114,12 @@ const DoctorPage = () => {
   const specialityList = [
     "All",
     "General Ayurveda",
-    "Women’s Health",
+    "Women's Health",
     "Child Health",
     "Detox & Panchakarma",
     "Mental Health",
     "Geriatric Care",
     "Ayurvedic Surgery",
-   
   ];
 
   return (
