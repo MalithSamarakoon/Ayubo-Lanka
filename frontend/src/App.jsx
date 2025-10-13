@@ -7,6 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Navbar from "./Component/Navbar";
 import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Chatbot from "./components/Chatbot";
 
 import { useAuthStore } from "./store/authStore";
 
@@ -26,6 +27,7 @@ import Collection from "./pages/Collection";
 import Doctor from "./pages/Doctor";
 import Support from "./pages/support";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import Appointment from "./pages/Appoinment"; // keep your spelling
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -172,6 +174,7 @@ function App() {
             <Route path="/collection" element={<Collection />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/doctor" element={<Doctor />} />
             {/* doctor public entry */}
@@ -366,6 +369,7 @@ function App() {
         </div>
 
         <Toaster position="top-right" />
+  <Chatbot />
         <Footer />
       </div>
     </ErrorBoundary>

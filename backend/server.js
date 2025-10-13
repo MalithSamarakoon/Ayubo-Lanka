@@ -19,6 +19,7 @@ import feedbackRoutes from './routes/feedbackRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import adminExportRoutes from './routes/adminExportRoutes.js';
+import chatRouter from './routes/chat.route.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -59,6 +60,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/chat', chatRouter);
 
 // ---- Global error handler ----
 app.use((err, req, res, next) => {

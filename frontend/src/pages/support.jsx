@@ -205,6 +205,42 @@ export default function Support() {
           )}
         </div>
 
+        {/* AI Chatbot guidance */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mt-12"
+        >
+          <h3 className="text-lg font-semibold text-emerald-800 mb-2">Need quick help? Try our AI Chatbot</h3>
+          <p className="text-emerald-700 mb-4">
+            You can ask questions about appointments or products using the AI chatbot. Click the chat icon at the bottom-right corner of the page to start.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <div className="text-emerald-900 font-medium mb-2">Sample questions (English)</div>
+              <ul className="list-disc ml-5 text-emerald-800 text-sm space-y-1">
+                <li>How do I book an appointment?</li>
+                <li>What is the price of [Product Name]?</li>
+                <li>Which product helps with [symptom]?</li>
+                <li>Do you deliver within Sri Lanka?</li>
+                <li>How can I contact support?</li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-emerald-900 font-medium mb-2">උදාහරණ ප්‍රශ්න (සිංහල)</div>
+              <ul className="list-disc ml-5 text-emerald-800 text-sm space-y-1">
+                <li>මම appointment එකක් بک කරන්න කොහොම ද?</li>
+                <li>[නිෂ්පාදනයේ නාමය] මිල කීයද?</li>
+                <li>[ලක්ෂණය] සඳහා සුදුසු නිෂ්පාදන මොනවද?</li>
+                <li>ශ්‍රී ලංකාව තුළ බෙදාහරිම තියෙනවද?</li>
+                <li>Support එකට සම්බන්ධ වන්නේ කොහොමද?</li>
+              </ul>
+            </div>
+          </div>
+        </motion.section>
+
         {/* FAQ */}
         <motion.section
           initial={{ opacity: 0 }}
@@ -258,7 +294,6 @@ export default function Support() {
         )}
         {activeModal === "ticket" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">Raise Support Ticket</h2>
             <TicketSystem
               onSuccess={(msg) => {
                 showToast(msg || "Ticket created successfully!");
