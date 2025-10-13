@@ -31,6 +31,14 @@ function AdminDashboard() {
     supplier: 0,
   });
 
+  const [categoryStats, setCategoryStats] = useState({
+    Kasthausadhi: 0,
+    Rasaushadhi: 0,
+    Jangama: 0,
+    Kwatha: 0,
+    Kalka: 0,
+  });
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -48,13 +56,43 @@ function AdminDashboard() {
     load();
   }, []);
 
+  useEffect(() => {
+    const loadCategoryStats = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/products/category-stats"
+        );
+        const s = res.data?.stats || {};
+        setCategoryStats({
+          Kasthausadhi: s.Kasthausadhi || 0,
+          Rasaushadhi: s.Rasaushadhi || 0,
+          Jangama: s.Jangama || 0,
+          Kwatha: s.Kwatha || 0,
+          Kalka: s.Kalka || 0,
+        });
+      } catch (e) {
+        console.error("Failed to load category stats", e);
+      }
+    };
+    loadCategoryStats();
+  }, []);
+
   const pieData = [
     { name: "Users", value: roleStats.user },
     { name: "Doctors", value: roleStats.doctor },
     { name: "Suppliers", value: roleStats.supplier },
   ];
 
+  const categoryPieData = [
+    { name: "Kasthausadhi", value: categoryStats.Kasthausadhi },
+    { name: "Rasaushadhi", value: categoryStats.Rasaushadhi },
+    { name: "Jangama", value: categoryStats.Jangama },
+    { name: "Kwatha", value: categoryStats.Kwatha },
+    { name: "Kalka", value: categoryStats.Kalka },
+  ];
+
   const COLORS = ["#10B981", "#3B82F6", "#F59E0B"];
+  const CATEGORY_COLORS = ["#8B5CF6", "#EC4899", "#F59E0B", "#10B981", "#3B82F6"];
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
@@ -211,9 +249,67 @@ function AdminDashboard() {
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
               Inventory Status
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-4">
               Track stock, suppliers, and update product details.
             </p>
+
+            <div className="w-full" style={{ height: 260 }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={categoryPieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  >
+                    {categoryPieData.map((entry, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-4 grid grid-cols-5 gap-2 text-center">
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kasthausadhi</div>
+                <div className="text-lg font-bold text-purple-600">
+                  {categoryStats.Kasthausadhi}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Rasaushadhi</div>
+                <div className="text-lg font-bold text-pink-600">
+                  {categoryStats.Rasaushadhi}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Jangama</div>
+                <div className="text-lg font-bold text-amber-600">
+                  {categoryStats.Jangama}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kwatha</div>
+                <div className="text-lg font-bold text-emerald-600">
+                  {categoryStats.Kwatha}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kalka</div>
+                <div className="text-lg font-bold text-blue-600">
+                  {categoryStats.Kalka}
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
