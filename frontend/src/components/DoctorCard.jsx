@@ -1,4 +1,4 @@
-// src/components/DoctorCard.jsx
+
 import React from "react";
 
 const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
@@ -7,7 +7,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
       key={doctor._id}
       className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden"
     >
-      {/* Card Header */}
+    
       <div className="relative bg-gradient-to-br from-green-400 to-emerald-600 p-6">
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
@@ -27,7 +27,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
             </svg>
           </div>
         </div>
-        {/* Status Badge */}
+     
         <div className="absolute top-4 right-4">
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -41,7 +41,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
         </div>
       </div>
 
-      {/* Card Body */}
+     
       <div className="p-6">
         <div className="text-center mb-4">
           <h3 className="text-xl font-bold text-gray-900 mb-1">
@@ -52,7 +52,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
           </p>
         </div>
 
-        {/* Contact Info */}
+        
         <div className="space-y-3 mb-6">
           <div className="flex items-center text-gray-600 text-sm">
             {doctor.email}
@@ -69,7 +69,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
           )}
         </div>
 
-        {/* Action Buttons */}
+        
         <div className="flex space-x-2">
           <button
             onClick={() => onBook(doctor._id)}

@@ -35,7 +35,6 @@ export default function ReceiptUploadPage() {
     bank: "",
     branch: "",
     paymentDate: "",
-    amount: "",
     paymentMethod: "",
     notes: "",
     consent: false,
@@ -83,8 +82,7 @@ export default function ReceiptUploadPage() {
         "Missing booking. Open payment from the appointment page.";
     if (!form.bank) newErrors.bank = "Bank selection is required";
     if (!form.paymentDate) newErrors.paymentDate = "Payment date is required";
-    if (!form.amount || Number(form.amount) <= 0)
-      newErrors.amount = "Amount must be greater than 0";
+    
     if (!form.paymentMethod)
       newErrors.paymentMethod = "Payment method is required";
     if (!file) newErrors.file = "Receipt file is required (JPG/PNG/PDF)";
@@ -149,7 +147,7 @@ export default function ReceiptUploadPage() {
       fd.append("bank", form.bank);
       fd.append("branch", form.branch);
       fd.append("paymentDate", form.paymentDate);
-      fd.append("amount", form.amount);
+    
       fd.append("paymentMethod", form.paymentMethod);
       fd.append("notes", form.notes || "");
       fd.append("file", file);
@@ -167,7 +165,6 @@ export default function ReceiptUploadPage() {
         bank: "",
         branch: "",
         paymentDate: "",
-        amount: "",
         paymentMethod: "",
         notes: "",
         consent: false,
@@ -241,7 +238,7 @@ export default function ReceiptUploadPage() {
               onChange={(e) => update("paymentDate", e.target.value)}
               error={errors.paymentDate}
             />
-            
+
             <Select
               label="Payment Method *"
               value={form.paymentMethod}

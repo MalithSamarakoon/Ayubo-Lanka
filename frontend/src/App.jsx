@@ -1,8 +1,7 @@
-// src/App.jsx
+
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-// REMOVED: react-error-boundary import since it's not installed
 
 import Navbar from "./Component/Navbar";
 import Footer from "./Component/Fotter";
@@ -21,7 +20,7 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-import DoctorPage from "./pages/DoctorPage"; // CHANGED: Renamed to avoid conflict
+import DoctorPage from "./pages/DoctorPage"; 
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
 import Support from "./pages/support";
@@ -71,7 +70,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 // -------------------- Error Fallback --------------------
-// SIMPLIFIED: Remove ErrorBoundary since the package isn't installed
+
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div style={{ padding: 16 }}>
@@ -123,7 +122,6 @@ function App() {
   );
 
   return (
-    // REMOVED: ErrorBoundary wrapper since package isn't installed
     <div className="min-h-screen w-full bg-white relative">
       {!hideNavbar && <Navbar />}
 
@@ -136,7 +134,6 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/support" element={<Support />} />
           <Route path="/about" element={<About />} />
-          {/* CHANGED: Updated route to use DoctorPage instead of Doctor */}
           <Route path="/doctor" element={<DoctorPage />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
 
@@ -361,7 +358,7 @@ function App() {
           <Route path="/support/review/:id" element={<SupportReview />} />
           <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
-          {/* ---------- Fallback ---------- */}
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
