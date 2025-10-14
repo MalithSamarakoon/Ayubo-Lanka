@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";//HOOKS
 import axios from "axios";
 import {
   RefreshCcw,
@@ -32,14 +32,15 @@ const MyAppointments = () => {
     return r.data?.items || [];
   };
 
+  
   const fetchReceiptsFor = async (appointmentId) => {
     try {
       const r = await axios.get(`${API_BASE}/api/receipts`, {
         params: { appointmentId },
-        withCredentials: true,
+        withCredentials: true,//use to identify user session
       });
       const list = r.data?.items || [];
-      return Array.isArray(list) ? list : [];
+      return Array.isArray(list) ? list : [];//CHECK DATA VALIDITY
     } catch {
       return [];
     }

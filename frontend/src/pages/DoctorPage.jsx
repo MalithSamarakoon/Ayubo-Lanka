@@ -57,6 +57,7 @@ const DoctorPage = () => {
   }, []);
 
   // --- DATA PROCESSING & FILTERING ---
+  //use memo to avoid unnecessary recalculations
   const filteredApiDoctors = useMemo(() => {
     let filtered = users;
     if (searchQuery) {
