@@ -1,4 +1,5 @@
 import ayurvedicProduct from "../models/product.model.js";
+import { User } from "../models/user.model.js";
 
 // Uses Node 18+ global fetch
 const GEMINI_BASES = [
@@ -83,6 +84,35 @@ export const askChat = async (req, res) => {
       }`;
     });
 
+  // Pull a compact doctors list (approved doctors only) for appointments and doctor info answers
+  const doctors = await User.find(
+    { role: "DOCTOR", isApproved: true },
+    "name specialization experience consultationFee availability companyAddress mobile doctorLicenseNumber email"
+  )
+    .limit(40)
+    .lean();
+
+  const doctorLines = (doctors || []).map((d) => {
+    const exp = typeof d.experience === "number" ? `${d.experience} yrs` : d.experience || "";
+    const fee = typeof d.consultationFee === "number" ? `Rs. ${d.consultationFee.toFixed(2)}` : d.consultationFee || "";
+    const avail = d.availability ? d.availability.replace(/_/g, " ") : "";
+    const addr = d.companyAddress || "";
+    const phone = d.mobile || "";
+    const lic = d.doctorLicenseNumber || "";
+    const spec = d.specialization || "General Practice";
+    const parts = [
+      `${d.name} (${spec})`,
+      exp && `Exp: ${exp}`,
+      fee && `Fee: ${fee}`,
+      avail && `Availability: ${avail}`,
+      addr && `Address: ${addr}`,
+      phone && `Phone: ${phone}`,
+      lic && `License: ${lic}`,
+      d.email && `Email: ${d.email}`,
+    ].filter(Boolean);
+    return `- ${parts.join(" | ")}`;
+  });
+
   const siteInfo = `Brand: Ayubo Lanka (operated by Galgamu Stores)\n`
     + `Store: Galgamu Stores — a government-approved Ayurvedic shop in Galgamuwa, Sri Lanka.\n`
     + `Location: Galgamuwa, Sri Lanka. Google Maps: https://maps.app.goo.gl/Kw4moGKmn4QLiywZ8\n`
@@ -113,13 +143,14 @@ export const askChat = async (req, res) => {
 
   const instructions = `You are Ayubo Lanka's helpful assistant. Answer concisely and accurately.
 If the user asks about product price or details, use ONLY the product catalog below. If the product is not found, say you couldn't find it and suggest browsing the Collection page.
+If the user asks about doctors, specialties, experience, consultation fees, availability, contact or booking, use ONLY the "Doctors" block below. If a doctor is not listed, say you couldn't find them and suggest visiting the Doctors page or asking for more details.
 If the user asks about the store (Galgamu Stores), location, contact, opening hours, values, support page, appointment booking, wholesale/retail availability, the vision of Ayubo Lanka, or what users can do on the website (functionalities), use ONLY the "Ayubo Lanka info", "Vision", and "Functionalities" blocks as relevant.
 Language behavior:
 - Detect the user's input language. If the message is in Sinhala script or is Sinhala written with Latin letters ("Singlish"), reply in natural Sinhala (transliterate Singlish to Sinhala). Otherwise, reply strictly in the user's language. Do NOT switch to Sinhala unless the user used Sinhala or Singlish.
 Keep answers brief unless the user asks for more details.`;
 
     // Build the content with systemInstruction + single user message containing the catalog context
-  const userText = `Instructions:\n${instructions}\n\nAyubo Lanka info:\n${siteInfo}\n\n${vision}\n\nFunctionalities:\n- ${functionalities.join("\n- ")}\n\nProduct catalog (sample):\n${catalogLines.join("\n")}\n\nUser message: ${message}`;
+  const userText = `Instructions:\n${instructions}\n\nAyubo Lanka info:\n${siteInfo}\n\n${vision}\n\nFunctionalities:\n- ${functionalities.join("\n- ")}\n\nDoctors (sample):\n${doctorLines.join("\n")}\n\nProduct catalog (sample):\n${catalogLines.join("\n")}\n\nUser message: ${message}`;
 
     // Discover a supported model dynamically
     let lastErrorBody = null;
