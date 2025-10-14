@@ -11,7 +11,7 @@ const DoctorCard = ({ doctor, onBook, onViewDetails }) => {
       <div className="relative bg-gradient-to-br from-green-400 to-emerald-600 p-6">
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-            {/* User SVG Icon */}
+           
             <svg
               className="w-10 h-10 text-white"
               fill="none"

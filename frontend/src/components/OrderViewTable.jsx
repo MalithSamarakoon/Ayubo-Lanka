@@ -1,4 +1,4 @@
-// frontend/src/components/OrderViewTable.jsx
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -74,7 +74,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
     }
   };
 
-  // 👉 Navigate to the receipt page, passing the whole order in route state
+  
   const goToOrderSuccess = () => {
     if (!order) return;
     navigate("/order-success", { state: { order } });
@@ -82,7 +82,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
 
   return (
     <div className="space-y-8">
-      {/* Items */}
+      
       <div className="overflow-x-auto">
         <h3 className="text-lg font-bold mb-2">Items</h3>
         <table className="min-w-full border">
@@ -135,7 +135,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
         </table>
       </div>
 
-      {/* Shipping */}
+      
       <div className="overflow-x-auto">
         <h3 className="text-lg font-bold mb-2">Shipping</h3>
         <table className="min-w-full border">
@@ -168,7 +168,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
         </table>
       </div>
 
-      {/* Payment */}
+      
       <div className="overflow-x-auto">
         <h3 className="text-lg font-bold mb-2">Payment</h3>
         <table className="min-w-full border">
@@ -198,7 +198,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
         </table>
       </div>
 
-      {/* Footer: Total + Status + Actions */}
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <span className="text-gray-600 mr-2">Status:</span>
@@ -221,16 +221,16 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
         </div>
 
         <div className="flex gap-2">
-          {/* NEW: Continue -> OrderSuccess */}
+          
           <button
             onClick={goToOrderSuccess}
-            disabled={!hasId && !order} // allow even without id if order object exists
+            disabled={!hasId && !order} 
             className="px-4 py-2 rounded bg-emerald-600 text-white disabled:bg-gray-300"
           >
             Continue
           </button>
 
-          {/* Keep your existing actions */}
+          
           <button
             onClick={openEdit}
             disabled={!hasId}
@@ -248,7 +248,7 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
         </div>
       </div>
 
-      {/* Update Status Modal */}
+      
       {showEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">

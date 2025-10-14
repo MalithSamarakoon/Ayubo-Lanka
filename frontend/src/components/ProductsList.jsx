@@ -15,44 +15,44 @@ function ProductsList() {
     navigate(`/update-product/${productId}`);
   };
 
-  // Filter products based on search term
+  
   const filteredProducts = products?.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle search input change
+  
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Clear search
+ 
   const handleClearSearch = () => {
     setSearchTerm('');
   };
 
-  // Generate Complete Inventory PDF Report
+  
   const generateInventoryPDF = () => {
     try {
-      // Initialize PDF in landscape mode for better table layout
+      
       const doc = new jsPDF({
         orientation: "landscape",
         unit: "pt",
         format: "A4",
       });
 
-      // ========== HEADER SECTION ==========
-      // Company Title
+      
+      
       doc.setFontSize(18);
-      doc.setTextColor(16, 185, 129); // Emerald-500 color
+      doc.setTextColor(16, 185, 129); 
       doc.setFont(undefined, 'bold');
       doc.text("AYUBO LANKA - AYURVEDIC PRODUCTS", 40, 35);
       
-      // Report Title
+      
       doc.setFontSize(14);
-      doc.setTextColor(0, 0, 0); // Black
+      doc.setTextColor(0, 0, 0); 
       doc.text("Complete Product Inventory Report", 40, 55);
       
-      // Generation timestamp
+      
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       const now = new Date().toLocaleString("en-US", {
@@ -61,7 +61,7 @@ function ProductsList() {
       });
       doc.text(`Generated: ${now}`, 40, 72);
 
-      // ========== SUMMARY STATISTICS ==========
+     
       const totalProducts = filteredProducts.length;
       const lowStockProducts = filteredProducts.filter(
         p => p.stock <= p.minimumStock
@@ -72,7 +72,7 @@ function ProductsList() {
       );
       const outOfStockProducts = filteredProducts.filter(p => p.stock === 0).length;
 
-      // Summary Box
+      
       doc.setFontSize(10);
       doc.setFont(undefined, 'bold');
       doc.text(`Total Products: ${totalProducts}`, 40, 92);
@@ -80,7 +80,7 @@ function ProductsList() {
       doc.text(`Out of Stock: ${outOfStockProducts}`, 360, 92);
       doc.text(`Total Inventory Value: Rs. ${totalInventoryValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 500, 92);
 
-      // ========== MAIN PRODUCTS TABLE ==========
+      
       const tableData = filteredProducts.map(product => {
         const stockStatus = product.stock === 0 
           ? '❌ OUT' 
@@ -126,7 +126,7 @@ function ProductsList() {
         },
         
         headStyles: {
-          fillColor: [16, 185, 129], // Emerald-500
+          fillColor: [16, 185, 129], 
           textColor: [255, 255, 255],
           fontStyle: 'bold',
           halign: 'center',
@@ -134,42 +134,42 @@ function ProductsList() {
         },
         
         columnStyles: {
-          0: { cellWidth: 100 }, // Product name
-          1: { cellWidth: 70 },  // Category
-          2: { cellWidth: 120 }, // Description
-          3: { cellWidth: 70, halign: 'right' },  // Price
-          4: { cellWidth: 45, halign: 'center' }, // Stock
-          5: { cellWidth: 50, halign: 'center' }, // Min Stock
-          6: { cellWidth: 55, halign: 'center' }, // Status
-          7: { cellWidth: 80, halign: 'right' },  // Value
-          8: { cellWidth: 55, halign: 'center' }, // Featured
+          0: { cellWidth: 100 }, 
+          1: { cellWidth: 70 },  
+          2: { cellWidth: 120 }, 
+          3: { cellWidth: 70, halign: 'right' },  
+          4: { cellWidth: 45, halign: 'center' }, 
+          5: { cellWidth: 50, halign: 'center' }, 
+          6: { cellWidth: 55, halign: 'center' }, 
+          7: { cellWidth: 80, halign: 'right' },  
+          8: { cellWidth: 55, halign: 'center' }, 
         },
 
-        // Conditional row coloring based on stock status
+       
         didParseCell: function(data) {
           if (data.section === 'body' && data.column.index === 6) {
             const statusText = data.cell.text[0];
             if (statusText === '❌ OUT') {
-              data.cell.styles.fillColor = [254, 202, 202]; // Red-200
-              data.cell.styles.textColor = [153, 27, 27];   // Red-900
+              data.cell.styles.fillColor = [254, 202, 202]; 
+              data.cell.styles.textColor = [153, 27, 27];   
               data.cell.styles.fontStyle = 'bold';
             } else if (statusText === '⚠️ LOW') {
-              data.cell.styles.fillColor = [254, 243, 199]; // Amber-100
-              data.cell.styles.textColor = [146, 64, 14];   // Amber-900
+              data.cell.styles.fillColor = [254, 243, 199]; 
+              data.cell.styles.textColor = [146, 64, 14];   
               data.cell.styles.fontStyle = 'bold';
             } else if (statusText === '✓ OK') {
-              data.cell.styles.fillColor = [209, 250, 229]; // Emerald-100
-              data.cell.styles.textColor = [6, 95, 70];     // Emerald-900
+              data.cell.styles.fillColor = [209, 250, 229]; 
+              data.cell.styles.textColor = [6, 95, 70];     
             }
           }
         },
 
         alternateRowStyles: {
-          fillColor: [249, 250, 251] // Gray-50
+          fillColor: [249, 250, 251] 
         },
       });
 
-      // ========== CATEGORY BREAKDOWN SECTION ==========
+      
       const categoryStats = {};
       filteredProducts.forEach(p => {
         const cat = p.category || 'Uncategorized';
@@ -188,7 +188,7 @@ function ProductsList() {
       });
 
       const categoryData = Object.entries(categoryStats)
-        .sort((a, b) => b[1].totalValue - a[1].totalValue) // Sort by value descending
+        .sort((a, b) => b[1].totalValue - a[1].totalValue) 
         .map(([category, stats]) => [
           category,
           stats.count.toString(),
@@ -198,7 +198,7 @@ function ProductsList() {
 
       const startYForCategory = doc.lastAutoTable.finalY + 20;
 
-      // Category section title
+      
       doc.setFontSize(12);
       doc.setFont(undefined, 'bold');
       doc.setTextColor(0, 0, 0);
@@ -217,7 +217,7 @@ function ProductsList() {
         },
         
         headStyles: {
-          fillColor: [59, 130, 246], // Blue-500
+          fillColor: [59, 130, 246], 
           textColor: [255, 255, 255],
           fontStyle: 'bold',
           halign: 'center',
@@ -231,7 +231,7 @@ function ProductsList() {
         },
       });
 
-      // ========== LOW STOCK ALERTS SECTION ==========
+      
       const lowStockItems = filteredProducts.filter(
         p => p.stock > 0 && p.stock <= p.minimumStock
       );
@@ -241,15 +241,15 @@ function ProductsList() {
       if (lowStockItems.length > 0 || outOfStockItems.length > 0) {
         const startYForAlerts = doc.lastAutoTable.finalY + 20;
         
-        // Alerts section title
+        
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
-        doc.setTextColor(185, 28, 28); // Red-700
+        doc.setTextColor(185, 28, 28); 
         doc.text("⚠️ Stock Alerts", 40, startYForAlerts);
 
         const alertData = [];
         
-        // Add out of stock items first
+        
         if (outOfStockItems.length > 0) {
           outOfStockItems.forEach(p => {
             alertData.push([
@@ -263,7 +263,7 @@ function ProductsList() {
           });
         }
         
-        // Add low stock items
+        
         if (lowStockItems.length > 0) {
           lowStockItems.forEach(p => {
             const shortage = p.minimumStock - p.stock;
@@ -289,7 +289,7 @@ function ProductsList() {
           },
           
           headStyles: {
-            fillColor: [239, 68, 68], // Red-500
+            fillColor: [239, 68, 68], 
             textColor: [255, 255, 255],
             fontStyle: 'bold',
             halign: 'center',
@@ -307,33 +307,33 @@ function ProductsList() {
           didParseCell: function(data) {
             if (data.section === 'body' && data.column.index === 0) {
               if (data.cell.text[0]?.includes('OUT OF STOCK')) {
-                data.cell.styles.fillColor = [254, 202, 202]; // Red-200
-                data.cell.styles.textColor = [153, 27, 27];   // Red-900
+                data.cell.styles.fillColor = [254, 202, 202]; 
+                data.cell.styles.textColor = [153, 27, 27];   
               } else if (data.cell.text[0]?.includes('LOW STOCK')) {
-                data.cell.styles.fillColor = [254, 243, 199]; // Amber-100
-                data.cell.styles.textColor = [146, 64, 14];   // Amber-900
+                data.cell.styles.fillColor = [254, 243, 199]; 
+                data.cell.styles.textColor = [146, 64, 14];  
               }
             }
           },
         });
       }
 
-      // ========== FOOTER WITH PAGE NUMBERS ==========
+      
       const pageCount = doc.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
-        doc.setTextColor(107, 114, 128); // Gray-500
+        doc.setTextColor(107, 114, 128); 
         doc.setFont(undefined, 'normal');
         
-        // Page number (right side)
+        
         doc.text(
           `Page ${i} of ${pageCount}`,
           doc.internal.pageSize.getWidth() - 80,
           doc.internal.pageSize.getHeight() - 20
         );
         
-        // Footer text (left side)
+        
         doc.text(
           'Generated by Ayubo Lanka Product Management System',
           40,
@@ -341,7 +341,7 @@ function ProductsList() {
         );
       }
 
-      // ========== SAVE PDF ==========
+      
       const filename = `inventory_report_${new Date().toISOString().slice(0, 10)}.pdf`;
       doc.save(filename);
       

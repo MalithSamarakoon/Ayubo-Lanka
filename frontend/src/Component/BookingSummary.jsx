@@ -8,7 +8,7 @@ const BookingSummary = ({
 
   if (!selectedDay || !selectedTime) return null;
 
-  // ADDED: Extract consultation fee with fallback
+ 
   const consultationFee =
     docInfo.consultationFee || docInfo.fees || "Not specified";
 

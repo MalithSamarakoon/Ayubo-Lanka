@@ -1,4 +1,4 @@
-// src/components/SafeImage.jsx
+
 import React, { useState } from "react";
 
 const PLACEHOLDER =
@@ -16,8 +16,7 @@ const PLACEHOLDER =
 export default function SafeImage({ src, alt, className, onClick }) {
   const [err, setErr] = useState(false);
 
-  // If you're using Vite + /public, use absolute paths like /images/xxx.jpg
-  // If you're importing from /src/assets, import the file and pass the imported URL.
+  
   const finalSrc = err || !src ? PLACEHOLDER : src;
 
   return (

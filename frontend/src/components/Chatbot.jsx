@@ -1,4 +1,4 @@
-// src/components/Chatbot.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MessageCircle, Send, X, Bot, User, Loader2, Copy, Check } from "lucide-react";
 import axiosInstance from "../lib/axios";
@@ -11,7 +11,7 @@ export default function Chatbot() {
   const [busy, setBusy] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState(null);
   const [messages, setMessages] = useState(() => {
-    // hydrate from localStorage
+    
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw);
@@ -30,14 +30,14 @@ export default function Chatbot() {
   const listRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // Persist chat
+  
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
     } catch {}
   }, [messages]);
 
-  // Online/offline indicator
+ 
   useEffect(() => {
     const on = () => setOnline(true);
     const off = () => setOnline(false);
@@ -49,14 +49,14 @@ export default function Chatbot() {
     };
   }, []);
 
-  // Scroll to bottom on new message/open
+  
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [messages, open]);
 
-  // Auto-resize textarea
+  
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "0px";
@@ -86,7 +86,7 @@ export default function Chatbot() {
     const msg = (customText ?? input).trim();
     if (!msg || busy) return;
 
-    // if offline, show a graceful message
+    
     if (!online) {
       setMessages((m) => [
         ...m,

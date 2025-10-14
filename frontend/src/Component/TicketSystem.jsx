@@ -19,7 +19,7 @@ const initial = {
   subject: "",
   description: "",
 };
-// removed stray top-level input that caused crashes
+
 
 
 export default function TicketSystem() {
@@ -75,7 +75,7 @@ export default function TicketSystem() {
     return Object.values(e).every((x) => !x);
   };
 
-  // handlers
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -108,7 +108,7 @@ export default function TicketSystem() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // 🚀 go to review page immediately
+      
       navigate(`/tickets/review/${data.ticket._id}`);
     } catch (error) {
       setErrors((p) => ({

@@ -14,7 +14,7 @@ const ProductFilterSidebar = ({
 
   return (
     <div className="w-full lg:w-64 bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit sticky top-20">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
         {hasActiveFilters && (
@@ -28,7 +28,7 @@ const ProductFilterSidebar = ({
         )}
       </div>
 
-      {/* Category Filter Section */}
+      
       <div className="mb-8">
         <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
           Category
@@ -53,10 +53,10 @@ const ProductFilterSidebar = ({
         </div>
       </div>
 
-      {/* Divider */}
+      
       <div className="border-t border-gray-200 mb-6"></div>
 
-      {/* Price Range Filter Section */}
+      
       <div>
         <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
           Price Range (Rs)
@@ -81,7 +81,7 @@ const ProductFilterSidebar = ({
         </div>
       </div>
 
-      {/* Active Filters Count */}
+      
       {hasActiveFilters && (
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-600">

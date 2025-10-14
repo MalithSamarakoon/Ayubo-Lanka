@@ -1,4 +1,4 @@
-// src/components/DoctorList.jsx
+
 import React from "react";
 import DoctorCard from "./DoctorCard";
 

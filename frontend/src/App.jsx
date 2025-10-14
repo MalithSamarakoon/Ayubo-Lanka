@@ -9,7 +9,7 @@ import Chatbot from "./components/Chatbot";
 
 import { useAuthStore } from "./store/authStore";
 
-// Pages
+
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -56,7 +56,7 @@ import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
 import Contact from "./pages/Contact";
 
-// -------------------- Route Protection --------------------
+
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -70,7 +70,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
-// -------------------- Error Fallback --------------------
+
 
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -84,7 +84,7 @@ function AppErrorFallback({ error, resetErrorBoundary }) {
   );
 }
 
-// -------------------- Main App --------------------
+
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
   const location = useLocation();
@@ -117,7 +117,7 @@ function App() {
     "/feedback/review",
   ];
 
-  // Check if current path starts with any of the hidden paths
+ 
   const hideNavbar = hideNavbarPaths.some((path) =>
     location.pathname.startsWith(path.replace(/:.*$/, ""))
   );
@@ -128,7 +128,7 @@ function App() {
 
       <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
         <Routes>
-          {/* ---------- Public Routes ---------- */}
+          
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
@@ -139,7 +139,7 @@ function App() {
           <Route path="/doctor" element={<DoctorPage />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
 
-          {/* ---------- Auth Routes ---------- */}
+          
           <Route
             path="/login"
             element={
@@ -199,7 +199,7 @@ function App() {
           />
           <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-          {/* ---------- Protected Dashboards ---------- */}
+          
           <Route
             path="/dashboard"
             element={
@@ -233,7 +233,7 @@ function App() {
             }
           />
 
-          {/* ---------- Product Management ---------- */}
+         
           <Route
             path="/product-dashboard"
             element={
@@ -251,7 +251,7 @@ function App() {
             }
           />
 
-          {/* ---------- Orders & Payments ---------- */}
+          
           <Route
             path="/order-form"
             element={
@@ -295,7 +295,7 @@ function App() {
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/cart" element={<Cart />} />
 
-          {/* ---------- Doctor Booking ---------- */}
+         
           <Route
             path="/doctor/:docId/book/patientform"
             element={
@@ -329,7 +329,7 @@ function App() {
             }
           />
 
-          {/* ---------- Appointment Lists ---------- */}
+          
           <Route
             path="/CheckAppoinments"
             element={
@@ -347,7 +347,7 @@ function App() {
             }
           />
 
-          {/* ---------- Support & Reviews ---------- */}
+          
           <Route
             path="/admin/support-center"
             element={

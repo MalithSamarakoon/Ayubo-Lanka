@@ -14,7 +14,7 @@ const initial = {
   subject: "",
   message: "",
 };
-// removed stray top-level input that caused crashes
+
 
 export default function SupportForm() {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ export default function SupportForm() {
     return Object.values(e).every((x) => !x);
   };
 
-  // handlers
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -99,7 +99,7 @@ export default function SupportForm() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // 🚀 go to review page immediately
+      
       navigate(`/support/review/${data.inquiry._id}`);
     } catch (error) {
       setErrors((p) => ({

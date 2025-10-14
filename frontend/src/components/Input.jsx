@@ -16,14 +16,14 @@ const Input = ({ icon: Icon, type = "text", togglePassword = false, ...props }) 
 
   return (
     <div className="relative mb-6">
-      {/* Left icon */}
+      
       {Icon && (
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <Icon className="size-5 text-green-500" />
         </div>
       )}
 
-      {/* Input field */}
+      
       <input
         {...props}
         type={inputType}
@@ -35,7 +35,7 @@ const Input = ({ icon: Icon, type = "text", togglePassword = false, ...props }) 
                     ${togglePassword && isPassword ? "pr-10" : "pr-4"}`}
       />
 
-      {/* Right eye toggle*/}
+      
       {togglePassword && isPassword && (
         <span
           role="button"

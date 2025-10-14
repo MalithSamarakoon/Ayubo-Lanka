@@ -40,7 +40,7 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Filter Controls */}
+        
         <div className="p-6 space-y-6">
           <div>
             <h3 className="font-medium text-gray-900 mb-3">
@@ -66,7 +66,7 @@ const FilterSidebar = ({
           
         </div>
 
-        {/* Stats Footer */}
+        
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">Showing Results:</span>

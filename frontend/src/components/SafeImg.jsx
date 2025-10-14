@@ -1,4 +1,4 @@
-// src/components/SafeImg.jsx
+
 import React, { useState } from "react";
 
 const PLACEHOLDER =
