@@ -11,7 +11,6 @@ import {
   Calendar,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Footer from "../Component/Fotter";
 
 const sriLankaPhone = /^(?:\+94|0)\d{9}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
