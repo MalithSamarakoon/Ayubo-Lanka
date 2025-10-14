@@ -1,7 +1,7 @@
 import { sendUserApprovedEmail } from "../mailer.js";
 import { User } from "../models/user.model.js";
 
-// Approve user
+
 export const approveUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -40,7 +40,7 @@ export const getAllDoctors = async (req, res) => {
   }
 };
 
-// Get user by ID
+
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -51,7 +51,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Update user
+
 export const updateUser = async (req, res) => {
   try {
     const { name, email, role, mobile } = req.body;
@@ -89,7 +89,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// Delete user
+
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -133,7 +133,7 @@ export const updateDoctorProfile = async (req, res) => {
   }
 };
 
-// count users by role
+
 export const getRoleStats = async (req, res) => {
   try {
     

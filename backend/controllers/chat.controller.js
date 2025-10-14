@@ -1,7 +1,7 @@
 import ayurvedicProduct from "../models/product.model.js";
 import { User } from "../models/user.model.js";
 
-// Uses Node 18+ global fetch
+
 const GEMINI_BASES = [
   "https://generativelanguage.googleapis.com/v1/models",
   "https://generativelanguage.googleapis.com/v1beta/models",
@@ -32,14 +32,14 @@ async function listModels(apiKey) {
 }
 
 function pickModel(models) {
-  // filter models that support generateContent
+  
   const withGen = models.filter((m) => Array.isArray(m?.supportedGenerationMethods) ? m.supportedGenerationMethods.includes("generateContent") : (m?.generationMethods || []).includes("generateContent"));
-  // Prefer PREFERRED_MODELS order
+  
   for (const name of PREFERRED_MODELS) {
     const found = withGen.find((m) => m?.name?.endsWith(`/models/${name}`) || m?.name === name || m?.displayName === name);
     if (found) return found;
   }
-  // otherwise, prefer anything with 'flash' then any
+  
   const flash = withGen.find((m) => /flash/i.test(m?.name || m?.displayName || ""));
   if (flash) return flash;
   return withGen[0] || null;
@@ -149,10 +149,10 @@ Language behavior:
 - Detect the user's input language. If the message is in Sinhala script or is Sinhala written with Latin letters ("Singlish"), reply in natural Sinhala (transliterate Singlish to Sinhala). Otherwise, reply strictly in the user's language. Do NOT switch to Sinhala unless the user used Sinhala or Singlish.
 Keep answers brief unless the user asks for more details.`;
 
-    // Build the content with systemInstruction + single user message containing the catalog context
+    
   const userText = `Instructions:\n${instructions}\n\nAyubo Lanka info:\n${siteInfo}\n\n${vision}\n\nFunctionalities:\n- ${functionalities.join("\n- ")}\n\nDoctors (sample):\n${doctorLines.join("\n")}\n\nProduct catalog (sample):\n${catalogLines.join("\n")}\n\nUser message: ${message}`;
 
-    // Discover a supported model dynamically
+    
     let lastErrorBody = null;
     const { models: available, base } = await listModels(apiKey);
     const chosen = pickModel(available);
@@ -183,7 +183,7 @@ Keep answers brief unless the user asks for more details.`;
       }
     }
 
-    // AI failed: provide a local lightweight fallback using product DB
+    
     const msgStr = String(message || "");
     const q = msgStr.toLowerCase();
     const isSinhalaScript = /[\u0D80-\u0DFF]/.test(msgStr);

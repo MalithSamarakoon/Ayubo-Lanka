@@ -24,7 +24,7 @@ const saveBase64ToLocal = async (dataUri) => {
     const filename = `prod-${Date.now()}-${Math.round(Math.random()*1e6)}${ext}`;
     const abs = path.join(uploadDir, filename);
     await fs.promises.writeFile(abs, buf);
-    // return public path served by server static
+    
     return `/uploads/products/${filename}`;
   } catch (e) {
     console.error('Local save failed:', e?.message || e);
@@ -334,15 +334,15 @@ export const getFeaturedProducts = async (req, res) => {
   }
 };
 
-// Get product category statistics
+
 export const getCategoryStats = async (req, res) => {
   try {
-    // Use MongoDB aggregation to group products by category and count them
+    
     const rows = await ayurvedicProduct.aggregate([
       { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
-    // Initialize stats object with all categories set to 0
+    
     const stats = {
       Kasthausadhi: 0,
       Rasaushadhi: 0,
@@ -351,7 +351,7 @@ export const getCategoryStats = async (req, res) => {
       Kalka: 0
     };
 
-    // Populate stats with actual counts from database
+   
     rows.forEach(r => {
       if (stats.hasOwnProperty(r._id)) {
         stats[r._id] = r.count;

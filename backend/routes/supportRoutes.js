@@ -11,11 +11,11 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// /uploads/support
+
 const uploadRoot = path.join(__dirname, "..", "uploads", "support");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
-// ---- upload config ----
+
 const ALLOWED = new Set([
   "image/jpeg",
   "image/png",
