@@ -71,7 +71,7 @@ const SignUpPage = () => {
         backgroundImage: `url(${bgImage})`,
       }}
     >
-      {/* ✅ Transparent overlay over entire background */}
+     
       <div className="absolute inset-0 bg-white/20"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}

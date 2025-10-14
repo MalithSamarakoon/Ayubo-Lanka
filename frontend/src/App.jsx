@@ -1,4 +1,3 @@
-
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
@@ -6,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "./Component/Navbar";
 import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Chatbot from "./components/Chatbot";
 
 import { useAuthStore } from "./store/authStore";
 
@@ -20,7 +20,7 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-import DoctorPage from "./pages/DoctorPage"; 
+import DoctorPage from "./pages/DoctorPage";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
 import Support from "./pages/support";
@@ -54,6 +54,7 @@ import Cart from "./pages/Cart";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
+import Contact from "./pages/Contact";
 
 // -------------------- Route Protection --------------------
 const ProtectedRoute = ({ children }) => {
@@ -133,6 +134,7 @@ function App() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/Contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/doctor" element={<DoctorPage />} />
           <Route path="/doctor/:docId" element={<Appointment />} />
@@ -358,9 +360,9 @@ function App() {
           <Route path="/support/review/:id" element={<SupportReview />} />
           <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
-          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Chatbot />
       </div>
 
       <Toaster position="top-right" />

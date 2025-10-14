@@ -1,4 +1,3 @@
-// backend/server.js
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -15,10 +14,11 @@ import patientRouter from "./routes/patientRoutes.js";
 import productRouter from "./routes/product.route.js";
 import ordersRouter from "./routes/orders.route.js";
 
-import feedbackRoutes from "./routes/feedbackRoutes.js";
-import supportRoutes from "./routes/supportRoutes.js";
-import ticketRoutes from "./routes/ticketRoutes.js";
-import adminExportRoutes from "./routes/adminExportRoutes.js";
+import feedbackRoutes from './routes/feedbackRoutes.js';
+import supportRoutes from './routes/supportRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
+import adminExportRoutes from './routes/adminExportRoutes.js';
+import chatRouter from './routes/chat.route.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,16 +53,17 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 // --- Routes ---
-app.use("/api/admin/export", adminExportRoutes);
-app.use("/api/receipts", receiptsRouter);
-app.use("/api/products", productRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/user", userRouter);
-app.use("/api/patients", patientRouter);
-app.use("/api/orders", ordersRouter);
-app.use("/api/feedback", feedbackRoutes);
-app.use("/api/support", supportRoutes);
-app.use("/api/tickets", ticketRoutes);
+app.use('/api/admin/export', adminExportRoutes);
+app.use('/api/receipts', receiptsRouter);
+app.use('/api/products', productRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/user', userRouter);
+app.use('/api/patients', patientRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/chat', chatRouter);
 
 // ---- Global error handler ----
 app.use((err, req, res, next) => {

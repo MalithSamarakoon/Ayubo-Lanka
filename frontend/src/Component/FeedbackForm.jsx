@@ -179,7 +179,7 @@ export default function FeedbackForm() {
             className="focus:ring-green-500 h-4 w-4 text-green-600 border-green-300 rounded"
           />
           <label htmlFor="consent" className="ml-3 text-sm font-medium text-green-700">
-            I agree to have my feedback shared anonymously for improvement purposes
+            I agree to have my feedback shared for improvement purposes
           </label>
         </div>
         {errors.consent && <p className="text-red-600 text-xs -mt-4 mb-2">{errors.consent}</p>}
