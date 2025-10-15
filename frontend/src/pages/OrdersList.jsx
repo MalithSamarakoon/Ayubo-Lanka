@@ -60,7 +60,7 @@ export default function OrdersList() {
   };
   const closeEdit = () => setEditing(null);
 
-  // ✅ use PATCH /:id/status instead of PUT body {status}
+  
   const saveEdit = async () => {
     if (!editing?._id) return;
     try {
@@ -80,7 +80,7 @@ export default function OrdersList() {
     }
   };
 
-  // ✅ DELETE route matches backend
+  
   const remove = async (id) => {
     if (!id) return;
     if (!window.confirm("Delete this order?")) return;

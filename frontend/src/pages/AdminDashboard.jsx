@@ -96,7 +96,7 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
-      {/* LEFT SIDEBAR */}
+      
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -139,7 +139,7 @@ function AdminDashboard() {
               Orders
             </motion.button>
 
-            {/* correct route to match App.jsx */}
+            
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -150,7 +150,7 @@ function AdminDashboard() {
               Appointments
             </motion.button>
 
-            {/* NEW: Support & Inquiries hub */}
+            
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -176,7 +176,7 @@ function AdminDashboard() {
         </motion.button>
       </motion.div>
 
-      {/* RIGHT CONTENT */}
+      
       <div className="flex-1 p-10 overflow-y-auto">
         <center><h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Welcome, Admin

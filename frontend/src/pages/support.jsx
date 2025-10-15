@@ -30,7 +30,7 @@ export default function Support() {
   const [toast, setToast] = useState(null); // { type, message }
   const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
 
-  // ---- load approved feedbacks ----
+  
   const loadApproved = useCallback(async () => {
     try {
       const { data } = await axiosInstance.get("/feedback/approved");
@@ -38,7 +38,7 @@ export default function Support() {
         setApprovedFeedbacks(data);
         return;
       }
-      // Fallback for legacy data where `approved` flag or `consent` is used
+      
       const all = await axiosInstance.get("/feedback");
       const list = (all.data || []).filter((f) => f.isApproved || f.approved || f.consent);
       setApprovedFeedbacks(list);
@@ -47,10 +47,10 @@ export default function Support() {
     }
   }, []);
 
-  // Keep this! With ModalShell extracted, it won't reset your forms anymore.
+  
   useEffect(() => {
-    loadApproved();                       // initial load
-    const onFocus = () => loadApproved(); // refresh when tab becomes active (closing file picker triggers focus too)
+    loadApproved();                       
+    const onFocus = () => loadApproved(); 
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [loadApproved]);
@@ -279,7 +279,7 @@ export default function Support() {
         </motion.section>
       </div>
 
-  {/* Modal area — lightweight ModalShell to avoid re-renders */}
+  
       <ModalShell open={Boolean(activeModal)} onClose={() => setActiveModal(null)}>
         {activeModal === "inquiry" && (
           <div className="p-6">
@@ -308,7 +308,7 @@ export default function Support() {
             <FeedbackForm
               onSuccess={(msg) => {
                 showToast(msg || "Thank you! Your feedback was submitted.");
-                loadApproved(); // in case backend auto-approves
+                loadApproved(); 
                 setActiveModal(null);
               }}
             />
@@ -319,7 +319,7 @@ export default function Support() {
   );
 }
 
-// Minimal modal shell implementation (JS only, no portals)
+
 const ModalShell = memo(function ModalShell({ open, onClose, children }) {
   if (!open) return null;
   return (

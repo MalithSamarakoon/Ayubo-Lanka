@@ -24,7 +24,7 @@ const UpdateProduct = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // helpers to make image URLs absolute when backend returns relative /uploads paths
+  
   const apiBase = (axiosInstance?.defaults?.baseURL || '').replace(/\/$/, '');
   const serverOrigin = apiBase.replace(/\/api\/?$/, '');
   const toAbs = (u) => {
@@ -33,7 +33,7 @@ const UpdateProduct = () => {
     return `${serverOrigin}${u.startsWith('/') ? '' : '/'}${u}`;
   };
 
-  // Fetch product data when component mounts
+  
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -81,7 +81,7 @@ const UpdateProduct = () => {
       const { data } = await axiosInstance.patch(`/products/${id}`, updateData);
       if (data) {
         toast.success("Product updated successfully");
-        // in case we remain on this page in future, ensure preview reflects latest image
+        
         const updated = data.product ?? data;
         if (updated?.image && !previewImage) {
           setCurrentImageUrl(toAbs(updated.image));

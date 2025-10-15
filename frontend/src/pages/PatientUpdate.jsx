@@ -15,7 +15,7 @@ import {
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 
-// --- Validation Regular Expressions ---
+
 const sriLankaPhone = /^(?:\+94|0)\d{9}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
@@ -25,7 +25,7 @@ const PatientUpdate = () => {
   const { docId } = useParams();
   const patient = location.state;
 
-  // --- State Management ---
+  
   const [formData, setFormData] = useState({
     name: patient?.name || "",
     age: patient?.age || "",
@@ -38,7 +38,7 @@ const PatientUpdate = () => {
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  // --- Refs for scrolling to errors ---
+  
   const refs = {
     name: useRef(null),
     age: useRef(null),
@@ -47,7 +47,7 @@ const PatientUpdate = () => {
     address: useRef(null),
   };
 
-  // Navigate away if no patient data is present
+  
   useEffect(() => {
     if (!patient) {
       Swal.fire({
@@ -62,7 +62,7 @@ const PatientUpdate = () => {
     }
   }, [patient, navigate, docId]);
 
-  // --- Validation Logic ---
+ 
   const validateField = (field, value) => {
     let msg = "";
     switch (field) {
@@ -103,7 +103,7 @@ const PatientUpdate = () => {
     return results.every(Boolean);
   };
 
-  // --- Event Handlers ---
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     const nextVal = name === "age" ? value.replace(/[^\d]/g, "") : value;
@@ -137,7 +137,7 @@ const PatientUpdate = () => {
       text: "Any unsaved changes will be lost.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#10B981", // Emerald
+      confirmButtonColor: "#10B981", 
       cancelButtonColor: "#6B7280", // Gray
       confirmButtonText: "Yes, discard changes",
     }).then((result) => {
@@ -208,7 +208,7 @@ const PatientUpdate = () => {
     }
   };
 
-  // --- Tailwind CSS Classes for Inputs ---
+  
   const inputBase =
     "w-full pl-12 pr-4 py-3 bg-gray-50 border rounded-lg shadow-sm focus:ring-2 transition-all duration-200 placeholder-gray-400 text-gray-800";
   const invalidBorder =

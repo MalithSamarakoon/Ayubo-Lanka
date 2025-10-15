@@ -294,7 +294,7 @@ const CheckAppoinments = () => {
         format: "A4",
       });
 
-      // Header
+      
       doc.setFontSize(16);
       doc.text("Ayurveda Medical Center — Appointments Report", 40, 40);
       doc.setFontSize(10);

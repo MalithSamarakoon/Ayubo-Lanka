@@ -80,7 +80,7 @@ const PatientForm = () => {
         } else if (!/^\+?\d+$/.test(phone)) {
           msg = "Phone can only contain digits or + sign.";
         }
-        // ✅ Must start with 0 or +94
+        
         else if (!(phone.startsWith("0") || phone.startsWith("+94"))) {
           msg = "Use 0XXXXXXXXX or +94XXXXXXXXX.";
         } else if (phone.startsWith("0") && !/^0\d{9}$/.test(phone)) {
@@ -323,7 +323,7 @@ const PatientForm = () => {
               </div>
             </div>
 
-            {/* Contact */}
+            
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                 <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
@@ -333,7 +333,7 @@ const PatientForm = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Phone */}
+                
                 <div ref={refs.phone}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone Number <span className="text-rose-500">*</span>
@@ -379,7 +379,7 @@ const PatientForm = () => {
                   )}
                 </div>
 
-                {/* Email */}
+                
                 <div ref={refs.email}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address <span className="text-rose-500">*</span>
@@ -425,7 +425,7 @@ const PatientForm = () => {
                 </div>
               </div>
 
-              {/* Address */}
+              
               <div className="mt-6" ref={refs.address}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Address <span className="text-rose-500">*</span>

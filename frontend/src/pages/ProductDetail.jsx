@@ -49,7 +49,7 @@ const ProductDetail = () => {
     }
     addItem(selectedProduct, quantity);
     toast.success("Added to cart successfully");
-    // stay on page; Navbar badge auto-updates
+    
   };
 
  
@@ -60,13 +60,13 @@ const ProductDetail = () => {
       return;
     }
     addItem(selectedProduct, quantity);
-    navigate("/order-form"); // ✅ your route name in App.jsx
+    navigate("/order-form"); 
   };
 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumb Navigation */}
+      
       <nav className="flex mb-8" aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
           <li className="inline-flex items-center">
@@ -103,9 +103,9 @@ const ProductDetail = () => {
         </ol>
       </nav>
 
-      {/* Product Detail Section */}
+     
       <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
-        {/* Product Image */}
+        
         <div className="flex flex-col-reverse">
           <div className="w-full aspect-w-1 aspect-h-1">
             <img
@@ -116,27 +116,27 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Product Information */}
+        
         <div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             {selectedProduct.name}
           </h1>
 
-          {/* Category */}
+          
           <div className="mt-3">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
               {selectedProduct.category}
             </span>
           </div>
 
-          {/* Price */}
+          
           <div className="mt-6">
             <p className="text-3xl font-bold text-gray-900">
               Rs. {selectedProduct.price?.toLocaleString()}
             </p>
           </div>
 
-          {/* Stock Status */}
+          
           <div className="mt-4">
             {selectedProduct.stock > 0 ? (
               <p className="text-green-600 font-medium">
@@ -149,7 +149,7 @@ const ProductDetail = () => {
             )}
           </div>
 
-          {/* Description */}
+          
           <div className="mt-6">
             <h3 className="text-lg font-medium text-gray-900">Description</h3>
             <div className="mt-4">
@@ -159,7 +159,7 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Quantity Selector */}
+          
           <div className="mt-8">
             <div className="flex items-center space-x-4">
               <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
@@ -187,7 +187,7 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          
           <div className="mt-8 flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <button
               onClick={handleAddToCart}
@@ -206,7 +206,7 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          {/* Additional Product Information */}
+          
           <div className="mt-8 border-t border-gray-200 pt-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>

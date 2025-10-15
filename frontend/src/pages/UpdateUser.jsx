@@ -23,7 +23,7 @@ function UpdateUser() {
   const [isLoading, setIsLoading] = useState(false);
   const [userRole, setUserRole] = useState("");
 
-  // Fetch user data
+  
   useEffect(() => {
     const fetchHandler = async () => {
       try {

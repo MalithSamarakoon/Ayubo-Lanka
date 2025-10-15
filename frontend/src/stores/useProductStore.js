@@ -1,7 +1,7 @@
 // frontend/src/stores/useProductStore.js
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
-import axiosInstance from '../lib/axios'; // use the consolidated client
+import axiosInstance from '../lib/axios'; 
 
 const apiBase = (axiosInstance?.defaults?.baseURL || '').replace(/\/$/, '');
 const serverOrigin = apiBase.replace(/\/api\/?$/, '');
@@ -9,7 +9,7 @@ const toAbs = (u) => {
   if (!u) return u;
   if (typeof u !== 'string') return u;
   if (u.startsWith('http://') || u.startsWith('https://')) return u;
-  // for local uploads like /uploads/products/...
+  
   return `${serverOrigin}${u.startsWith('/') ? '' : '/'}${u}`;
 };
 const mapImage = (p) => ({ ...p, image: toAbs(p.image) });

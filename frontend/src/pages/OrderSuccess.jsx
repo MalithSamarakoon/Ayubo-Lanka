@@ -11,7 +11,7 @@ export default function OrderSuccess() {
   const order = state?.order;
 
   useEffect(() => {
-    if (!order) navigate("/collection", { replace: true }); // fallback
+    if (!order) navigate("/collection", { replace: true }); 
   }, [order, navigate]);
 
   const total = useMemo(

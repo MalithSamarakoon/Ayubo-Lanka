@@ -16,9 +16,9 @@ const DoctorPage = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [selectedRating, setSelectedRating] = useState("all");
   const navigate = useNavigate();
-  const { id } = useParams(); // This will be used if you need to fetch a specific doctor
+  const { id } = useParams(); 
 
-  // --- DATA FETCHING ---
+  
   useEffect(() => {
     const fetchHandler = async () => {
       setIsLoading(true);
@@ -32,7 +32,7 @@ const DoctorPage = () => {
           mobile: u.mobile ?? "-",
           doctorLicenseNumber: u.doctorLicenseNumber ?? "-",
           specialization: u.specialization ?? "-",
-          // ADDED: Fetch consultation fee from API response
+          
           consultationFee: u.consultationFee ?? "",
           experience: u.experience ?? "",
           description: u.description ?? "",
@@ -55,7 +55,7 @@ const DoctorPage = () => {
     fetchHandler();
   }, []);
 
-  // --- DATA PROCESSING & FILTERING ---
+  
   const filteredApiDoctors = useMemo(() => {
     let filtered = users;
     if (searchQuery) {
@@ -86,19 +86,19 @@ const DoctorPage = () => {
     });
   }, [users, searchQuery, activeSpec, sortBy]);
 
-  // --- STATISTICS CALCULATION ---
+  
   const stats = useMemo(
     () => ({
       total: filteredApiDoctors.length,
       approved: filteredApiDoctors.filter((d) => d.isApproved).length,
-      avgRating: "4.0", // Assuming static rating for now as it's not in user data
+      avgRating: "4.0", 
       specialties: new Set(filteredApiDoctors.map((d) => d.specialization))
         .size,
     }),
     [filteredApiDoctors]
   );
 
-  // --- EVENT HANDLERS ---
+  
   const handleBook = (_id) => navigate(`/doctor/${_id}`);
   const handleDoctorDetails = (_id) => navigate(`/doctor/${_id}`);
   const handleFilterClick = (spec) => setActiveSpec(spec);

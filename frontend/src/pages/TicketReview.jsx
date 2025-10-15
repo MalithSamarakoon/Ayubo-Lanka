@@ -4,7 +4,7 @@ import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 
 const TicketReview = () => {
-  const { id } = useParams(); // this is ticket _id
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ const TicketReview = () => {
     department: "general",
     subject: "",
     description: "",
-    // priority removed in your latest version; keep if you still want it here
+    
   });
 
   const [existingFiles, setExistingFiles] = useState([]);
@@ -29,9 +29,7 @@ const TicketReview = () => {
   useEffect(() => {
     (async () => {
       try {
-        // we created it via POST /api/tickets which returned ticket with _id
-        // read it back: if you have GET /api/tickets/:id you can use that;
-        // otherwise list & find (to match your existing routes)
+        
   const { data } = await axiosInstance.get("/tickets");
         const doc = (data || []).find((t) => String(t._id) === String(id));
         if (!doc) {
@@ -69,11 +67,11 @@ const TicketReview = () => {
   const onDelete = async () => {
     if (!window.confirm("Delete this ticket?")) return;
     try {
-  await axiosInstance.delete(`/tickets/${ticket._id}`); // if you don't have this route, create it or skip delete here
+  await axiosInstance.delete(`/tickets/${ticket._id}`); 
       toast.success("Ticket deleted");
       navigate("/support");
     } catch (e) {
-      // fall back: if delete route not available, show error
+      
       toast.error(e?.response?.data?.message || "Delete failed (endpoint missing?)");
     }
   };

@@ -15,7 +15,7 @@ export default function Cart() {
   const [items, setItems] = useState(getCart());
   const navigate = useNavigate();
 
-  // keep in sync with any cart changes
+  
   useEffect(() => {
     const off = onCartItemsChange(setItems);
     return off;
@@ -40,7 +40,7 @@ export default function Cart() {
   const handleQty = (id, next) => {
     const q = Math.max(1, Number(next) || 1);
     updateQty(id, q);
-    // optimistic update for instant UI feedback
+    
     setItems((prev) =>
       prev.map((it) => (it.id === id ? { ...it, qty: q } : it))
     );
@@ -85,7 +85,7 @@ export default function Cart() {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 mt-12">
-        {/* ===== Left: Items ===== */}
+        
         <div className="space-y-5 min-w-0">
           {items.map((it) => {
             const line =
@@ -96,7 +96,7 @@ export default function Cart() {
                 key={it.id}
                 className="flex items-center gap-6 p-5 border rounded-2xl overflow-hidden"
               >
-                {/* image */}
+                
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   {it.image ? (
                     <img
@@ -111,7 +111,7 @@ export default function Cart() {
                   )}
                 </div>
 
-                {/* content */}
+                
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-lg truncate">
                     {it.name}
@@ -121,7 +121,7 @@ export default function Cart() {
                   </div>
                 </div>
 
-                {/* quantity controls */}
+               
                 <div className="flex items-center gap-3 shrink-0">
                   <button
                     onClick={() => handleQty(it.id, Math.max(1, (it.qty || 1) - 1))}
@@ -148,12 +148,12 @@ export default function Cart() {
                   </button>
                 </div>
 
-                {/* line total */}
+                
                 <div className="w-28 text-right font-medium shrink-0">
                   {fmt(line)}
                 </div>
 
-                {/* remove */}
+                
                 <button
                   onClick={() => handleRemove(it.id)}
                   className="px-5 py-3 rounded-xl bg-black text-white hover:opacity-90 shrink-0"
@@ -165,7 +165,7 @@ export default function Cart() {
           })}
         </div>
 
-        {/* ===== Right: Summary ===== */}
+        
         <aside className="border rounded-2xl p-6 h-fit lg:sticky lg:top-20">
           <h2 className="text-xl font-semibold text-center">Summary</h2>
 

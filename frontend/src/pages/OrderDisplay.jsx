@@ -14,7 +14,7 @@ export default function OrderDisplay() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    if (order) return; // already have from state
+    if (order) return; 
     let mounted = true;
     (async () => {
       try {

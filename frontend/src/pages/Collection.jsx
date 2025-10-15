@@ -5,10 +5,10 @@ import ProductItems from '../Component/ProductItems';
 import ProductFilterSidebar from '../components/ProductFilterSidebar';
 import { Search, X } from 'lucide-react';
 
-// Categories from CreateProductForm
+
 const categories = ["Kasthausadhi", "Rasaushadhi", "Jangama", "Kwatha", "Kalka"];
 
-// Price ranges for filtering
+
 const priceRanges = [
   { id: 1, label: "Rs 1000 or below", min: 0, max: 1000 },
   { id: 2, label: "Rs 1000 - 2000", min: 1000, max: 2000 },
@@ -20,7 +20,7 @@ const priceRanges = [
 const Collection = () => {
   const { products, loading, fetchAllProducts } = useProductStore();
   
-  // Filter states
+  
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +29,7 @@ const Collection = () => {
     fetchAllProducts();
   }, [fetchAllProducts]);
 
-  // Handle category filter change
+  
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev => {
       if (prev.includes(category)) {
@@ -40,7 +40,7 @@ const Collection = () => {
     });
   };
 
-  // Handle price range filter change
+  
   const handlePriceRangeChange = (range) => {
     setSelectedPriceRanges(prev => {
       const exists = prev.find(r => r.id === range.id);
@@ -52,42 +52,42 @@ const Collection = () => {
     });
   };
 
-  // Handle search input change
+  
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Clear search
+  
   const handleClearSearch = () => {
     setSearchTerm('');
   };
 
-  // Clear all filters
+  
   const clearAllFilters = () => {
     setSelectedCategories([]);
     setSelectedPriceRanges([]);
     setSearchTerm('');
   };
 
-  // Get filtered products based on selected filters
+  
   const getFilteredProducts = useMemo(() => {
     let filtered = [...products];
 
-    // Filter by search term
+    
     if (searchTerm.trim()) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by category
+    
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(product => 
         selectedCategories.includes(product.category)
       );
     }
 
-    // Filter by price range
+    
     if (selectedPriceRanges.length > 0) {
       filtered = filtered.filter(product => {
         const productPrice = Number(product.price);
@@ -119,7 +119,7 @@ const Collection = () => {
 
   return (
     <div className="my-10 px-4 sm:px-6 lg:px-8">
-      {/* Title Section */}
+      
       <div className="text-center py-8 text-3xl">
         <Title text1={"ALL"} text2={"PRODUCTS"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600 mt-4">
@@ -127,7 +127,7 @@ const Collection = () => {
         </p>
       </div>
 
-      {/* Search Bar Section */}
+      
       <div className="mb-6">
         <div className="relative max-w-md mx-auto">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -153,7 +153,7 @@ const Collection = () => {
           )}
         </div>
         
-        {/* Search Result Count */}
+        
         {searchTerm && (
           <p className="mt-2 text-sm text-gray-600 text-center">
             Found {getFilteredProducts.length} product{getFilteredProducts.length !== 1 ? 's' : ''} matching "{searchTerm}"
@@ -161,9 +161,9 @@ const Collection = () => {
         )}
       </div>
 
-      {/* Main Content: Sidebar + Products Grid */}
+      
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-        {/* Sidebar */}
+        
         <aside className="w-full lg:w-auto">
           <ProductFilterSidebar
             categories={categories}
@@ -176,7 +176,7 @@ const Collection = () => {
           />
         </aside>
 
-        {/* Products Section */}
+        
         <main className="flex-1">
           {getFilteredProducts.length === 0 ? (
             <div className="text-center py-20">

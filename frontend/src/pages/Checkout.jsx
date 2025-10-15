@@ -6,7 +6,7 @@ export default function Checkout() {
   const nav = useNavigate();
   const [saving, setSaving] = useState(false);
 
-  // Billing / primary address
+ 
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -15,13 +15,13 @@ export default function Checkout() {
     country: "",
   });
 
-  // Payment method + optional slip
+  
   const [payment, setPayment] = useState({
-    method: "COD", // "COD" | "SLIP"
-    slip: null,    // File | null
+    method: "COD", 
+    slip: null,    
   });
 
-  // Extra shipping + notes
+  
   const [shipDiff, setShipDiff] = useState(false);
   const [ship, setShip] = useState({ line1: "", city: "", country: "" });
   const [notes, setNotes] = useState("");
@@ -69,12 +69,12 @@ export default function Checkout() {
     try {
       setSaving(true);
 
-      // 1) create order
+      
       const res = await api.post("/orders/checkout", body);
       const orderId = res.data?._id;
       if (!orderId) throw new Error("Missing order id");
 
-      // 2) optional slip upload
+      
       if (payment.method === "SLIP" && payment.slip) {
         const fd = new FormData();
         fd.append("method", "SLIP");
@@ -101,7 +101,7 @@ export default function Checkout() {
 
   return (
     <section className="narrow">
-      {/* Local overrides & CTA color */}
+      
       <style>{`
         .pay-box input[type="radio"],
         .ship-box input[type="checkbox"] { width:auto !important; height:auto !important; }
@@ -136,7 +136,7 @@ export default function Checkout() {
       <h2>Checkout</h2>
 
       <form onSubmit={submit} className="form">
-        {/* Billing / primary address */}
+        
         <label>
           Name
           <input
@@ -189,7 +189,7 @@ export default function Checkout() {
           </label>
         </div>
 
-        {/* Payment Method */}
+       
         <fieldset className="pay-box cardish">
           <legend className="legend-strong">Payment Method</legend>
 
@@ -230,7 +230,7 @@ export default function Checkout() {
           )}
         </fieldset>
 
-        {/* Shipping Address + Order notes */}
+        
         <fieldset className="ship-box cardish">
           <legend className="legend-strong">Shipping Address</legend>
 
@@ -291,13 +291,13 @@ export default function Checkout() {
           </div>
         </fieldset>
 
-        {/* Privacy line */}
+        
         <p style={{ fontSize: 12, opacity: 0.8, marginTop: 12 }}>
           Your personal data will be used to process your order, support your experience
           throughout this website, and for other purposes described in our <b>Privacy policy</b>.
         </p>
 
-        {/* Full-width CTA */}
+        
         <button type="submit" disabled={saving} className="cta-btn">
           {saving ? "Placing…" : "PLACE ORDER"}
         </button>

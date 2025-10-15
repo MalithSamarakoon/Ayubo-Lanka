@@ -1,9 +1,9 @@
 // src/utils/cart.js
-// ✅ Single source of truth for cart (localStorage + tiny event bus)
+
 
 const CART_KEY = "ayubo_cart_v1";
 
-// --- Event bus (mini) ---
+
 const listeners = new Set();
 function emitCartChange() {
   for (const cb of listeners) {

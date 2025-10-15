@@ -72,10 +72,10 @@ const MyAppointments = () => {
 
   useEffect(() => {
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
-  // Delete appointment + cascade receipts
+  
   const deleteAppointment = async (appointmentId) => {
     try {
       const ok = window.confirm(
@@ -136,11 +136,11 @@ const MyAppointments = () => {
         e?.response?.data?.message || "Failed to approve appointment";
       setErr(errorMessage);
       alert(`Error: ${errorMessage}`);
-      fetchAll(); // revert if failed
+      fetchAll(); 
     }
   };
 
-  // Filters
+  
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     let result = appointments || [];
@@ -162,7 +162,7 @@ const MyAppointments = () => {
     return result;
   }, [appointments, q, statusFilter]);
 
-  // Build rows + sorting
+ 
   const rows = useMemo(() => {
     const mappedRows = (filtered || []).map((a) => {
       const recs = receiptsByAppt.get(a._id) || [];

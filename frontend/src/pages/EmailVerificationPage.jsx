@@ -54,7 +54,7 @@ const EmailVerificationPage = () => {
     }
   };
 
-  // Auto submit
+  
   useEffect(() => {
     if (code.every((digit) => digit !== "")) {
       const verificationCode = code.join("");
