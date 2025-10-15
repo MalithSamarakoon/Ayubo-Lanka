@@ -95,7 +95,7 @@ function UserMgt() {
       ],
     ];
 
-    // filter data by role
+   
     const dataToExport = roleFilter
       ? filteredData.filter(
           (u) => (u.role || "").toLowerCase() === roleFilter.toLowerCase()

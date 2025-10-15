@@ -56,7 +56,7 @@ import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
 import Contact from "./pages/Contact";
 
-// -------------------- Route Protection --------------------
+
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -70,7 +70,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
-// -------------------- Error Fallback --------------------
+
 
 function AppErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -117,7 +117,7 @@ function App() {
     "/feedback/review",
   ];
 
-  // Check if current path starts with any of the hidden paths
+ 
   const hideNavbar = hideNavbarPaths.some((path) =>
     location.pathname.startsWith(path.replace(/:.*$/, ""))
   );
