@@ -170,11 +170,11 @@ export const sendRestockNotificationEmail = async (
     console.log(`Restock notification sent for "${productName}" (Stock: ${currentStock}) to ${process.env.SUPPLIER_EMAIL}`);
   } catch (error) {
     console.error(`Error sending restock notification for "${productName}":`, error);
-    // Don't throw - we don't want to fail the order if email fails
+    
   }
 };
 
-// ------------------ Ticket / Inquiry Emails ------------------
+
 
 const wrap = (title, inner) => `
   <div style="font-family:Inter, Arial, sans-serif; line-height:1.6; color:#111827; background:#f8fafc; padding:16px">
@@ -191,7 +191,7 @@ const wrap = (title, inner) => `
   </div>
 `;
 
-// ------------------ Ticket / Inquiry Emails ------------------
+
 export const sendTicketStatusEmail = async (toEmail, name, ticket, status, opts = {}) => {
   try {
     const { attachments = [], links = [] } = opts;
@@ -234,7 +234,7 @@ export const sendTicketStatusEmail = async (toEmail, name, ticket, status, opts 
       to: toEmail,
       subject: `[${ticket.ticketNumber}] ${pretty.head} – AYUBO LANKA`,
       html,
-      attachments, // ✅ attach uploaded files (kept to first 5 by router)
+      attachments, 
     });
   } catch (err) {
     console.error("sendTicketStatusEmail failed:", err.message);
@@ -282,7 +282,7 @@ export const sendInquiryStatusEmail = async (toEmail, name, inquiry, status, opt
       to: toEmail,
       subject: `${pretty.head} – AYUBO LANKA`,
       html,
-      attachments, // ✅ attach uploaded files
+      attachments, 
     });
   } catch (err) {
     console.error("sendInquiryStatusEmail failed:", err.message);
