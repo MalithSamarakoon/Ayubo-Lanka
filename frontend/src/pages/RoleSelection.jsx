@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/frontend_assets/ayur8.jpg";
 
 export default function RoleSelection() {
   const navigate = useNavigate();
@@ -8,22 +9,30 @@ export default function RoleSelection() {
     {
       name: "Doctor",
       color: "from-green-400 to-green-600",
-      path: "/signup/doctor",
+      path: "/doctor-signup",
     },
     {
       name: "Supplier",
       color: "from-green-300 to-green-500",
-      path: "/signup/supplier",
+      path: "/supplier-signup",
     },
     {
       name: "User",
       color: "from-green-200 to-green-400",
-      path: "/signup/user",
+      path: "/signup",
     },
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
+    <div
+              className="min-h-screen w-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+              style={{
+                backgroundImage: `url(${bgImage})`,
+              }}
+            >
+              <div className="absolute inset-0 bg-white/20"></div>
+        
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-white/10 backdrop-blur-2xl rounded-3xl">
       <motion.h1
         className="text-3xl md:text-4xl font-bold mb-12 text-gray-800 text-center"
         initial={{ opacity: 0, y: -30 }}
@@ -51,6 +60,7 @@ export default function RoleSelection() {
           </motion.div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

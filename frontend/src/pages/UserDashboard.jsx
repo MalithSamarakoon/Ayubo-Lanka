@@ -9,7 +9,7 @@ import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
 
 const UserDashboard = () => {
-  const { user: loggedUser } = useAuthStore();
+  const { user: loggedUser, logout } = useAuthStore();
   const [user, setUser] = useState();
   const navigate = useNavigate();
 
@@ -47,13 +47,15 @@ const UserDashboard = () => {
             `http://localhost:5000/api/user/${loggedUser?._id}`
           );
 
+          logout();
+
           Swal.fire(
             "Deleted!",
             "Your account has been deleted successfully.",
             "success"
           );
 
-          navigate("/login");
+          navigate("/");
         } catch (err) {
           console.error("Delete failed:", err);
           Swal.fire(
@@ -97,9 +99,11 @@ const UserDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <center><h1 className="text-lg font-semibold text-green-600 mb-3">
-            Profile Information
-          </h1></center>
+          <center>
+            <h1 className="text-lg font-semibold text-green-600 mb-3">
+              Profile Information
+            </h1>
+          </center>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700">
             <p>
               <span className="font-semibold">Role:</span> {user?.role}

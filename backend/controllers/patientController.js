@@ -1,8 +1,8 @@
-
 import { isValidObjectId } from "mongoose";
 import Patient from "../models/patient.js";
 import Receipt from "../models/Receipt.js"; 
-// CREATE
+import { sendAppointmentApprovedEmail } from "../mailer.js";
+
 export const createPatient = async (req, res) => {
   try {
     const { name, age, phone, email, address, medicalInfo } = req.body;
@@ -11,7 +11,18 @@ export const createPatient = async (req, res) => {
         .status(400)
         .json({ message: "All required fields must be filled." });
     }
+
+
+    const lastPatient = await Patient.findOne().sort({ id: -1 }).lean();
+
+    
+    const nextId =
+      lastPatient && Number.isFinite(lastPatient.id)
+        ? Number(lastPatient.id) + 1
+        : 1000;
+
     const patient = await Patient.create({
+      id: nextId,
       name,
       age,
       phone,
@@ -19,6 +30,7 @@ export const createPatient = async (req, res) => {
       address,
       medicalInfo: medicalInfo || "",
     });
+
     return res.status(201).json(patient);
   } catch (err) {
     console.error("createPatient error:", err);
@@ -26,16 +38,17 @@ export const createPatient = async (req, res) => {
   }
 };
 
-// LIST
 export const getPatients = async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
     const skip = (page - 1) * limit;
+
     const [items, total] = await Promise.all([
       Patient.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
       Patient.countDocuments(),
     ]);
+
     return res.json({ items, total, page, pages: Math.ceil(total / limit) });
   } catch (err) {
     console.error("getPatients error:", err);
@@ -43,19 +56,21 @@ export const getPatients = async (req, res) => {
   }
 };
 
-// READ (numeric id OR ObjectId)
 export const getPatientById = async (req, res) => {
   try {
     const id = req.params.id;
     let patient = null;
+
     if (/^\d+$/.test(id)) {
       patient = await Patient.findOne({ id: Number(id) });
     }
     if (!patient && isValidObjectId(id)) {
       patient = await Patient.findById(id);
     }
-    if (!patient)
+    if (!patient) {
       return res.status(404).json({ message: "Patient not found." });
+    }
+
     return res.json(patient);
   } catch (err) {
     console.error("getPatientById error:", err);
@@ -63,21 +78,37 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-// UPDATE (supports status: 'approved')
 export const updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
+
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
+    const before = await Patient.findOne(query);
+    if (!before) return res.status(404).json({ message: "Patient not found." });
+
     const patient = await Patient.findOneAndUpdate(query, req.body, {
       new: true,
     });
-
     if (!patient)
       return res.status(404).json({ message: "Patient not found." });
+
+    const beforeStatus = String(before.status || "pending").toLowerCase();
+    const afterStatus = String(patient.status || "pending").toLowerCase();
+
+    if (beforeStatus !== "approved" && afterStatus === "approved") {
+      const toEmail = patient.email;
+      const userName = patient.name || "";
+      const bookingId = patient.id;
+
+      if (toEmail) {
+        sendAppointmentApprovedEmail(toEmail, userName, bookingId);
+      }
+    }
+
     return res.json(patient);
   } catch (err) {
     console.error("updatePatient error:", err);
@@ -85,39 +116,53 @@ export const updatePatient = async (req, res) => {
   }
 };
 
-// DELETE (simple delete; if you want cascade receipts, we can add it)
 export const deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
+    const cascade = req.query.cascade === "1" || req.query.cascade === "true";
+
     let query = null;
     if (/^\d+$/.test(id)) query = { id: Number(id) };
     else if (isValidObjectId(id)) query = { _id: id };
     else return res.status(400).json({ message: "Invalid id" });
 
-    const patient = await Patient.findOneAndDelete(query);
-    if (!patient)
+    const patient = await Patient.findOne(query);
+    if (!patient) {
       return res.status(404).json({ message: "Patient not found." });
-    return res.json({ message: "Patient deleted." });
+    }
+
+    if (cascade) {
+      await Receipt.deleteMany({ appointmentId: patient._id });
+      await Receipt.deleteMany({ patientId: patient._id });
+    }
+
+    await Patient.findOneAndDelete(query);
+
+    return res.json({
+      message: `Patient deleted${cascade ? " with associated receipts" : ""}.`,
+      deletedReceipts: cascade,
+    });
   } catch (err) {
     console.error("deletePatient error:", err);
     return res.status(500).json({ message: err.message || "Server error" });
   }
 };
 
-// ADMIN: BOOKING + PAYMENTS (optional single-booking view)
 export const getPatientWithPayments = async (req, res) => {
   try {
     const id = req.params.id;
+
     let patient = null;
     if (/^\d+$/.test(id)) patient = await Patient.findOne({ id: Number(id) });
     else if (isValidObjectId(id)) patient = await Patient.findById(id);
     else return res.status(400).json({ message: "Invalid id" });
 
-    if (!patient)
+    if (!patient) {
       return res.status(404).json({ message: "Patient/booking not found." });
+    }
 
     const payments = await Receipt.find({ appointmentId: patient._id })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 }) 
       .populate("patientId", "name email mobile role");
 
     return res.json({ patient, payments });

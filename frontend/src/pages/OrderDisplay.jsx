@@ -1,4 +1,3 @@
-// frontend/src/pages/OrderDisplay.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 

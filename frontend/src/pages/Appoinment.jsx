@@ -34,7 +34,7 @@ const timeSlots = [
 ];
 
 const Appointment = () => {
-  const { docId } = useParams();
+  const { docId } = useParams();//get doctor id from url
   const navigate = useNavigate();
 
   const [docInfo, setDocInfo] = useState(null);
@@ -44,6 +44,7 @@ const Appointment = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    //async is do this later
     const fetchDoctor = async () => {
       if (!docId) {
         setError("No doctor ID provided");
@@ -55,6 +56,7 @@ const Appointment = () => {
         const res = await axios.get(URL);
         const doctors = res.data?.users || [];
         const doctor = doctors.find(
+          //the current doctor we're checking
           (d) => d._id === docId && d.role?.toLowerCase() === "doctor"
         );
         if (doctor) {
@@ -87,7 +89,7 @@ const Appointment = () => {
       }
     };
     fetchDoctor();
-  }, [docId]);
+  }, [docId]);//only re-run if docId changes
 
   if (isLoading) {
     return (

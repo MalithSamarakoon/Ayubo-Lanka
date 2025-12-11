@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";//HOOKS
 import axios from "axios";
 import {
   RefreshCcw,
@@ -32,14 +32,15 @@ const MyAppointments = () => {
     return r.data?.items || [];
   };
 
+  
   const fetchReceiptsFor = async (appointmentId) => {
     try {
       const r = await axios.get(`${API_BASE}/api/receipts`, {
         params: { appointmentId },
-        withCredentials: true,
+        withCredentials: true,//use to identify user session
       });
       const list = r.data?.items || [];
-      return Array.isArray(list) ? list : [];
+      return Array.isArray(list) ? list : [];//CHECK DATA VALIDITY
     } catch {
       return [];
     }
@@ -104,10 +105,8 @@ const MyAppointments = () => {
     }
   };
 
-  // ✅ Approve (set status=approved) — sync with API response
-  const approveAppointment = async (appointmentId) => {
-    // optimistic UI (instant flip)
-    setAppointments((prev) =>
+ const approveAppointment = async (appointmentId) => {
+  setAppointments((prev) =>
       prev.map((apt) =>
         apt._id === appointmentId ? { ...apt, status: "approved" } : apt
       )
@@ -120,8 +119,7 @@ const MyAppointments = () => {
         { withCredentials: true }
       );
 
-      // sync with server (keeps it correct after any normalization)
-      if (data && data._id) {
+    if (data && data._id) {
         setAppointments((prev) =>
           prev.map((apt) =>
             apt._id === data._id
@@ -236,8 +234,7 @@ const MyAppointments = () => {
     );
   };
 
-  // Status badge (Approved green, Pending amber, Rejected red)
-  const StatusBadge = ({ status }) => {
+ const StatusBadge = ({ status }) => {
     const key = String(status || "pending").toLowerCase();
     const styles = {
       approved: "bg-green-100 text-green-800 border-green-200",

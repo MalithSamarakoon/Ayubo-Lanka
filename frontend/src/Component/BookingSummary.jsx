@@ -8,6 +8,10 @@ const BookingSummary = ({
 
   if (!selectedDay || !selectedTime) return null;
 
+  // ADDED: Extract consultation fee with fallback
+  const consultationFee =
+    docInfo.consultationFee || docInfo.fees || "Not specified";
+
   return (
     <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-8 shadow-sm">
       <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -33,8 +37,10 @@ const BookingSummary = ({
         </div>
         <div className="flex justify-between items-center pt-3 border-t-2 border-gradient-to-r from-green-200 to-emerald-200">
           <span className="font-bold text-black-700">Consultation Fee:</span>
-          <span className="font-bold  text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Rs. {docInfo.fees}.00
+           <span className="font-bold text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            {consultationFee === "Not specified"
+              ? "N/A"
+              : `Rs. ${consultationFee}.00`}
           </span>
         </div>
       </div>

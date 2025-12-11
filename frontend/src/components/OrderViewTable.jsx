@@ -1,7 +1,7 @@
 // frontend/src/components/OrderViewTable.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const fmt = (n) => `Rs. ${Number(n || 0).toLocaleString()}`;
@@ -33,9 +33,10 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
   const saveStatus = async () => {
     if (!hasId) return;
     try {
-      const { data } = await api.patch(`/orders/${order._id}/status`, {
-        status: nextStatus,
-      });
+      const { data } = await axios.patch(
+        `http://localhost:5000/api/orders/${order._id}/status`,
+        { status: nextStatus }
+      );
       if (!data?.success) throw new Error(data?.message || "Update failed");
       const updated = { ...order, status: data.data?.status || nextStatus };
       applyLocal(updated);
@@ -55,9 +56,10 @@ export default function OrderViewTable({ order: initialOrder, onOrderChange }) {
     if (!hasId) return;
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
-      const { data } = await api.patch(`/orders/${order._id}/status`, {
-        status: "REJECTED",
-      });
+      const { data } = await axios.patch(
+        `http://localhost:5000/api/orders/${order._id}/status`,
+        { status: "REJECTED" }
+      );
       if (!data?.success) throw new Error(data?.message || "Cancel failed");
       const updated = { ...order, status: "REJECTED" };
       applyLocal(updated);

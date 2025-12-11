@@ -1,9 +1,15 @@
-// src/App.jsx
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+
 import Navbar from "./Component/Navbar";
+import Footer from "./Component/Fotter";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Chatbot from "./components/Chatbot";
+
+import { useAuthStore } from "./store/authStore";
+
+// Pages
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -14,49 +20,74 @@ import RoleSelection from "./pages/RoleSelection";
 import DoctorSignUpPage from "./pages/DoctorSignUpPage";
 import SupplierSignUpPage from "./pages/SupplierSignUpPage";
 import ApprovalPendingPage from "./pages/ApprovalPendingPage";
-import Doctor from "./pages/Doctor";
+import DoctorPage from "./pages/DoctorPage";
 import Home from "./pages/Home";
-import Appointment from "./pages/Appoinment"; // keep your spelling
+import Collection from "./pages/Collection";
+import Support from "./pages/support";
+import About from "./pages/About";
+import Appointment from "./pages/Appoinment";
 import AdminDashboard from "./pages/AdminDashboard";
+
 import PatientForm from "./pages/PatientForm";
 import PatientDetails from "./pages/PatientDetails";
 import PatientUpdate from "./pages/PatientUpdate";
+import UploadSlip from "./pages/UploadSlip";
 import Onlinepayment from "./pages/Onlinepayment";
-import UserMgt from "./pages/UserMgt";
+
+import ProductDetail from "./pages/ProductDetail";
 import ProductDashboard from "./pages/ProductDashboard";
 import UpdateProduct from "./pages/UpdateProduct";
+
+import UserMgt from "./pages/UserMgt";
 import UpdateUser from "./pages/UpdateUser";
-import UploadSlip from "./pages/UploadSlip";
 import CheckAppoinments from "./pages/CheckAppoinments";
 import MyAppoinment from "./pages/MyAppoinment";
-import Footer from "./Component/Fotter";
-import Collection from "./pages/Collection";
-import ProductDetail from "./pages/ProductDetail";
+import AdminSupportCenter from "./pages/AdminSupportCenter";
+
+import TicketReview from "./pages/TicketReview";
+import SupportReview from "./pages/SupportReview";
+import FeedbackReview from "./pages/FeedbackReview";
+
 import OrderForm from "./pages/OrderForm";
 import OrdersList from "./pages/OrdersList";
 import Cart from "./pages/Cart";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderDisplay from "./pages/OrderDisplay";
 import OrdersupdateUser from "./pages/OrdersupdateUser";
-import { useAuthStore } from "./store/authStore";
+import Contact from "./pages/Contact";
 
-// ---------- Auth Guards ----------
+// -------------------- Route Protection --------------------
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
   return children;
 };
 
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.isVerified) return <Navigate to="/home" replace />;
+  if (isAuthenticated && user?.isVerified)
+    return <Navigate to="/home" replace />;
   return children;
 };
 
-// ---------- Main App ----------
+// -------------------- Error Fallback --------------------
+
+function AppErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div style={{ padding: 16 }}>
+      <h2>Something went wrong</h2>
+      <pre style={{ whiteSpace: "pre-wrap" }}>
+        {error?.stack || String(error)}
+      </pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
+}
+
+// -------------------- Main App --------------------
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
+  const location = useLocation();
 
   useEffect(() => {
     checkAuth();
@@ -64,21 +95,51 @@ function App() {
 
   if (isCheckingAuth) return <LoadingSpinner />;
 
+  const hideNavbarPaths = [
+    "/login",
+    "/signup",
+    "/role-selection",
+    "/doctor-signup",
+    "/supplier-signup",
+    "/verify-email",
+    "/forgot-password",
+    "/reset-password",
+    "/approval-pending",
+    "/admin-dashboard",
+    "/user-management",
+    "/dashboard/",
+    "/product-dashboard",
+    "/update-product",
+    "/CheckAppoinments",
+    "/admin/support-center",
+    "/tickets/review",
+    "/support/review",
+    "/feedback/review",
+  ];
+
+  // Check if current path starts with any of the hidden paths
+  const hideNavbar = hideNavbarPaths.some((path) =>
+    location.pathname.startsWith(path.replace(/:.*$/, ""))
+  );
+
   return (
     <div className="min-h-screen w-full bg-white relative">
-      <Navbar />
+      {!hideNavbar && <Navbar />}
 
       <div className="flex flex-col w-full items-center justify-center min-h-screen px-4">
         <Routes>
-          {/* Auth entry */}
-          <Route
-            path="/"
-            element={
-              <RedirectAuthenticatedUser>
-                <LoginPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
+          {/* ---------- Public Routes ---------- */}
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/Contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/doctor" element={<DoctorPage />} />
+          <Route path="/doctor/:docId" element={<Appointment />} />
+
+          {/* ---------- Auth Routes ---------- */}
           <Route
             path="/login"
             element={
@@ -87,23 +148,58 @@ function App() {
               </RedirectAuthenticatedUser>
             }
           />
-
-          {/* Public browse pages */}
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/doctor" element={<Doctor />} />
-
-          {/* Home (protected after login) */}
           <Route
-            path="/home"
+            path="/signup"
             element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
+              <RedirectAuthenticatedUser>
+                <SignUpPage />
+              </RedirectAuthenticatedUser>
             }
           />
+          <Route
+            path="/role-selection"
+            element={
+              <RedirectAuthenticatedUser>
+                <RoleSelection />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/doctor-signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <DoctorSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/supplier-signup"
+            element={
+              <RedirectAuthenticatedUser>
+                <SupplierSignUpPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPasswordPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
 
-          {/* Dashboards */}
+          {/* ---------- Protected Dashboards ---------- */}
           <Route
             path="/dashboard"
             element={
@@ -137,7 +233,7 @@ function App() {
             }
           />
 
-          {/* Products */}
+          {/* ---------- Product Management ---------- */}
           <Route
             path="/product-dashboard"
             element={
@@ -155,7 +251,7 @@ function App() {
             }
           />
 
-          {/* -------- Orders & Payments -------- */}
+          {/* ---------- Orders & Payments ---------- */}
           <Route
             path="/order-form"
             element={
@@ -196,72 +292,10 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Payment success page (public) */}
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/cart" element={<Cart />} />
 
-          {/* Role Selection & Signups */}
-          <Route
-            path="/signup"
-            element={
-              <RedirectAuthenticatedUser>
-                <RoleSelection />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/signup/user"
-            element={
-              <RedirectAuthenticatedUser>
-                <SignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/signup/doctor"
-            element={
-              <RedirectAuthenticatedUser>
-                <DoctorSignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/signup/supplier"
-            element={
-              <RedirectAuthenticatedUser>
-                <SupplierSignUpPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-
-          {/* Auth helpers */}
-          <Route path="/verify-email" element={<EmailVerificationPage />} />
-          <Route
-            path="/forgot-password"
-            element={
-              <RedirectAuthenticatedUser>
-                <ForgotPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/reset-password/:token"
-            element={
-              <RedirectAuthenticatedUser>
-                <ResetPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route path="/approval-pending" element={<ApprovalPendingPage />} />
-
-          {/* Doctor appointment & patient routes */}
-          <Route
-            path="/doctor/:docId"
-            element={
-              <ProtectedRoute>
-                <Appointment />
-              </ProtectedRoute>
-            }
-          />
+          {/* ---------- Doctor Booking ---------- */}
           <Route
             path="/doctor/:docId/book/patientform"
             element={
@@ -295,7 +329,7 @@ function App() {
             }
           />
 
-          {/* Appointment overviews */}
+          {/* ---------- Appointment Lists ---------- */}
           <Route
             path="/CheckAppoinments"
             element={
@@ -313,16 +347,26 @@ function App() {
             }
           />
 
-          {/* Cart (usually public) */}
-          <Route path="/cart" element={<Cart />} />
+          {/* ---------- Support & Reviews ---------- */}
+          <Route
+            path="/admin/support-center"
+            element={
+              <ProtectedRoute>
+                <AdminSupportCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/tickets/review/:id" element={<TicketReview />} />
+          <Route path="/support/review/:id" element={<SupportReview />} />
+          <Route path="/feedback/review/:id" element={<FeedbackReview />} />
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Chatbot />
       </div>
 
       <Toaster position="top-right" />
-      <Footer />
+      {!hideNavbar && <Footer />}
     </div>
   );
 }

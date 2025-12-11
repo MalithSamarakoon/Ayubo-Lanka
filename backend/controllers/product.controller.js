@@ -1,42 +1,311 @@
 import ayurvedicProduct from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const saveBase64ToLocal = async (dataUri) => {
+  try {
+    if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
+    const [meta, base64] = dataUri.split(',');
+    if (!base64) return null;
+    const mimeMatch = /data:(.*?);base64/.exec(meta || '');
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const ext = mime === 'image/jpeg' || mime === 'image/jpg' ? '.jpg'
+              : mime === 'image/gif' ? '.gif'
+              : mime === 'image/webp' ? '.webp'
+              : '.png';
+    const buf = Buffer.from(base64, 'base64');
+    const uploadDir = path.join(__dirname, '..', 'uploads', 'products');
+    await fs.promises.mkdir(uploadDir, { recursive: true });
+    const filename = `prod-${Date.now()}-${Math.round(Math.random()*1e6)}${ext}`;
+    const abs = path.join(uploadDir, filename);
+    await fs.promises.writeFile(abs, buf);
+    // return public path served by server static
+    return `/uploads/products/${filename}`;
+  } catch (e) {
+    console.error('Local save failed:', e?.message || e);
+    return null;
+  }
+};
+
+
+const validateProductData = (data) => {
+  const errors = [];
+  
+  if (!data.name || data.name.trim().length < 2) {
+    errors.push("Product name must be at least 2 characters");
+  }
+  
+  if (!data.description || data.description.trim().length < 10) {
+    errors.push("Description must be at least 10 characters");
+  }
+  
+  if (!data.category) {
+    errors.push("Category is required");
+  }
+  
+  const price = Number(data.price);
+  if (isNaN(price) || price < 0) {
+    errors.push("Price must be a valid positive number");
+  }
+  
+  const stock = Number(data.stock);
+  if (isNaN(stock) || stock < 0 || !Number.isInteger(stock)) {
+    errors.push("Stock must be a valid non-negative integer");
+  }
+  
+  const minimumStock = Number(data.minimumStock);
+  if (isNaN(minimumStock) || minimumStock < 0 || !Number.isInteger(minimumStock)) {
+    errors.push("Minimum stock must be a valid non-negative integer");
+  }
+  
+  if (minimumStock > stock) {
+    errors.push("Minimum stock cannot be greater than current stock");
+  }
+  
+  return errors;
+};
+
+const validateObjectId = (id) => {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+};
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("req.body:", req.body);
-    const { name, description, category, price, stock, minimumStock, image, isFeatured } =
-      req.body; //getting required information from request.
+    const { name, description, category, price, stock, minimumStock, image, isFeatured } = req.body;
+
+    
+    const validationErrors = validateProductData(req.body);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validationErrors
+      });
+    }
+
+    if (!image) {
+      return res.status(400).json({
+        message: "Product image is required"
+      });
+    }
 
     let cloudinaryResponse = null;
-
-    if (image) {
+    try {
       cloudinaryResponse = await cloudinary.uploader.upload(image, {
         folder: "products",
+      });
+    } catch (uploadError) {
+      return res.status(400).json({
+        message: "Image upload failed",
+        error: uploadError.message
       });
     }
 
     const saveProduct = {
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       category,
-      price : price ? Number(price) : 0,
-      stock : stock ? Number(stock) : 0,
-      minimumStock : minimumStock ? Number(minimumStock) : 0,
-      image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
-      isFeatured: isFeatured ? Boolean(isFeatured) : false,
-    }
+      price: Number(price),
+      stock: Number(stock),
+      minimumStock: Number(minimumStock),
+      image: cloudinaryResponse.secure_url,
+      isFeatured: Boolean(isFeatured),
+    };
 
     const product = await ayurvedicProduct.create(saveProduct);
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product,
-    });
+    res.status(201).json({ message: 'Product created successfully', product });
   } catch (error) {
     console.error("Error creating product:", error);
+    
+   
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validationErrors
+      });
+    }
+    
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    
+    if (!validateObjectId(id)) {
+      return res.status(400).json({ 
+        message: "Invalid product ID format" 
+      });
+    }
+    
+    const product = await ayurvedicProduct.findById(id);
+    
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    
+    res.status(200).json({
+      message: "Product retrieved successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      description,
+      category,
+      price,
+      stock,
+      minimumStock,
+      image,
+      isFeatured,
+    } = req.body;
+
+    
+    const existingProduct = await ayurvedicProduct.findById(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    let imageUrl = existingProduct.image; 
+
+    
+    if (image) {
+      
+      if (existingProduct.image) {
+        const publicId = existingProduct.image.split("/").pop().split(".")[0]; 
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log("Old image deleted from Cloudinary");
+        } catch (error) {
+          console.log(
+            "Error deleting old image from Cloudinary:",
+            error.message
+          );
+        }
+      }
+
+     
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+          folder: "products",
+        });
+        imageUrl = cloudinaryResponse.secure_url;
+        console.log("New image uploaded to Cloudinary");
+      } catch (error) {
+        console.error("Error uploading new image to Cloudinary:", error);
+        return res.status(500).json({ message: "Error uploading image" });
+      }
+    }
+
+    
+    const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        category,
+        price: price ? Number(price) : 0,
+        stock: stock ? Number(stock) : 0,
+        minimumStock: minimumStock ? Number(minimumStock) : 0,
+        image: imageUrl,
+        isFeatured,
+      },
+      { new: true } 
+    );
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const toggleFeaturedProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    
+    if (!validateObjectId(id)) {
+      return res.status(400).json({ 
+        message: "Invalid product ID format" 
+      });
+    }
+    
+    const product = await ayurvedicProduct.findById(id);
+    if (product) {
+      product.isFeatured = !product.isFeatured;
+      const updatedProduct = await product.save();
+      
+      res.json({ updatedProduct });
+    } else {
+      res.status(404).json({ message: "Product not found" });
+    }
+  } catch (error) {
+    console.log("Error in toggleFeaturedProduct controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    
+    if (!validateObjectId(id)) {
+      return res.status(400).json({ 
+        message: "Invalid product ID format" 
+      });
+    }
+    
+    const product = await ayurvedicProduct.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.image) {
+      
+      const publicId = product.image.split("/").pop().split(".")[0];
+      try {
+        await cloudinary.uploader.destroy(`products/${publicId}`);
+        console.log("Image deleted from Cloudinary");
+      } catch (error) {
+        console.log("Error deleting image from Cloudinary", error.message);
+      }
+    }
+
+    await ayurvedicProduct.findByIdAndDelete(id);
+    
+    res.status(200).json({ 
+      message: "Product deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -65,146 +334,34 @@ export const getFeaturedProducts = async (req, res) => {
   }
 };
 
-export const getProductById = async (req, res) => {
+// Get product category statistics
+export const getCategoryStats = async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    const product = await ayurvedicProduct.findById(id);
-    
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    
-    res.status(200).json({
-      message: "Product retrieved successfully",
-      product,
+    // Use MongoDB aggregation to group products by category and count them
+    const rows = await ayurvedicProduct.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    // Initialize stats object with all categories set to 0
+    const stats = {
+      Kasthausadhi: 0,
+      Rasaushadhi: 0,
+      Jangama: 0,
+      Kwatha: 0,
+      Kalka: 0
+    };
+
+    // Populate stats with actual counts from database
+    rows.forEach(r => {
+      if (stats.hasOwnProperty(r._id)) {
+        stats[r._id] = r.count;
+      }
     });
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ message: "Internal server error" });
+
+    return res.json({ ok: true, stats });
+  } catch (err) {
+    console.error("Error fetching category stats:", err);
+    return res.status(500).json({ ok: false, message: "Failed to fetch category stats" });
   }
 };
 
-
-export const toggleFeaturedProduct = async (req, res) => {
-	try {
-		const product = await ayurvedicProduct.findById(req.params.id);
-		if (product) {
-			product.isFeatured = !product.isFeatured;
-			const updatedProduct = await product.save();
-			
-			res.json({ updatedProduct });
-		} else {
-			res.status(404).json({ message: "Product not found" });
-		}
-	} catch (error) {
-		console.log("Error in toggleFeaturedProduct controller", error.message);
-		res.status(500).json({ message: "Server error", error: error.message });
-	}
-};
-
-
-export const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      name,
-      description,
-      category,
-      price,
-      stock,
-      minimumStock,
-      image,
-      isFeatured,
-    } = req.body;
-
-    // First, find the existing product
-    const existingProduct = await ayurvedicProduct.findById(id);
-
-    if (!existingProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    let imageUrl = existingProduct.image; // Keep existing image by default
-
-    // Handle image update if a new image is provided
-    if (image) {
-      // Delete the old image from Cloudinary if it exists
-      if (existingProduct.image) {
-        const publicId = existingProduct.image.split("/").pop().split(".")[0]; // Extract public ID from URL
-        try {
-          await cloudinary.uploader.destroy(`products/${publicId}`);
-          console.log("Old image deleted from Cloudinary");
-        } catch (error) {
-          console.log(
-            "Error deleting old image from Cloudinary:",
-            error.message
-          );
-        }
-      }
-
-      // Upload the new image to Cloudinary
-      try {
-        const cloudinaryResponse = await cloudinary.uploader.upload(image, {
-          folder: "products",
-        });
-        imageUrl = cloudinaryResponse.secure_url;
-        console.log("New image uploaded to Cloudinary");
-      } catch (error) {
-        console.error("Error uploading new image to Cloudinary:", error);
-        return res.status(500).json({ message: "Error uploading image" });
-      }
-    }
-
-    // Update the product with the new data
-    const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
-      id,
-      {
-        name,
-        description,
-        category,
-        price: price ? Number(price) : 0,
-        stock: stock ? Number(stock) : 0,
-        minimumStock: minimumStock ? Number(minimumStock) : 0,
-        image: imageUrl,
-        isFeatured,
-      },
-      { new: true } // Return the updated document
-    );
-
-    res.status(200).json({
-      message: "Product updated successfully",
-      product: updatedProduct,
-    });
-  } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-
-export const deleteProduct = async (req, res) => {
-  try {
-    const product = await ayurvedicProduct.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    if (product.image) {
-      //Delete image from cloudinary
-      const publicId = product.image.split("/").pop().split(".")[0]; // Extract public ID from URL
-      try {
-        await cloudinary.uploader.destroy(`products/${publicId}`);
-        console.log("Image deleted from Cloudinary");
-      } catch (error) {
-        console.log("Error deleting image from Cloudinary", error.message);
-      }
-    }
-
-    await ayurvedicProduct.findByIdAndDelete(req.params.id);
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};

@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import ayurvedicProduct from "../models/product.model.js";
+import { sendRestockNotificationEmail } from "../mailer.js";
 
 // POST /api/orders
 export const createOrder = async (req, res) => {
@@ -35,6 +37,53 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing payment method" });
     }
 
+    // Validate items exist
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "No items in order" });
+    }
+
+    // Check stock availability for all items first (before any updates)
+    for (const item of items) {
+      const product = await ayurvedicProduct.findById(item.id || item._id);
+      
+      if (!product) {
+        return res.status(404).json({ 
+          success: false, 
+          message: `Product "${item.name}" not found in inventory` 
+        });
+      }
+      
+      if (product.stock < item.qty) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Insufficient stock for "${product.name}". Available: ${product.stock}, Requested: ${item.qty}` 
+        });
+      }
+    }
+
+    // If all stock checks pass, then decrement stock
+    for (const item of items) {
+      const updatedProduct = await ayurvedicProduct.findByIdAndUpdate(
+        item.id || item._id,
+        { $inc: { stock: -item.qty } },
+        { new: true }
+      );
+
+      // Check if stock has fallen to or below minimum threshold
+      if (updatedProduct && updatedProduct.stock <= updatedProduct.minimumStock) {
+        // Send restock notification email asynchronously (don't wait for it)
+        sendRestockNotificationEmail(
+          updatedProduct.name,
+          updatedProduct.stock,
+          updatedProduct.minimumStock,
+          updatedProduct._id.toString()
+        ).catch(err => {
+          // Log error but don't interrupt the order process
+          console.error(`Failed to send restock email for ${updatedProduct.name}:`, err.message);
+        });
+      }
+    }
+
     const order = await Order.create({
       items: items || [],
       shipping,
@@ -66,7 +115,7 @@ export const updateOrder = async (req, res) => {
         ...(payment || {}),
         method: "BANK_SLIP",
         slipFileName: req.file.filename,
-        slipUrl: `${req.protocol}://${req.get("host")}/uploads/slips/${req.file.filename}`,
+        slipUrl: `${req.protocol}://${req.get("host")}/uploads/receipts/${req.file.filename}`,
       };
     }
 
@@ -134,8 +183,19 @@ export const getOrder = async (req, res) => {
 // DELETE /api/orders/:id
 export const deleteOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    
+    // Restore stock when order is deleted/cancelled
+    for (const item of order.items) {
+      await ayurvedicProduct.findByIdAndUpdate(
+        item.id,
+        { $inc: { stock: item.qty } }, // Add back the quantity
+        { new: true }
+      );
+    }
+    
+    await Order.findByIdAndDelete(req.params.id);
     return res.json({ success: true });
   } catch (err) {
     console.error("deleteOrder error:", err);
@@ -152,8 +212,24 @@ export const updateStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid status" });
     }
 
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    // Get the current order first to check its current status
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // If changing to REJECTED and wasn't already REJECTED, restore stock
+    if (status === "REJECTED" && order.status !== "REJECTED") {
+      for (const item of order.items) {
+        await ayurvedicProduct.findByIdAndUpdate(
+          item.id,
+          { $inc: { stock: item.qty } },  // Add back the quantity
+          { new: true }
+        );
+      }
+    }
+
+    // Update the order status
+    order.status = status;
+    await order.save();
 
     return res.json({ success: true, data: order });
   } catch (err) {

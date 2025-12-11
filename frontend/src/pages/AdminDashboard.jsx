@@ -1,10 +1,9 @@
-import React from "react";
+// frontend/src/pages/AdminDashboard.jsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -13,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useAuthStore } from "../store/authStore";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -31,12 +31,18 @@ function AdminDashboard() {
     supplier: 0,
   });
 
+  const [categoryStats, setCategoryStats] = useState({
+    Kasthausadhi: 0,
+    Rasaushadhi: 0,
+    Jangama: 0,
+    Kwatha: 0,
+    Kalka: 0,
+  });
+
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/user/role-stats"
-        );
+        const res = await axios.get("http://localhost:5000/api/user/role-stats");
         const s = res.data?.stats || {};
         setRoleStats({
           user: s.user || 0,
@@ -50,16 +56,47 @@ function AdminDashboard() {
     load();
   }, []);
 
+  useEffect(() => {
+    const loadCategoryStats = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/products/category-stats"
+        );
+        const s = res.data?.stats || {};
+        setCategoryStats({
+          Kasthausadhi: s.Kasthausadhi || 0,
+          Rasaushadhi: s.Rasaushadhi || 0,
+          Jangama: s.Jangama || 0,
+          Kwatha: s.Kwatha || 0,
+          Kalka: s.Kalka || 0,
+        });
+      } catch (e) {
+        console.error("Failed to load category stats", e);
+      }
+    };
+    loadCategoryStats();
+  }, []);
+
   const pieData = [
     { name: "Users", value: roleStats.user },
     { name: "Doctors", value: roleStats.doctor },
     { name: "Suppliers", value: roleStats.supplier },
   ];
 
+  const categoryPieData = [
+    { name: "Kasthausadhi", value: categoryStats.Kasthausadhi },
+    { name: "Rasaushadhi", value: categoryStats.Rasaushadhi },
+    { name: "Jangama", value: categoryStats.Jangama },
+    { name: "Kwatha", value: categoryStats.Kwatha },
+    { name: "Kalka", value: categoryStats.Kalka },
+  ];
+
   const COLORS = ["#10B981", "#3B82F6", "#F59E0B"];
+  const CATEGORY_COLORS = ["#8B5CF6", "#EC4899", "#F59E0B", "#10B981", "#3B82F6"];
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-300 flex">
+      {/* LEFT SIDEBAR */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -102,7 +139,7 @@ function AdminDashboard() {
               Orders
             </motion.button>
 
-            {/* FIXED: correct route to match App.jsx */}
+            {/* correct route to match App.jsx */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -111,6 +148,17 @@ function AdminDashboard() {
                 rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
             >
               Appointments
+            </motion.button>
+
+            {/* NEW: Support & Inquiries hub */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleNavigation("/admin/support-center")}
+              className="py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 
+                rounded-xl shadow-lg text-white font-semibold hover:shadow-2xl transition"
+            >
+              Support & Inquiries
             </motion.button>
           </div>
         </div>
@@ -128,6 +176,7 @@ function AdminDashboard() {
         </motion.button>
       </motion.div>
 
+      {/* RIGHT CONTENT */}
       <div className="flex-1 p-10 overflow-y-auto">
         <center><h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-transparent bg-clip-text drop-shadow-md">
           Welcome, Admin
@@ -200,9 +249,67 @@ function AdminDashboard() {
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
               Inventory Status
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-4">
               Track stock, suppliers, and update product details.
             </p>
+
+            <div className="w-full" style={{ height: 260 }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={categoryPieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  >
+                    {categoryPieData.map((entry, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-4 grid grid-cols-5 gap-2 text-center">
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kasthausadhi</div>
+                <div className="text-lg font-bold text-purple-600">
+                  {categoryStats.Kasthausadhi}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Rasaushadhi</div>
+                <div className="text-lg font-bold text-pink-600">
+                  {categoryStats.Rasaushadhi}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Jangama</div>
+                <div className="text-lg font-bold text-amber-600">
+                  {categoryStats.Jangama}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kwatha</div>
+                <div className="text-lg font-bold text-emerald-600">
+                  {categoryStats.Kwatha}
+                </div>
+              </div>
+              <div className="bg-white/40 rounded-lg p-2">
+                <div className="text-xs text-gray-600">Kalka</div>
+                <div className="text-lg font-bold text-blue-600">
+                  {categoryStats.Kalka}
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div

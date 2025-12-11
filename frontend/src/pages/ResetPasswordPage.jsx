@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { Lock } from "lucide-react";
 import { toast } from "react-hot-toast";
+import bgImage from "../assets/frontend_assets/ayur8.jpg";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -53,6 +54,14 @@ const ResetPasswordPage = () => {
   };
 
   return (
+    <div
+          className="min-h-screen w-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+          style={{
+            backgroundImage: `url(${bgImage})`,
+          }}
+        >
+          <div className="absolute inset-0 bg-white/20"></div>
+    
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -113,6 +122,7 @@ const ResetPasswordPage = () => {
         </form>
       </div>
     </motion.div>
+    </div>
   );
 };
 
