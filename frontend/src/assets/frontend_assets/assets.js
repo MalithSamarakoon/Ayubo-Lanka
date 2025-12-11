@@ -1,24 +1,3 @@
-
-
-
-// Import doctorimages
-
-import doc1 from "../Doctor_list_image/doc1.png";
-import doc2 from "../Doctor_list_image/doc2.png";
-import doc3 from "../Doctor_list_image/doc3.png";
-import doc4 from "../Doctor_list_image/doc4.png";
-import doc5 from "../Doctor_list_image/doc5.png";
-import doc6 from "../Doctor_list_image/doc6.png";
-import doc7 from "../Doctor_list_image/doc7.png";
-import doc8 from "../Doctor_list_image/doc8.png";
-import doc9 from "../Doctor_list_image/doc9.png";
-import doc10 from "../Doctor_list_image/doc10.png";
-import doc11 from "../Doctor_list_image/doc11.png";
-import doc12 from "../Doctor_list_image/doc12.png";
-import doc13 from "../Doctor_list_image/doc13.png";
-import doc14 from "../Doctor_list_image/doc14.png";
-import doc15 from "../Doctor_list_image/doc15.png";
-
 import logo from './logo.PNG'
 import hero_img from './hero_img.jpg'
 import cart_icon from './cart_icon.png'
