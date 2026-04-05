@@ -1,5 +1,5 @@
 import Patient from "../models/patient.js";
-
+dsfdsfd
 // Create patient
 export const createPatient = async (req, res) => {
   try {
